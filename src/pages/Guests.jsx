@@ -49,7 +49,6 @@ export default function Guests() {
   const [showIplanImport, setShowIplanImport] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingGuest, setEditingGuest] = useState(null);
-  const [isImporting, setIsImporting] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [editingConfirmed, setEditingConfirmed] = useState(null); // { guestId, value }
   const [wiwiPreview, setWiwiPreview] = useState(null); // list of {guest, newStatus, oldStatus}
@@ -434,60 +433,6 @@ export default function Guests() {
     XLSX.writeFile(wb, 'iplan_export.xlsx');
   };
 
-  const handleImportCSV = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsImporting(true);
-    try {
-      alert('מעלה קובץ...');
-      const uploadResult = await base44.integrations.Core.UploadFile({ file });
-      
-      alert('מעבד את הנתונים...');
-      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url: uploadResult.file_url,
-        json_schema: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              first_name: { type: 'string' },
-              last_name: { type: 'string' },
-              phone: { type: 'string' },
-              side: { type: 'string' },
-              relationship: { type: 'string' },
-              status: { type: 'string' },
-              total_people: { type: 'number' },
-              notes: { type: 'string' }
-            },
-            required: ['first_name', 'last_name', 'side']
-          }
-        }
-      });
-
-      if (result.status === 'success' && result.output) {
-        alert('שומר מוזמנים...');
-        const guestsToImport = result.output.map(g => ({
-          ...g,
-          wedding_id: activeWeddingId,
-          total_people: g.total_people || 1
-        }));
-        
-        await base44.entities.Guest.bulkCreate(guestsToImport);
-        queryClient.invalidateQueries(['guests']);
-        alert(`✅ ${guestsToImport.length} מוזמנים יובאו בהצלחה!`);
-      } else {
-        alert('❌ שגיאה: ' + (result.details || 'לא ניתן לעבד את הקובץ'));
-      }
-    } catch (error) {
-      console.error('Import error:', error);
-      alert('❌ שגיאה בייבוא: ' + (error.message || 'אנא נסה שוב'));
-    } finally {
-      setIsImporting(false);
-      e.target.value = '';
-    }
-  };
-
   // Extract unique values from data
   const uniqueStatuses = [...new Set(visibleGuests.map(g => g.status).filter(Boolean))];
   const uniqueSides = [...new Set(visibleGuests.map(g => g.side).filter(Boolean))];
@@ -534,7 +479,6 @@ export default function Guests() {
         </div>
         <div className="flex gap-2 items-center">
           {/* Hidden file inputs */}
-          <input id="csvImport" type="file" accept=".csv" onChange={handleImportCSV} className="hidden" />
           <input id="wiwiImport" type="file" accept=".xlsx,.xls,.csv" onChange={handleWiwiUpload} className="hidden" />
 
           {/* Actions dropdown */}
@@ -557,10 +501,6 @@ export default function Guests() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuLabel>CSV</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => document.getElementById('csvImport').click()} disabled={isImporting}>
-                <Upload className="w-4 h-4 ml-2" />
-                {isImporting ? 'מייבא...' : 'ייבוא CSV'}
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleExportCSV}>
                 <Download className="w-4 h-4 ml-2" />
                 {selectedGuestIds.size > 0 ? `ייצוא נבחרים (${selectedGuestIds.size})` : 'ייצוא CSV'}

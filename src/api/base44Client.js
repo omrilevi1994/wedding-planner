@@ -115,11 +115,6 @@ const integrations = {
       const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
       return { file_url: data.publicUrl };
     },
-    async ExtractDataFromUploadedFile(payload) {
-      const { data, error } = await supabase.functions.invoke('extractGuestData', { body: payload });
-      if (error) throw error;
-      return data;
-    },
   },
 };
 
