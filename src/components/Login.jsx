@@ -6,6 +6,8 @@ import { base44 } from '@/api/base44Client';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [mode, setMode] = useState('signin');
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -14,10 +16,14 @@ export default function Login() {
     setBusy(true);
     setError(null);
     try {
-      await base44.auth.signInWithPassword({ email, password });
+      if (mode === 'signup') {
+        await base44.auth.signUp({ email, password, full_name: fullName });
+      } else {
+        await base44.auth.signInWithPassword({ email, password });
+      }
       // AuthContext's onAuthStateChange picks up the new session and re-renders.
     } catch (err) {
-      setError(err?.message || 'ההתחברות נכשלה');
+      setError(err?.message || 'שגיאה');
       setBusy(false);
     }
   };
@@ -34,10 +40,17 @@ export default function Login() {
   return (
     <div dir="rtl" className="fixed inset-0 flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-        <h1 className="text-2xl font-bold text-slate-800 text-center mb-1">כניסה למערכת</h1>
+        <h1 className="text-2xl font-bold text-slate-800 text-center mb-1">
+          {mode === 'signup' ? 'הרשמה למערכת' : 'כניסה למערכת'}
+        </h1>
         <p className="text-sm text-slate-500 text-center mb-6">ניהול החתונה</p>
 
         <form onSubmit={submit} className="space-y-3">
+          {mode === 'signup' && (
+            <input required value={fullName} onChange={e => setFullName(e.target.value)}
+              placeholder="שם מלא"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-right" />
+          )}
           <input
             type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
             placeholder="אימייל"
@@ -53,7 +66,7 @@ export default function Login() {
             type="submit" disabled={busy}
             className="w-full py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-700 disabled:opacity-50"
           >
-            {busy ? 'מתחבר…' : 'התחברות'}
+            {busy ? (mode === 'signup' ? 'נרשם…' : 'מתחבר…') : (mode === 'signup' ? 'הרשמה' : 'התחברות')}
           </button>
         </form>
 
@@ -68,6 +81,11 @@ export default function Login() {
           className="w-full py-2 border border-slate-200 rounded-lg font-medium text-slate-700 hover:bg-slate-50"
         >
           התחברות עם Google
+        </button>
+
+        <button type="button" onClick={() => setMode(mode === 'signup' ? 'signin' : 'signup')}
+          className="w-full text-sm text-slate-500 mt-2">
+          {mode === 'signup' ? 'כבר יש לי חשבון' : 'אין לי חשבון — הרשמה'}
         </button>
       </div>
     </div>
