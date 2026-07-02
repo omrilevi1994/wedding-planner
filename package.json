@@ -16,6 +16,7 @@
     "functions:serve": "supabase functions serve --no-verify-jwt",
     "data:pull": "node scripts/pull-base44.mjs",
     "data:import": "node scripts/import-to-supabase.mjs",
+    "data:backfill": "node scripts/backfill-multitenant.mjs",
     "test:unit": "vitest run tests/unit",
     "test:int": "vitest run tests/integration"
   },
