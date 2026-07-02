@@ -1,0 +1,61 @@
+{
+  "name": "ChecklistGroup",
+  "type": "object",
+  "properties": {
+    "wedding_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05d7\u05ea\u05d5\u05e0\u05d4"
+    },
+    "title": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05e7\u05d1\u05d5\u05e6\u05d4"
+    },
+    "order": {
+      "type": "number",
+      "description": "\u05e1\u05d3\u05e8 \u05d4\u05e7\u05d1\u05d5\u05e6\u05d4"
+    }
+  },
+  "required": [
+    "title",
+    "order"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.wedding_id": "{{user.data.wedding_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.wedding_id": "{{user.data.wedding_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.wedding_id": "{{user.data.wedding_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

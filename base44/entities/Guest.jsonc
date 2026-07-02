@@ -1,0 +1,130 @@
+{
+  "name": "Guest",
+  "type": "object",
+  "properties": {
+    "wedding_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05d7\u05ea\u05d5\u05e0\u05d4"
+    },
+    "first_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05e4\u05e8\u05d8\u05d9"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05e9\u05e4\u05d7\u05d4"
+    },
+    "phone": {
+      "type": "string",
+      "description": "\u05d8\u05dc\u05e4\u05d5\u05df"
+    },
+    "side": {
+      "type": "string",
+      "enum": [
+        "\u05d7\u05ea\u05df",
+        "\u05d7\u05ea\u05df - \u05d0\u05d1\u05d0",
+        "\u05d7\u05ea\u05df - \u05d0\u05de\u05d0",
+        "\u05db\u05dc\u05d4",
+        "\u05db\u05dc\u05d4 - \u05d0\u05d1\u05d0",
+        "\u05db\u05dc\u05d4 - \u05d0\u05de\u05d0",
+        "\u05de\u05e9\u05d5\u05ea\u05e3"
+      ],
+      "description": "\u05e6\u05d3"
+    },
+    "relationship": {
+      "type": "string",
+      "enum": [
+        "\u05de\u05e9\u05e4\u05d7\u05d4",
+        "\u05d7\u05d1\u05e8\u05d9\u05dd",
+        "\u05e2\u05d1\u05d5\u05d3\u05d4",
+        "\u05dc\u05d9\u05de\u05d5\u05d3\u05d9\u05dd",
+        "\u05e9\u05db\u05e0\u05d9\u05dd",
+        "\u05d0\u05d7\u05e8"
+      ],
+      "description": "\u05e7\u05e8\u05d1\u05d4"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "\u05d4\u05d5\u05d6\u05de\u05df",
+        "\u05d0\u05d9\u05e9\u05e8",
+        "\u05d0\u05d5\u05dc\u05d9",
+        "\u05dc\u05d0 \u05de\u05d2\u05d9\u05e2",
+        "\u05d4\u05d2\u05d9\u05e2"
+      ],
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d4\u05d6\u05de\u05e0\u05d4"
+    },
+    "total_people": {
+      "type": "number",
+      "default": 1,
+      "minimum": 1,
+      "description": "\u05e1\u05da \u05d4\u05db\u05dc \u05d0\u05e0\u05e9\u05d9\u05dd"
+    },
+    "confirmed_people": {
+      "type": "number",
+      "minimum": 0,
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d0\u05e0\u05e9\u05d9\u05dd \u05e9\u05d0\u05d9\u05e9\u05e8\u05d5 \u05d1\u05e4\u05d5\u05e2\u05dc (\u05de-Wiwi)"
+    },
+    "gift_amount": {
+      "type": "number",
+      "description": "\u05e1\u05db\u05d5\u05dd \u05d4\u05de\u05ea\u05e0\u05d4 \u05e9\u05d4\u05d0\u05d5\u05e8\u05d7 \u05e0\u05ea\u05df (\u05d1\u05e9\"\u05d7)"
+    },
+    "gift_received": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05e1\u05d5\u05de\u05df \u05d9\u05d3\u05e0\u05d9\u05ea \u05db\u05d4\u05d1\u05d0\u05ea \u05de\u05ea\u05e0\u05d4 (\u05d2\u05dd \u05dc\u05dc\u05d0 \u05e1\u05db\u05d5\u05dd \u05de\u05d5\u05d2\u05d3\u05e8)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\u05d4\u05e2\u05e8\u05d5\u05ea (\u05d0\u05dc\u05e8\u05d2\u05d9\u05d5\u05ea, \u05d4\u05e9\u05d1\u05d4, \u05d9\u05dc\u05d3\u05d9\u05dd)"
+    },
+    "table_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05e9\u05d5\u05dc\u05d7\u05df"
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name",
+    "side"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.wedding_id": "{{user.data.wedding_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.wedding_id": "{{user.data.wedding_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.wedding_id": "{{user.data.wedding_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

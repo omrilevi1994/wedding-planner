@@ -1,0 +1,73 @@
+{
+  "name": "Gift",
+  "type": "object",
+  "properties": {
+    "wedding_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05d7\u05ea\u05d5\u05e0\u05d4"
+    },
+    "guest_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05d0\u05d5\u05e8\u05d7"
+    },
+    "description": {
+      "type": "string",
+      "description": "\u05ea\u05d9\u05d0\u05d5\u05e8 \u05d4\u05de\u05ea\u05e0\u05d4"
+    },
+    "event": {
+      "type": "string",
+      "description": "\u05d1\u05d0\u05d9\u05d6\u05d4 \u05d0\u05d9\u05e8\u05d5\u05e2 \u05e0\u05d9\u05ea\u05e0\u05d4 \u05d4\u05de\u05ea\u05e0\u05d4"
+    },
+    "amount": {
+      "type": "number",
+      "description": "\u05e9\u05d5\u05d5\u05d9 \u05db\u05e1\u05e4\u05d9 \u05e9\u05dc \u05d4\u05de\u05ea\u05e0\u05d4 \u05d1\u05e9\"\u05d7 (\u05d0\u05d5\u05e4\u05e6\u05d9\u05d5\u05e0\u05dc\u05d9)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\u05d4\u05e2\u05e8\u05d5\u05ea \u05e0\u05d5\u05e1\u05e4\u05d5\u05ea"
+    }
+  },
+  "required": [
+    "guest_id",
+    "description"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.wedding_id": "{{user.data.wedding_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.wedding_id": "{{user.data.wedding_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.wedding_id": "{{user.data.wedding_id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

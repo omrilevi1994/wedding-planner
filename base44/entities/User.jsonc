@@ -1,0 +1,46 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user",
+        "event_manager"
+      ],
+      "description": "\u05ea\u05e4\u05e7\u05d9\u05d3 \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d1\u05de\u05e2\u05e8\u05db\u05ea: admin (\u05de\u05e0\u05d4\u05dc \u05e2\u05dc), event_manager (\u05d1\u05e2\u05dc \u05d0\u05d9\u05e8\u05d5\u05e2), user (\u05d1\u05df \u05d6\u05d5\u05d2/\u05de\u05e9\u05e4\u05d7\u05d4)"
+    },
+    "wedding_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05d7\u05ea\u05d5\u05e0\u05d4 \u05e9\u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05de\u05e9\u05d5\u05d9\u05da \u05d0\u05dc\u05d9\u05d4 (\u05e8\u05d9\u05e7 \u05e2\u05d1\u05d5\u05e8 admin \u05e2\u05dc)"
+    },
+    "wedding_sides": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "\u05d7\u05ea\u05df",
+          "\u05d7\u05ea\u05df - \u05d0\u05d1\u05d0",
+          "\u05d7\u05ea\u05df - \u05d0\u05de\u05d0",
+          "\u05db\u05dc\u05d4",
+          "\u05db\u05dc\u05d4 - \u05d0\u05d1\u05d0",
+          "\u05db\u05dc\u05d4 - \u05d0\u05de\u05d0"
+        ]
+      },
+      "description": "\u05d4\u05e6\u05d3\u05d3\u05d9\u05dd \u05d1\u05d7\u05ea\u05d5\u05e0\u05d4 \u05e9\u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d9\u05db\u05d5\u05dc \u05dc\u05e8\u05d0\u05d5\u05ea \u05d5\u05dc\u05e2\u05e8\u05d5\u05da"
+    },
+    "max_guests": {
+      "type": "number",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05de\u05e7\u05e1\u05d9\u05de\u05dc\u05d9 \u05e9\u05dc \u05d0\u05e0\u05e9\u05d9\u05dd \u05e9\u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d9\u05db\u05d5\u05dc \u05dc\u05d4\u05d5\u05e1\u05d9\u05e3"
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05d4\u05d0\u05dd \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d0\u05d5\u05e9\u05e8 \u05e2\u05dc \u05d9\u05d3\u05d9 \u05de\u05e0\u05d4\u05dc \u05d4\u05d0\u05d9\u05e8\u05d5\u05e2/\u05d0\u05d3\u05de\u05d9\u05df"
+    }
+  },
+  "required": [
+    "role"
+  ]
+}
