@@ -9,9 +9,10 @@ import WeddingMode from './pages/WeddingMode';
 import Gifts from './pages/Gifts';
 import AdminDashboard from './pages/AdminDashboard';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import { WeddingProvider } from '@/lib/WeddingContext';
+import { WeddingProvider, useWedding } from '@/lib/WeddingContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Login from '@/components/Login';
+import CreateWedding from '@/components/CreateWedding';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -23,6 +24,7 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { hasNoWeddings, isLoading: weddingsLoading } = useWedding();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -42,6 +44,18 @@ const AuthenticatedApp = () => {
       return <Login />;
     }
   }
+
+  // Show loading spinner while wedding memberships are being fetched
+  if (weddingsLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Show onboarding screen if user has no weddings
+  if (hasNoWeddings) return <CreateWedding />;
 
   // Render the main app
   return (
