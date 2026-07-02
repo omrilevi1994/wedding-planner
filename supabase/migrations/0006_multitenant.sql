@@ -49,7 +49,7 @@ create policy wm_manage on wedding_members for all
 drop policy if exists weddings_read on weddings;
 drop policy if exists weddings_admin_write on weddings;
 create policy weddings_read on weddings for select
-  using (is_platform_admin() or is_wedding_member(id));
+  using (is_platform_admin() or is_wedding_member(id) or owner_id = auth.uid());
 create policy weddings_insert on weddings for insert
   with check (owner_id = auth.uid());
 create policy weddings_update on weddings for update
