@@ -80,13 +80,17 @@ checklist_items, vendors, wedding_settings, activity_logs, profiles`
 (`profiles` replaces base44's `User` entity for app-level fields; auth identity
 lives in Supabase `auth.users`.)
 
-**System-field compatibility (critical):** the frontend reads `.id`,
-`.created_date`, and `.created_by`. Tables therefore expose these exact columns:
+**System-field compatibility (critical):** confirmed from live base44 records,
+every row carries these system fields, which the frontend reads. Tables expose
+these exact columns:
 
 - `id text primary key` — see ID strategy below
 - `created_date timestamptz default now()`
 - `updated_date timestamptz default now()` (trigger-updated)
-- `created_by text` — the creating user's id
+- `created_by text` — creating user's **email** (frontend reads this)
+- `created_by_id text` — creating user's **id** (present in REST payloads)
+- `is_sample boolean default false` — base44 demo-data flag present on all rows;
+  preserved so we can distinguish/clean sample records after migration
 
 **ID strategy:** base44 IDs are opaque strings and are referenced across tables
 (`wedding_id`, `table_id`, checklist `group`). To migrate with zero remapping, use
@@ -100,9 +104,16 @@ rows generated after migration use `gen_random_uuid()::text`.
 
 - Supabase Auth providers: **Google OAuth + email/password**, enabled from the
   start.
-- `profiles` table keyed by `auth.uid()`: `role` (admin | event_manager | guest),
-  `wedding_id`, `wedding_sides text[]`, `full_name`, `email`. Auto-created on
-  signup via a Postgres trigger on `auth.users`.
+- `profiles` table keyed by `auth.uid()`, modeled on the live base44 `User`
+  entity (6 users: 2 admin, 3 user, 1 event_manager):
+  - `role` (admin | user | event_manager) — matches base44's enum
+  - `wedding_id text` (null for top-level admin)
+  - `wedding_sides text[]` (which wedding sides the user may see/edit)
+  - `max_guests int` (per-user guest cap; null = unlimited)
+  - `is_approved boolean` (approved by admin/event_manager)
+  - `full_name`, `email`
+  Auto-created on signup via a Postgres trigger on `auth.users`; the migration
+  seeds these rows from base44's User export (matched by email).
 - `auth.me()` returns the session user merged with their profile row — same shape
   the app expects today (`user.role`, `user.wedding_id`, `user.wedding_sides`).
 - **RLS:** each entity's base44 `rls` block is translated to Postgres RLS
@@ -115,13 +126,22 @@ rows generated after migration use `gen_random_uuid()::text`.
 Ported from `base44/functions/` (swap `@base44/sdk` → Supabase client + service
 role where needed):
 
-- `bulkUpdateGuestStatus` — ported
-- `resetSeatingPlan` — ported
-- `iplanBulkImport` — ported
+Base44 actually has **6** backend functions (the local repo export only included
+4 — the REST reference revealed 2 more). Source exists locally for the first 4;
+the last 2 are reimplemented from their documented purpose.
+
+- `bulkUpdateGuestStatus` — ported (source available)
+- `resetSeatingPlan` — ported (source available)
+- `iplanBulkImport` — ported (source available)
+- `inviteUserToWedding` — reimplemented (invite via Supabase admin API + profile)
+- `getWeddingUsers` — reimplemented (list users/profiles for a wedding)
 - `extractGuestData` — **new**; wraps the Claude API to replace base44's
   `ExtractDataFromUploadedFile`. API key stays server-side.
-- `inviteUser` — **new**; small admin-only invite via Supabase admin API.
 - `sendTelegramChecklistUpdate` — **deferred** (out of scope this phase).
+
+Note: source code for the 2 previously-unknown functions is not downloadable via
+REST (only invocable); if their exact behavior matters, we can observe their
+input/output by invoking them against base44 before reimplementing.
 
 ## 8. AI guest-list import
 
@@ -132,12 +152,36 @@ contents to the Claude API, and returns structured guest rows matching the
 
 ## 9. Data migration
 
-1. Export all entities from the base44 dashboard (JSON per entity).
-2. A one-off Node import script loads exports into Supabase via the service-role
-   key, preserving original IDs and insertion order (parents before children:
-   weddings → tables → guests, etc.).
-3. Verify: row counts per table match the export; spot-check relationships
-   (a guest's `table_id` resolves, `wedding_id` resolves).
+Base44 exposes a REST API (`https://straight-wedding-plan-pro.base44.app/api`,
+header `api_key`), so migration is a **direct API pull** — no manual dashboard
+export needed. Verified live record counts:
+
+| Entity | Rows | | Entity | Rows |
+|---|---|---|---|---|
+| Wedding | 2 | | Gift | 12 |
+| Guest | 352 | | Vendor | 11 |
+| Table | 26 | | ChecklistGroup | 12 |
+| Expense | 28 | | ChecklistItem | 99 |
+| Payment | 40 | | WeddingSetting | 2 |
+| ActivityLog | 1000+ | | User | 6 |
+
+(All trivially within Supabase Free limits.)
+
+Process:
+1. A Node script pulls every entity from the base44 REST API (paginated) to local
+   JSON snapshots (git-ignored — contains PII).
+2. The same script (or a second pass) inserts into Supabase via the service-role
+   key, preserving original IDs and parent-before-child order (weddings → tables
+   → guests → gifts/payments, groups → items).
+3. `profiles` seeded from the User export, matched to `auth.users` by email.
+4. `ActivityLog` is low-value, high-volume — migrate only the most recent N (e.g.
+   200) or skip; decided in the plan.
+5. Verify: per-table counts match the snapshot; spot-check that a guest's
+   `table_id` and `wedding_id` resolve.
+
+**Soft-deletes:** base44 soft-deletes (has `/restore`). The REST pull returns
+only live records, so we import a clean set; our app uses hard deletes in
+Postgres (simpler; matches the frontend's expectation that a deleted row is gone).
 
 ## 10. Testing & reliability
 
@@ -177,7 +221,9 @@ Unavoidable — I cannot log into accounts on your behalf:
    (needs Google client id/secret) — email/password works with no extra setup.
 2. **Vercel:** create a free account; provide a **token** (`VERCEL_TOKEN`).
 3. **Anthropic:** an `ANTHROPIC_API_KEY` for the AI import edge function.
-4. **base44 export:** the exported entity JSON files.
+4. **base44:** ✅ already provided — REST `api_key` + appId. Used for the data
+   pull. **Security:** this key was shared in plaintext chat; rotate/revoke it in
+   base44 once migration is complete.
 
 All tokens stored locally in `.env` (git-ignored); never committed.
 
