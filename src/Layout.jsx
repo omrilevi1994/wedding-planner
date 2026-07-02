@@ -214,7 +214,7 @@ export default function Layout({ children, currentPageName }) {
   }
 
   // בדוק אם המשתמש לא מאושר או אין לו הרשאות
-  if (user && user.role !== 'admin' && !isEventManager) {
+  if (user && !isAdmin && !isEventManager) {
     if (!user.is_approved) {
       return (
         <div dir="rtl" className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50/30 flex items-center justify-center">

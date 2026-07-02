@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 
 export default function AdminDashboard() {
-  const { weddings, refreshWeddings, selectWedding, activeWeddingId } = useWedding();
+  const { weddings, refreshWeddings, selectWedding, activeWeddingId, isPlatformAdmin } = useWedding();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -78,6 +78,15 @@ export default function AdminDashboard() {
     selectWedding(weddingId);
     navigate(createPageUrl('Dashboard'));
   };
+
+  if (!isPlatformAdmin) {
+    return (
+      <div className="text-center py-16" dir="rtl">
+        <Heart className="w-14 h-14 mx-auto mb-3 text-gray-300" />
+        <p className="text-lg text-gray-500">אין לך הרשאה לדף זה</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">

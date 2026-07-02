@@ -36,7 +36,7 @@ function mapWiwiStatus(wiwiStatus) {
 
 export default function Guests() {
   const queryClient = useQueryClient();
-  const { activeWeddingId } = useWedding();
+  const { activeWeddingId, isAdmin } = useWedding();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterSide, setFilterSide] = useState('all');
@@ -460,7 +460,7 @@ export default function Guests() {
   // Calculate user's own guests (created by them)
   const myGuests = visibleGuests.filter(g => g.created_by === currentUser?.email);
   const myTotalPeople = myGuests.reduce((sum, g) => sum + (g.total_people || 1), 0);
-  const hasQuota = currentUser?.wedding_sides && currentUser.wedding_sides.length > 0 && currentUser.max_guests && currentUser.role !== 'admin';
+  const hasQuota = currentUser?.wedding_sides && currentUser.wedding_sides.length > 0 && currentUser.max_guests && !isAdmin;
   const quotaReached = hasQuota && myTotalPeople >= currentUser.max_guests;
 
   return (

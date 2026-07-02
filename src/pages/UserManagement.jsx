@@ -34,12 +34,12 @@ export default function UserManagement() {
 
   // Users already assigned to the active wedding
   const users = isAdmin
-    ? allUsers.filter(u => u.wedding_id === activeWeddingId || (!u.wedding_id && u.role === 'admin'))
+    ? allUsers.filter(u => u.wedding_id === activeWeddingId || (!u.wedding_id && u.is_platform_admin))
     : allUsers.filter(u => u.wedding_id === activeWeddingId);
 
   // New users who registered but aren't assigned to any wedding yet
   const unassignedUsers = isAdmin
-    ? allUsers.filter(u => !u.wedding_id && u.role !== 'admin')
+    ? allUsers.filter(u => !u.wedding_id && !u.is_platform_admin)
     : [];
 
   const canManage = isAdmin || user?.role === 'event_manager';
@@ -97,7 +97,7 @@ export default function UserManagement() {
       wedding_sides: selectedSides.length > 0 ? selectedSides : null,
       wedding_id: activeWeddingId
     };
-    if (maxGuests && editingRole !== 'admin') {
+    if (maxGuests && !editingUser?.is_platform_admin) {
       updateData.max_guests = parseInt(maxGuests);
     }
     updateUserMutation.mutate({ id: editingUser.id, data: updateData });
@@ -208,7 +208,7 @@ export default function UserManagement() {
                     <TableCell className="font-medium">{u.full_name || '-'}</TableCell>
                     <TableCell className="text-sm text-gray-600">{u.email}</TableCell>
                     <TableCell>
-                      {u.role === 'admin' ? (
+                      {u.is_platform_admin ? (
                         <Badge variant="outline" className="bg-purple-100 border-purple-200 text-purple-800">מנהל על</Badge>
                       ) : u.role === 'event_manager' ? (
                         <Badge variant="outline" className="bg-orange-100 border-orange-200 text-orange-800">מנהל חתונה</Badge>
@@ -219,7 +219,7 @@ export default function UserManagement() {
                       )}
                     </TableCell>
                     <TableCell>
-                      {u.role === 'admin' || u.is_approved ? (
+                      {u.is_platform_admin || u.is_approved ? (
                         <Badge className="bg-green-100 text-green-800 border-green-200">מאושר</Badge>
                       ) : (
                         <div className="flex items-center gap-2">
@@ -240,10 +240,10 @@ export default function UserManagement() {
                       </div>
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">
-                      {u.role === 'admin' ? '-' : (u.max_guests ? `${u.max_guests}` : '-')}
+                      {u.is_platform_admin ? '-' : (u.max_guests ? `${u.max_guests}` : '-')}
                     </TableCell>
                     <TableCell>
-                      {canManage && u.role !== 'admin' && (
+                      {canManage && !u.is_platform_admin && (
                         <button onClick={() => handleOpenEdit(u)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                           <Pencil className="w-4 h-4 text-gray-600" />
                         </button>
