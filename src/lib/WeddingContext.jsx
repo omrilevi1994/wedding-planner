@@ -1,105 +1,92 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 
 const WeddingContext = createContext();
-
 const STORAGE_KEY = 'activeWeddingId';
+
+// Pure: merge the active membership's per-wedding fields onto the profile.
+export function synthUser(profile, membership) {
+  if (!profile) return null;
+  return {
+    ...profile,
+    role: membership?.role,
+    wedding_sides: membership?.wedding_sides ?? [],
+    max_guests: membership?.max_guests ?? null,
+  };
+}
 
 export const WeddingProvider = ({ children }) => {
   const { user: authUser, isAuthenticated } = useAuth();
-  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [memberships, setMemberships] = useState([]);
   const [weddings, setWeddings] = useState([]);
   const [activeWeddingId, setActiveWeddingId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAdmin = user?.role === 'admin';
+  const isPlatformAdmin = !!profile?.is_platform_admin;
+  const activeMembership = memberships.find(m => m.wedding_id === activeWeddingId) || null;
+  const user = synthUser(profile, activeMembership);
+  const isAdmin = isPlatformAdmin || ['owner', 'coplanner'].includes(activeMembership?.role);
 
-  // Load current user + weddings whenever the authenticated user changes.
   useEffect(() => {
     let cancelled = false;
-
     if (!isAuthenticated || !authUser) {
-      setUser(null);
-      setWeddings([]);
-      setActiveWeddingId(null);
-      setIsLoading(false);
-      return;
+      setProfile(null); setMemberships([]); setWeddings([]); setActiveWeddingId(null);
+      setIsLoading(false); return;
     }
-
     setIsLoading(true);
-    const load = async () => {
+    (async () => {
       try {
-        const currentUser = authUser;
+        setProfile(await base44.auth.me());
+        const { data: rows } = await supabase
+          .from('wedding_members')
+          .select('wedding_id, role, wedding_sides, max_guests, weddings(*)')
+          .eq('user_id', authUser.id);
         if (cancelled) return;
-        setUser(currentUser);
-
-        if (currentUser.role === 'admin') {
-          // Admin can see all weddings and choose one
-          const allWeddings = await base44.entities.Wedding.list('-created_date');
-          if (cancelled) return;
-          setWeddings(allWeddings);
-
-          // Restore last selection from storage
-          const stored = localStorage.getItem(STORAGE_KEY);
-          if (stored && allWeddings.some(w => w.id === stored)) {
-            setActiveWeddingId(stored);
-          } else if (allWeddings.length > 0) {
-            setActiveWeddingId(allWeddings[0].id);
-          }
-        } else if (currentUser.wedding_id) {
-          // Event manager / regular user — locked to their wedding
-          setActiveWeddingId(currentUser.wedding_id);
-          try {
-            const w = await base44.entities.Wedding.get(currentUser.wedding_id);
-            if (cancelled) return;
-            setWeddings([w]);
-          } catch (e) {
-            setWeddings([]);
-          }
-        }
+        const ms = rows || [];
+        setMemberships(ms.map(({ weddings, ...m }) => m));
+        const ws = ms.map(r => r.weddings).filter(Boolean);
+        setWeddings(ws);
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored && ws.some(w => w.id === stored)) setActiveWeddingId(stored);
+        else if (ws.length > 0) setActiveWeddingId(ws[0].id);
+        else setActiveWeddingId(null);
       } catch (e) {
         console.error('WeddingContext load failed', e);
       } finally {
         if (!cancelled) setIsLoading(false);
       }
-    };
-    load();
+    })();
     return () => { cancelled = true; };
   }, [isAuthenticated, authUser?.id]);
 
   const selectWedding = (id) => {
     setActiveWeddingId(id);
-    if (isAdmin) {
-      if (id) localStorage.setItem(STORAGE_KEY, id);
-      else localStorage.removeItem(STORAGE_KEY);
-    }
+    if (id) localStorage.setItem(STORAGE_KEY, id); else localStorage.removeItem(STORAGE_KEY);
   };
 
   const refreshWeddings = async () => {
-    if (isAdmin) {
-      const allWeddings = await base44.entities.Wedding.list('-created_date');
-      setWeddings(allWeddings);
-    } else if (activeWeddingId) {
-      try {
-        const w = await base44.entities.Wedding.get(activeWeddingId);
-        setWeddings([w]);
-      } catch (e) { /* ignore */ }
-    }
+    if (!authUser) return;
+    const { data: rows } = await supabase
+      .from('wedding_members')
+      .select('wedding_id, role, wedding_sides, max_guests, weddings(*)')
+      .eq('user_id', authUser.id);
+    const ms = rows || [];
+    setMemberships(ms.map(({ weddings, ...m }) => m));
+    setWeddings(ms.map(r => r.weddings).filter(Boolean));
   };
 
   const activeWedding = weddings.find(w => w.id === activeWeddingId) || null;
 
   return (
     <WeddingContext.Provider value={{
-      user,
-      isAdmin,
-      weddings,
-      activeWedding,
-      activeWeddingId,
-      selectWedding,
-      refreshWeddings,
-      isLoading
+      user, profile, isAdmin, isPlatformAdmin,
+      memberships, activeMembership,
+      weddings, activeWedding, activeWeddingId,
+      hasNoWeddings: !isLoading && weddings.length === 0,
+      selectWedding, refreshWeddings, isLoading,
     }}>
       {children}
     </WeddingContext.Provider>
