@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { Heart } from 'lucide-react';
 
 // Sign-in screen shown when no authenticated Supabase session exists.
 // Email/password works locally; Google is enabled once OAuth is configured (Phase 2).
@@ -32,43 +33,59 @@ export default function Login() {
   };
 
   return (
-    <div dir="rtl" className="fixed inset-0 flex items-center justify-center bg-slate-50 p-4">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-        <h1 className="text-2xl font-bold text-slate-800 text-center mb-1">כניסה למערכת</h1>
-        <p className="text-sm text-slate-500 text-center mb-6">ניהול החתונה</p>
-
-        <form onSubmit={submit} className="space-y-3">
-          <input
-            type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-            placeholder="אימייל"
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-slate-300"
-          />
-          <input
-            type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
-            placeholder="סיסמה"
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-slate-300"
-          />
-          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
-          <button
-            type="submit" disabled={busy}
-            className="w-full py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-700 disabled:opacity-50"
-          >
-            {busy ? 'מתחבר…' : 'התחברות'}
-          </button>
-        </form>
-
-        <div className="flex items-center gap-2 my-4">
-          <div className="flex-1 h-px bg-slate-100" />
-          <span className="text-xs text-slate-400">או</span>
-          <div className="flex-1 h-px bg-slate-100" />
+    <div
+      dir="rtl"
+      className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-pink-50 p-4"
+    >
+      <div className="w-full max-w-sm">
+        {/* Brand */}
+        <div className="text-center mb-8">
+          <div className="bg-gradient-to-br from-amber-100 to-amber-200 p-5 rounded-full inline-block mb-4 shadow-sm">
+            <Heart className="w-12 h-12 text-[#D4AF37]" fill="currentColor" />
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-l from-[#D4AF37] to-amber-600 bg-clip-text text-transparent mb-1">
+            Wedding HQ
+          </h1>
+          <p className="text-sm text-gray-500">מטה החתונה שלכם</p>
         </div>
 
-        <button
-          onClick={google}
-          className="w-full py-2 border border-slate-200 rounded-lg font-medium text-slate-700 hover:bg-slate-50"
-        >
-          התחברות עם Google
-        </button>
+        {/* Card */}
+        <div className="bg-white/80 backdrop-blur rounded-2xl shadow-lg shadow-amber-100/50 border border-amber-100 p-8">
+          <h2 className="text-lg font-semibold text-slate-800 text-center mb-6">כניסה למערכת</h2>
+
+          <form onSubmit={submit} className="space-y-3">
+            <input
+              type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+              placeholder="אימייל"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition"
+            />
+            <input
+              type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+              placeholder="סיסמה"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition"
+            />
+            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+            <button
+              type="submit" disabled={busy}
+              className="w-full py-2.5 bg-gradient-to-l from-[#D4AF37] to-amber-600 text-white rounded-xl font-medium shadow-sm hover:opacity-90 disabled:opacity-50 transition"
+            >
+              {busy ? 'מתחבר…' : 'התחברות'}
+            </button>
+          </form>
+
+          <div className="flex items-center gap-2 my-5">
+            <div className="flex-1 h-px bg-slate-100" />
+            <span className="text-xs text-slate-400">או</span>
+            <div className="flex-1 h-px bg-slate-100" />
+          </div>
+
+          <button
+            onClick={google}
+            className="w-full py-2.5 border border-slate-200 rounded-xl font-medium text-slate-700 hover:bg-slate-50 transition"
+          >
+            התחברות עם Google
+          </button>
+        </div>
       </div>
     </div>
   );
