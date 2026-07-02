@@ -11,6 +11,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { WeddingProvider } from '@/lib/WeddingContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import Login from '@/components/Login';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -37,9 +38,8 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
+      // Show the sign-in screen; AuthContext re-renders on successful login.
+      return <Login />;
     }
   }
 

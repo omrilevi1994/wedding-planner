@@ -190,7 +190,7 @@ export default function IplanImportDialog({ open, onClose, guests, tables, onImp
       onImportDone();
       setPreview(null);
       onClose();
-      alert(`✅ ייבוא הושלם! ${result.data.guestsUpdated} אורחים שובצו לשולחן, ${result.data.guestsCreated} מוזמנים חדשים נוצרו`);
+      alert(`✅ ייבוא הושלם! ${result.guestsUpdated} אורחים שובצו לשולחן, ${result.guestsCreated} מוזמנים חדשים נוצרו`);
     } catch (err) {
       alert('❌ שגיאה בייבוא: ' + err.message);
     } finally {

@@ -93,17 +93,15 @@ export default function Layout({ children, currentPageName }) {
     const sessionKey = `logged_session_${user.email}`;
     if (!sessionStorage.getItem(sessionKey)) {
       sessionStorage.setItem(sessionKey, 'true');
-      try {
-        base44.entities.ActivityLog.create({
-          wedding_id: activeWeddingId || user.wedding_id || null,
-          user_email: user.email,
-          user_name: user.full_name,
-          action_type: 'התחברות',
-          description: `${user.full_name} התחבר למערכת`
-        });
-      } catch (error) {
+      base44.entities.ActivityLog.create({
+        wedding_id: activeWeddingId || user.wedding_id || null,
+        user_email: user.email,
+        user_name: user.full_name,
+        action_type: 'התחברות',
+        description: `${user.full_name} התחבר למערכת`
+      }).catch((error) => {
         console.error('Failed to log login activity:', error);
-      }
+      });
     }
   }, [user]);
 

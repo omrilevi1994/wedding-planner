@@ -1,11 +1,13 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 
 const WeddingContext = createContext();
 
 const STORAGE_KEY = 'activeWeddingId';
 
 export const WeddingProvider = ({ children }) => {
+  const { user: authUser, isAuthenticated } = useAuth();
   const [user, setUser] = useState(null);
   const [weddings, setWeddings] = useState([]);
   const [activeWeddingId, setActiveWeddingId] = useState(null);
@@ -13,12 +15,22 @@ export const WeddingProvider = ({ children }) => {
 
   const isAdmin = user?.role === 'admin';
 
-  // Load current user + weddings
+  // Load current user + weddings whenever the authenticated user changes.
   useEffect(() => {
     let cancelled = false;
+
+    if (!isAuthenticated || !authUser) {
+      setUser(null);
+      setWeddings([]);
+      setActiveWeddingId(null);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
     const load = async () => {
       try {
-        const currentUser = await base44.auth.me();
+        const currentUser = authUser;
         if (cancelled) return;
         setUser(currentUser);
 
@@ -54,7 +66,7 @@ export const WeddingProvider = ({ children }) => {
     };
     load();
     return () => { cancelled = true; };
-  }, []);
+  }, [isAuthenticated, authUser?.id]);
 
   const selectWedding = (id) => {
     setActiveWeddingId(id);

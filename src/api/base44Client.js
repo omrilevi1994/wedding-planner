@@ -80,6 +80,22 @@ const auth = {
     const { data: { session } } = await supabase.auth.getSession();
     return !!session;
   },
+  async signInWithPassword({ email, password }) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  },
+  async signInWithGoogle() {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) throw error;
+    return data;
+  },
+  onAuthStateChange(cb) {
+    return supabase.auth.onAuthStateChange(cb);
+  },
   async logout() {
     await supabase.auth.signOut();
   },

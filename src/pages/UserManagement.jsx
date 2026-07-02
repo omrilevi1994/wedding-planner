@@ -65,7 +65,7 @@ export default function UserManagement() {
     if (!email || !activeWeddingId) return;
     setIsInviting(true);
     try {
-      await base44.users.inviteUser(email, 'user');
+      await base44.users.inviteUser({ email, role: 'user', wedding_id: activeWeddingId });
       // After invite, we can't set wedding_id immediately (user doesn't exist yet).
       // The event owner/admin will assign it after the user logs in.
       alert('ההזמנה נשלחה! לאחר שהמשתמש יתחבר, שייך אותו לחתונה דרך כפתור העריכה.');
