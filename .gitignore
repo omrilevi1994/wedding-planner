@@ -28,3 +28,7 @@ dist-ssr
 *.sw?
 
 .env
+.data-snapshots/
+test-results/
+supabase/.branches/
+supabase/.temp/
