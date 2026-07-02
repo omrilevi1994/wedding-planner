@@ -36,7 +36,7 @@ function mapWiwiStatus(wiwiStatus) {
 
 export default function Guests() {
   const queryClient = useQueryClient();
-  const { activeWeddingId, isAdmin } = useWedding();
+  const { activeWeddingId, isAdmin, user } = useWedding();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterSide, setFilterSide] = useState('all');
@@ -56,18 +56,6 @@ export default function Guests() {
   const [unmatchedLinks, setUnmatchedLinks] = useState({}); // wiwiPhone → guestId
   const [showWiwiDialog, setShowWiwiDialog] = useState(false);
   const [showSyncWizard, setShowSyncWizard] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-
-  React.useEffect(() => {
-    base44.auth.me().then(user => {
-      setCurrentUser(user);
-      setIsCheckingAuth(false);
-    }).catch(() => {
-      setCurrentUser(null);
-      setIsCheckingAuth(false);
-    });
-  }, []);
 
   const { data: guests = [], isLoading } = useQuery({
     queryKey: ['guests', activeWeddingId],
@@ -77,11 +65,11 @@ export default function Guests() {
 
   // Filter guests based on user's wedding_sides
   const visibleGuests = React.useMemo(() => {
-    if (!currentUser?.wedding_sides || currentUser.wedding_sides.length === 0) return guests;
-    
+    if (!user?.wedding_sides || user.wedding_sides.length === 0) return guests;
+
     // Show only guests with sides that match user's exact permissions
-    return guests.filter(g => currentUser.wedding_sides.includes(g.side));
-  }, [guests, currentUser]);
+    return guests.filter(g => user?.wedding_sides.includes(g.side));
+  }, [guests, user]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Guest.create({ ...data, wedding_id: activeWeddingId }),
@@ -144,18 +132,14 @@ export default function Guests() {
     }
   });
 
-  if (isCheckingAuth) {
-    return null;
-  }
-
   const handleSave = (data) => {
     if (editingGuest) {
       updateMutation.mutate({ id: editingGuest.id, data });
     } else {
       // Check quota before creating
       const newTotalPeople = myTotalPeople + (data.total_people || 1);
-      if (hasQuota && newTotalPeople > currentUser.max_guests) {
-        alert(`חרגת ממכסת המוזמנים שלך (${currentUser.max_guests} אנשים)`);
+      if (hasQuota && newTotalPeople > user?.max_guests) {
+        alert(`חרגת ממכסת המוזמנים שלך (${user?.max_guests} אנשים)`);
         return;
       }
       createMutation.mutate(data);
@@ -164,7 +148,7 @@ export default function Guests() {
 
   const handleEdit = (guest) => {
     // Restrict editing to creator only if user has wedding_sides
-    if (currentUser?.wedding_sides && currentUser.wedding_sides.length > 0 && guest.created_by !== currentUser.email) {
+    if (user?.wedding_sides && user.wedding_sides.length > 0 && guest.created_by !== user?.email) {
       alert('אתה יכול לערוך רק מוזמנים שהוספת בעצמך');
       return;
     }
@@ -174,7 +158,7 @@ export default function Guests() {
 
   const handleDelete = (guest) => {
     // Restrict deletion to creator only if user has wedding_sides
-    if (currentUser?.wedding_sides && currentUser.wedding_sides.length > 0 && guest.created_by !== currentUser.email) {
+    if (user?.wedding_sides && user.wedding_sides.length > 0 && guest.created_by !== user?.email) {
       alert('אתה יכול למחוק רק מוזמנים שהוספת בעצמך');
       return;
     }
@@ -458,10 +442,10 @@ export default function Guests() {
   const totalAttended = filteredGuests.filter(g => g.status === 'הגיע').reduce((sum, g) => sum + (g.total_people || 1), 0);
 
   // Calculate user's own guests (created by them)
-  const myGuests = visibleGuests.filter(g => g.created_by === currentUser?.email);
+  const myGuests = visibleGuests.filter(g => g.created_by === user?.email);
   const myTotalPeople = myGuests.reduce((sum, g) => sum + (g.total_people || 1), 0);
-  const hasQuota = currentUser?.wedding_sides && currentUser.wedding_sides.length > 0 && currentUser.max_guests && !isAdmin;
-  const quotaReached = hasQuota && myTotalPeople >= currentUser.max_guests;
+  const hasQuota = user?.wedding_sides && user.wedding_sides.length > 0 && user?.max_guests && !isAdmin;
+  const quotaReached = hasQuota && myTotalPeople >= user?.max_guests;
 
   return (
     <div className="space-y-6">
@@ -472,7 +456,7 @@ export default function Guests() {
           {hasQuota && (
             <div className="mt-2">
               <Badge className={quotaReached ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}>
-                הוספת {myTotalPeople} מתוך {currentUser.max_guests} אנשים מותרים
+                הוספת {myTotalPeople} מתוך {user?.max_guests} אנשים מותרים
               </Badge>
             </div>
           )}

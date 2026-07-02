@@ -5,10 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { base44 } from '@/api/base44Client';
+import { useWedding } from '@/lib/WeddingContext';
 
 export default function GuestForm({ open, onClose, guest, onSave }) {
-  const [currentUser, setCurrentUser] = useState(null);
+  const { user } = useWedding();
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -21,20 +21,16 @@ export default function GuestForm({ open, onClose, guest, onSave }) {
     notes: ''
   });
 
-  useEffect(() => {
-    base44.auth.me().then(setCurrentUser).catch(() => setCurrentUser(null));
-  }, []);
-
   // Determine available sides based on user permissions
   const availableSides = React.useMemo(() => {
-    if (!currentUser?.wedding_sides || currentUser.wedding_sides.length === 0) {
+    if (!user?.wedding_sides || user.wedding_sides.length === 0) {
       // Full access - all sides including "משותף"
       return ['חתן', 'חתן - אבא', 'חתן - אמא', 'כלה', 'כלה - אבא', 'כלה - אמא', 'משותף'];
     }
-    
+
     // Show only exact sides the user has permission for
-    return currentUser.wedding_sides;
-  }, [currentUser]);
+    return user.wedding_sides;
+  }, [user]);
 
   useEffect(() => {
     if (guest) {
