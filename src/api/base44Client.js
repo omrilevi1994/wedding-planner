@@ -69,11 +69,7 @@ const auth = {
       id: user.id,
       email: user.email,
       full_name: profile?.full_name ?? user.email,
-      role: profile?.role ?? 'user',
-      wedding_id: profile?.wedding_id ?? null,
-      wedding_sides: profile?.wedding_sides ?? [],
-      max_guests: profile?.max_guests ?? null,
-      is_approved: profile?.is_approved ?? false,
+      is_platform_admin: profile?.is_platform_admin ?? false,
     };
   },
   async isAuthenticated() {
@@ -82,6 +78,14 @@ const auth = {
   },
   async signInWithPassword({ email, password }) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  },
+  async signUp({ email, password, full_name }) {
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { full_name } },
+    });
     if (error) throw error;
     return data;
   },
