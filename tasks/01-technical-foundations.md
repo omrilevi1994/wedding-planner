@@ -47,8 +47,8 @@ Measured on 2026-07-06: `/robots.txt` and `/sitemap.xml` serve the SPA's `index.
 - [ ] Re-verify after any Vercel security-setting change.
 
 ### 1.6 Favicon & manifest polish
-- [ ] Replace placeholder `public/favicon.svg` with final brand asset (the HTML comment in `index.html` already flags this).
-- [ ] Add PNG fallback icons (192/512) to `manifest.json` for install prompts and rich results.
+- [x] Final brand asset shipped (2026-07-06): `favicon.ico` (multi-size, 16–256), `favicon.svg` replaced with the new WF monogram, `apple-touch-icon.png` (180). Placeholder comment removed from `index.html`.
+- [x] `icon-192.png` / `icon-512.png` added and wired into `manifest.json` (512 is upscaled from the 256px master — regenerate from a larger source if a crisper install icon is ever needed).
 
 ## Acceptance criteria — all verified live 2026-07-06
 
@@ -58,4 +58,4 @@ Measured on 2026-07-06: `/robots.txt` and `/sitemap.xml` serve the SPA's `index.
 - [x] `curl -A "GPTBot" https://wedflow.live/` → HTTP 200 with content.
 - [x] Rendered homepage has `lang="he" dir="rtl"`.
 
-**Task 01 status: DONE** except 1.6 (final favicon + PNG icons — awaiting brand asset) and the two "revisit later" items tied to task 02's route restructure.
+**Task 01 status: DONE** except the two "revisit later" items tied to task 02's route restructure.
