@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Heart, Calendar, MapPin, Users, Trash2, Settings, UserCog } from 'lucide-react';
+import { Plus, Heart, Calendar, MapPin, Users, Trash2, Settings, UserCog, Search, CalendarCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 
@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [search, setSearch] = useState('');
   const [form, setForm] = useState({ couple_names: '', wedding_date: '', venue: '', budget_target: '', expected_guests: '' });
 
   // Per-wedding membership (platform admin sees all via RLS); joined to profiles for display names
@@ -86,6 +87,15 @@ export default function AdminDashboard() {
     navigate(createPageUrl('Dashboard'));
   };
 
+  const totalUsers = new Set(members.map(m => m.user_id)).size;
+  const activeCount = weddings.filter(w => w.status === 'active').length;
+  const query = search.trim().toLowerCase();
+  const filteredWeddings = query
+    ? weddings.filter(w =>
+        (w.couple_names || '').toLowerCase().includes(query) ||
+        (w.venue || '').toLowerCase().includes(query))
+    : weddings;
+
   if (!isPlatformAdmin) {
     return (
       <div className="text-center py-16" dir="rtl">
@@ -108,15 +118,60 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="p-4 flex items-center gap-3">
+          <div className="bg-amber-100 p-2.5 rounded-lg">
+            <Heart className="w-5 h-5 text-amber-700" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900">{weddings.length}</p>
+            <p className="text-sm text-gray-500">סה"כ חתונות</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-3">
+          <div className="bg-blue-100 p-2.5 rounded-lg">
+            <Users className="w-5 h-5 text-blue-700" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900">{totalUsers}</p>
+            <p className="text-sm text-gray-500">סה"כ משתמשים</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-3">
+          <div className="bg-green-100 p-2.5 rounded-lg">
+            <CalendarCheck className="w-5 h-5 text-green-700" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-gray-900">{activeCount}</p>
+            <p className="text-sm text-gray-500">חתונות פעילות</p>
+          </div>
+        </Card>
+      </div>
+
+      <div className="relative max-w-sm">
+        <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+        <Input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="חיפוש לפי שמות בני הזוג או מקום..."
+          className="pr-9"
+        />
+      </div>
+
       {weddings.length === 0 ? (
         <Card className="p-12 text-center">
           <Heart className="w-14 h-14 mx-auto mb-3 text-gray-300" />
           <p className="text-lg text-gray-500 mb-1">אין חתונות עדיין</p>
           <p className="text-sm text-gray-400">צור חתונה ראשונה כדי להתחיל</p>
         </Card>
+      ) : filteredWeddings.length === 0 ? (
+        <Card className="p-12 text-center">
+          <Search className="w-14 h-14 mx-auto mb-3 text-gray-300" />
+          <p className="text-lg text-gray-500">לא נמצאו חתונות תואמות לחיפוש</p>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {weddings.map(wedding => {
+          {filteredWeddings.map(wedding => {
             const weddingUsers = members.filter(m => m.wedding_id === wedding.id);
             const eventOwner = weddingUsers.find(m => m.role === 'owner');
             const dayManager = weddingUsers.find(m => m.role === 'event_manager');
@@ -131,7 +186,14 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900 text-lg">{wedding.couple_names}</h3>
-                      {wedding.status === 'archived' && <Badge variant="outline" className="bg-gray-100 text-gray-600">מוקפא</Badge>}
+                      <div className="flex items-center gap-1.5">
+                        {wedding.status === 'archived' && <Badge variant="outline" className="bg-gray-100 text-gray-600">מוקפא</Badge>}
+                        {wedding.plan && (
+                          <Badge variant="outline" className={wedding.plan === 'premium' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'bg-gray-50 text-gray-500'}>
+                            {wedding.plan}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

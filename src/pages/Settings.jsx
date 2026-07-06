@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Save, CheckCircle } from 'lucide-react';
 import { useWedding } from '@/lib/WeddingContext';
+import DangerZone from '@/components/settings/DangerZone';
 
 export default function Settings() {
   const queryClient = useQueryClient();
@@ -282,6 +283,8 @@ export default function Settings() {
           <p>💡 <strong>עדכון שוטף:</strong> עדכנו את ההגדרות ככל שהתוכניות משתנות</p>
         </CardContent>
       </Card>
+
+      <DangerZone />
     </div>
   );
 }

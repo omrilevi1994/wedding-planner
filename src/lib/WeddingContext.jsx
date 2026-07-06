@@ -39,15 +39,21 @@ export const WeddingProvider = ({ children }) => {
     setIsLoading(true);
     (async () => {
       try {
-        setProfile(await wedflow.auth.me());
+        const me = await wedflow.auth.me();
+        setProfile(me);
         const { data: rows } = await supabase
           .from('wedding_members')
           .select('wedding_id, role, wedding_sides, max_guests, weddings(*)')
           .eq('user_id', authUser.id);
-        if (cancelled) return;
         const ms = rows || [];
+        let ws = ms.map(r => r.weddings).filter(Boolean);
+        if (me?.is_platform_admin) {
+          // Platform admins see ALL weddings (RLS grants them full access), not just memberships.
+          const { data: allW } = await supabase.from('weddings').select('*');
+          if (allW) ws = allW;
+        }
+        if (cancelled) return;
         setMemberships(ms.map(({ weddings, ...m }) => m));
-        const ws = ms.map(r => r.weddings).filter(Boolean);
         setWeddings(ws);
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored && ws.some(w => w.id === stored)) setActiveWeddingId(stored);
@@ -75,7 +81,12 @@ export const WeddingProvider = ({ children }) => {
       .eq('user_id', authUser.id);
     const ms = rows || [];
     setMemberships(ms.map(({ weddings, ...m }) => m));
-    setWeddings(ms.map(r => r.weddings).filter(Boolean));
+    let ws = ms.map(r => r.weddings).filter(Boolean);
+    if (profile?.is_platform_admin) {
+      const { data: allW } = await supabase.from('weddings').select('*');
+      if (allW) ws = allW;
+    }
+    setWeddings(ws);
   };
 
   const activeWedding = weddings.find(w => w.id === activeWeddingId) || null;
