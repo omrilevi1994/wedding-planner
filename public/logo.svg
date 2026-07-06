@@ -1,20 +1,22 @@
-<svg width="184" height="44" viewBox="0 0 184 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="230" height="56" viewBox="0 0 230 56" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="gold" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F4D06F"/>
-      <stop offset="0.55" stop-color="#D4AF37"/>
-      <stop offset="1" stop-color="#B8962E"/>
-    </linearGradient>
-    <linearGradient id="goldText" x1="118" y1="8" x2="180" y2="36" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#D4AF37"/>
-      <stop offset="1" stop-color="#B8962E"/>
+    <linearGradient id="rose" x1="6" y1="10" x2="46" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E7BCA6"/>
+      <stop offset="0.5" stop-color="#C68A70"/>
+      <stop offset="1" stop-color="#A5674E"/>
     </linearGradient>
   </defs>
-  <!-- Icon -->
-  <rect x="2" y="4" width="36" height="36" rx="9" fill="url(#gold)"/>
-  <path d="M20 31C20 31 9.5 24.5 9.5 18.2C9.5 14.9 12.1 12.4 15 12.4C17.2 12.4 19 13.8 20 15.8C21 13.8 22.8 12.4 25 12.4C27.9 12.4 30.5 14.9 30.5 18.2C30.5 24.5 20 31 20 31Z" fill="#FFFFFF"/>
-  <!-- Wordmark -->
-  <text x="48" y="30" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" font-size="24" font-weight="700" letter-spacing="-0.5">
-    <tspan fill="#1F2937">Wed</tspan><tspan fill="url(#goldText)">Flow</tspan>
-  </text>
+  <!-- botanical sprig -->
+  <path d="M8 48 C11 36 15 26 23 18" stroke="#97A67F" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+  <g fill="#97A67F">
+    <ellipse cx="11" cy="35" rx="5" ry="2.4" transform="rotate(-42 11 35)"/>
+    <ellipse cx="15" cy="27" rx="5" ry="2.4" transform="rotate(-32 15 27)"/>
+    <ellipse cx="20" cy="20" rx="5" ry="2.4" transform="rotate(-20 20 20)"/>
+  </g>
+  <circle cx="7" cy="41" r="2.3" fill="#E3B1A6"/>
+  <circle cx="6.4" cy="46" r="2" fill="#E3B1A6"/>
+  <!-- rose-gold heart -->
+  <path d="M34 46C34 46 19 37 19 27.5C19 22.6 22.6 19 26.8 19C29.8 19 32.2 20.8 34 23.4C35.8 20.8 38.2 19 41.2 19C45.4 19 49 22.6 49 27.5C49 37 34 46 34 46Z" fill="url(#rose)"/>
+  <!-- wordmark -->
+  <text x="60" y="37" font-family="'Cormorant Garamond', 'Times New Roman', serif" font-size="30" font-weight="600" letter-spacing="3" fill="#3B3531">WEDFLOW</text>
 </svg>
