@@ -1,16 +1,22 @@
 {
   "name": "WedFlow",
   "short_name": "WedFlow",
-  "description": "Wedding planning — guests, seating, vendors, budget and the big day.",
+  "description": "אפליקציה בעברית לתכנון חתונה: מוזמנים ואישורי הגעה, הושבה, ספקים, תקציב וצ׳קליסט.",
   "start_url": "/app",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#D4AF37",
+  "background_color": "#f6f0e7",
+  "theme_color": "#c68a70",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "type": "image/svg+xml",
-      "sizes": "any",
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
       "purpose": "any"
     }
   ],
