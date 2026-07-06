@@ -63,6 +63,13 @@ export default function Guests() {
     enabled: !!activeWeddingId
   });
 
+  // Tables for this wedding — used by iPlan import/export (must be tenant-scoped, not getQueryData)
+  const { data: tables = [] } = useQuery({
+    queryKey: ['tables', activeWeddingId],
+    queryFn: () => wedflow.entities.Table.filter({ wedding_id: activeWeddingId }, '-created_date'),
+    enabled: !!activeWeddingId
+  });
+
   // Filter guests based on user's wedding_sides
   const visibleGuests = React.useMemo(() => {
     if (!user?.wedding_sides || user.wedding_sides.length === 0) return guests;
@@ -376,9 +383,8 @@ export default function Guests() {
     // Export only confirmed guests
     const confirmedGuests = guests.filter(g => g.status === 'אישר');
     
-    // Build table name map
-    // We need tables — fetch from query cache
-    const tablesData = queryClient.getQueryData(['tables']) || [];
+    // Build table name map (tenant-scoped tables query)
+    const tablesData = tables;
     const tableMap = {};
     for (const t of tablesData) tableMap[t.id] = t.name;
 
@@ -787,7 +793,7 @@ export default function Guests() {
         open={showIplanImport}
         onClose={() => setShowIplanImport(false)}
         guests={guests}
-        tables={queryClient.getQueryData(['tables']) || []}
+        tables={tables}
         onImportDone={() => {
           queryClient.invalidateQueries(['guests']);
           queryClient.invalidateQueries(['tables']);

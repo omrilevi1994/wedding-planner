@@ -1,27 +1,34 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { wedflow } from '@/api/wedflowClient';
+import { useWedding } from '@/lib/WeddingContext';
 import VenueCalculator from '../components/dashboard/VenueCalculator';
 
 export default function Calculator() {
+  const { activeWeddingId } = useWedding();
+
   const { data: expenses = [] } = useQuery({
-    queryKey: ['expenses'],
-    queryFn: () => wedflow.entities.Expense.list()
+    queryKey: ['expenses', activeWeddingId],
+    queryFn: () => wedflow.entities.Expense.filter({ wedding_id: activeWeddingId }),
+    enabled: !!activeWeddingId
   });
 
   const { data: payments = [] } = useQuery({
-    queryKey: ['payments'],
-    queryFn: () => wedflow.entities.Payment.list()
+    queryKey: ['payments', activeWeddingId],
+    queryFn: () => wedflow.entities.Payment.filter({ wedding_id: activeWeddingId }),
+    enabled: !!activeWeddingId
   });
 
   const { data: guests = [] } = useQuery({
-    queryKey: ['guests'],
-    queryFn: () => wedflow.entities.Guest.list()
+    queryKey: ['guests', activeWeddingId],
+    queryFn: () => wedflow.entities.Guest.filter({ wedding_id: activeWeddingId }),
+    enabled: !!activeWeddingId
   });
 
   const { data: settings = [] } = useQuery({
-    queryKey: ['weddingSettings'],
-    queryFn: () => wedflow.entities.WeddingSetting.list()
+    queryKey: ['weddingSettings', activeWeddingId],
+    queryFn: () => wedflow.entities.WeddingSetting.filter({ wedding_id: activeWeddingId }),
+    enabled: !!activeWeddingId
   });
 
   const weddingSetting = settings[0] || {};

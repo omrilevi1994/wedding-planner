@@ -17,5 +17,19 @@ Deno.serve(async (req) => {
   if (e1) return Response.json({ error: e1.message }, { status: 400, headers: corsHeaders });
   const { error: e2 } = await supabase.from('tables').delete().eq('wedding_id', wedding_id);
   if (e2) return Response.json({ error: e2.message }, { status: 400, headers: corsHeaders });
-  return Response.json({ reset: true }, { headers: corsHeaders });
+
+  // Re-create tables 1-25 (tables 13 & 16 seat 24, the rest 12) — matches the UI promise
+  const newTables = Array.from({ length: 25 }, (_, i) => {
+    const n = i + 1;
+    return {
+      wedding_id,
+      name: `שולחן ${n}`,
+      iplan_number: String(n),
+      capacity: (n === 13 || n === 16) ? 24 : 12,
+    };
+  });
+  const { error: e3 } = await supabase.from('tables').insert(newTables);
+  if (e3) return Response.json({ error: e3.message }, { status: 400, headers: corsHeaders });
+
+  return Response.json({ reset: true, tablesCreated: newTables.length }, { headers: corsHeaders });
 });
