@@ -39,7 +39,7 @@ export function html(d: Data): string {
   `;
 
   return renderLayout({
-    preheader: `${d.inviterName || 'מישהו'} מזמין/ה אתכם לתכנן את ${d.weddingName || 'החתונה'} יחד`,
+    preheader: `${d.inviterName ? inviter : 'מישהו'} מזמין/ה אתכם לתכנן את ${wedding} יחד`,
     content,
   });
 }

@@ -32,18 +32,26 @@ Deno.serve(async (req) => {
     if (!ALLOWED_TEMPLATES.has(templateId)) {
       return Response.json({ error: `templateId must be one of: ${[...ALLOWED_TEMPLATES].join(', ')}` }, { status: 400, headers: corsHeaders });
     }
+    // Both allowed templates are wedding-scoped: wedding_id is REQUIRED so the ownership
+    // check below always runs. Without this, a caller could omit wedding_id and use the
+    // endpoint as an authenticated relay for branded phishing emails.
+    if (!wedding_id) {
+      return Response.json({ error: 'wedding_id is required' }, { status: 400, headers: corsHeaders });
+    }
+    // Reject non-https action URLs (no javascript:/data: links in branded mail).
+    if (data.actionUrl && !/^https:\/\//i.test(String(data.actionUrl))) {
+      return Response.json({ error: 'actionUrl must be an https URL' }, { status: 400, headers: corsHeaders });
+    }
 
-    // If scoped to a wedding, only its owner or a platform admin may send.
-    if (wedding_id) {
-      const service = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
-      const { data: ownerMembership } = await service.from('wedding_members')
-        .select('id').eq('wedding_id', wedding_id).eq('user_id', user.id).eq('role', 'owner').maybeSingle();
-      if (!ownerMembership) {
-        const { data: profile } = await service.from('profiles')
-          .select('is_platform_admin').eq('id', user.id).maybeSingle();
-        if (!profile?.is_platform_admin) {
-          return Response.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
-        }
+    // Only the wedding's owner or a platform admin may send.
+    const service = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    const { data: ownerMembership } = await service.from('wedding_members')
+      .select('id').eq('wedding_id', wedding_id).eq('user_id', user.id).eq('role', 'owner').maybeSingle();
+    if (!ownerMembership) {
+      const { data: profile } = await service.from('profiles')
+        .select('is_platform_admin').eq('id', user.id).maybeSingle();
+      if (!profile?.is_platform_admin) {
+        return Response.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
       }
     }
 

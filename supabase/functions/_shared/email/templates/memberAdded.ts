@@ -37,7 +37,7 @@ export function html(d: Data): string {
   `;
 
   return renderLayout({
-    preheader: `${d.inviterName || 'מישהו'} צירף/ה אתכם לתכנון ${d.weddingName || 'החתונה'}`,
+    preheader: `${d.inviterName ? inviter : 'מישהו'} צירף/ה אתכם לתכנון ${wedding}`,
     content,
   });
 }

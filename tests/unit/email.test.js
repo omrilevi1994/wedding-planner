@@ -20,6 +20,21 @@ describe('renderEmail — templates map', () => {
   });
 });
 
+describe('renderEmail — HTML injection is escaped (body + preheader)', () => {
+  const payload = '</div><img src=x onerror=alert(1)>';
+  for (const id of ['weddingInvite', 'memberAdded']) {
+    it(`${id}: malicious inviterName/weddingName cannot break out anywhere in the HTML`, () => {
+      const out = renderEmail(id, { ...sampleData, inviterName: payload, weddingName: payload });
+      // The raw tag must never appear as live markup — including inside the hidden
+      // preheader div. (The escaped form still contains the text "onerror=", which is
+      // inert, so we assert on the tag-opening "<img" instead.)
+      expect(out.html).not.toContain('<img');
+      // The escaped form should be present instead.
+      expect(out.html).toContain('&lt;img src=x');
+    });
+  }
+});
+
 describe('renderEmail — per template', () => {
   for (const id of TEMPLATE_IDS) {
     it(`${id}: returns non-empty subject/html/text strings`, () => {

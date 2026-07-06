@@ -48,6 +48,16 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
   const appUrl = Deno.env.get('APP_URL') ?? 'https://wedflow.live';
 
+  // Fail closed and loudly if the hook secret is missing/misformatted — never verify
+  // against an empty key, which would be a silent misconfiguration.
+  if (!rawSecret.startsWith('v1,whsec_')) {
+    console.error('SEND_EMAIL_HOOK_SECRET is not configured (expected format: v1,whsec_...)');
+    return Response.json(
+      { error: { http_code: 500, message: 'Server misconfigured' } },
+      { status: 500 },
+    );
+  }
+
   const payload = await req.text();
   const headers = Object.fromEntries(req.headers);
 
