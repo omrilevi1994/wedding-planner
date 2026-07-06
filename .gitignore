@@ -34,3 +34,4 @@ supabase/.branches/
 supabase/.temp/
 .vercel
 .env*
+.cloud-backup/
