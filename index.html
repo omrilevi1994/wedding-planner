@@ -31,7 +31,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600&family=Frank+Ruhl+Libre:wght@500;700;900&family=Pinyon+Script&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap"
       rel="stylesheet"
     />
     <link rel="preload" as="image" href="/marketing/hero-tablescape-1200.webp" />
@@ -61,13 +61,13 @@
         margin: 0;
         background: var(--cream);
         color: var(--ink);
-        font-family: 'Assistant', system-ui, sans-serif;
+        font-family: 'Heebo', system-ui, sans-serif;
         font-size: 1.075rem;
         line-height: 1.75;
         -webkit-font-smoothing: antialiased;
       }
       h1, h2, h3 {
-        font-family: 'Frank Ruhl Libre', 'Times New Roman', serif;
+        font-family: 'Heebo', system-ui, sans-serif;
         font-weight: 700;
         line-height: 1.18;
         margin: 0;
@@ -81,8 +81,8 @@
       .wrap { max-width: 1140px; margin: 0 auto; padding: 0 1.5rem; }
       .band { padding: 5.5rem 0; }
 
-      .script { font-family: 'Pinyon Script', cursive; font-weight: 400; direction: ltr; unicode-bidi: isolate; }
-      .sig { direction: ltr; unicode-bidi: isolate; }
+      .script { direction: ltr; unicode-bidi: isolate; }
+      .sig { direction: ltr; unicode-bidi: isolate; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
       .eyebrow { color: var(--rose-deep); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.22em; }
 
       /* botanical divider: the brand's signature motif */
@@ -114,7 +114,7 @@
       .nav { display: flex; align-items: center; justify-content: space-between; padding: 0.95rem 0; }
       .brand { display: flex; align-items: center; gap: 0.6rem; }
       .brand .mark { width: 40px; height: 40px; flex: none; }
-      .brand .word { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1.7rem; letter-spacing: 0.16em; color: var(--ink); line-height: 1; }
+      .brand .word { font-family: 'Heebo', system-ui, sans-serif; font-weight: 600; font-size: 1.7rem; letter-spacing: 0.16em; color: var(--ink); line-height: 1; }
 
       .btn { display: inline-block; font-weight: 700; border-radius: 999px; padding: 0.62rem 1.55rem; font-size: 0.98rem; position: relative; overflow: hidden;
         transition: transform 0.2s ease, box-shadow 0.2s ease; }
@@ -139,7 +139,7 @@
           radial-gradient(48% 48% at 4% 92%, rgba(151,166,127,0.13), transparent 72%);
       }
       .hero-grid { display: grid; grid-template-columns: 1.04fr 0.96fr; gap: 3.8rem; align-items: center; }
-      .hero-copy .tagline { display: block; color: var(--rose); font-size: 1.9rem; line-height: 1.3; margin-bottom: 0.5rem; text-align: right; }
+      .hero-copy .tagline { display: block; color: var(--rose-deep); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.7rem; text-align: right; }
       h1 { font-size: clamp(2.3rem, 5.4vw, 3.7rem); font-weight: 900; margin: 0.35rem 0 1.25rem; }
       h1 .hw { unicode-bidi: isolate; direction: ltr; }
       h1 .em { position: relative; white-space: nowrap; color: var(--rose-deep); }
@@ -151,7 +151,7 @@
       .cta-row { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2rem; }
       .cta-note { margin-top: 0.9rem; font-size: 0.9rem; color: var(--ink-soft); }
       .hero-prov { display: flex; gap: 2rem; margin-top: 2.2rem; padding-top: 1.7rem; border-top: 1px solid var(--line); }
-      .hero-prov b { font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: 1.65rem; color: var(--ink); display: block; line-height: 1; }
+      .hero-prov b { font-family: 'Heebo', system-ui, sans-serif; font-weight: 700; font-size: 1.65rem; color: var(--ink); display: block; line-height: 1; }
       .hero-prov span { font-size: 0.82rem; color: var(--ink-soft); }
 
       /* hero load sequence (CSS-only; DOM always present for crawlers) */
@@ -181,9 +181,9 @@
       }
       .js .float-card { animation: bob 5.5s ease-in-out 1.6s infinite; }
       @keyframes bob { 0%,100% { transform: rotate(-1.4deg) translateY(0); } 50% { transform: rotate(-1.4deg) translateY(-9px); } }
-      .float-card h4 { font-family: 'Assistant', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--rose-deep); letter-spacing: 0.05em; margin: 0 0 0.55rem; }
+      .float-card h4 { font-family: 'Heebo', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--rose-deep); letter-spacing: 0.05em; margin: 0 0 0.55rem; }
       .rsvp-nums { display: flex; gap: 1.2rem; align-items: baseline; }
-      .rsvp-nums b { font-family: 'Frank Ruhl Libre', serif; font-size: 1.75rem; line-height: 1; }
+      .rsvp-nums b { font-family: 'Heebo', system-ui, sans-serif; font-size: 1.75rem; line-height: 1; }
       .rsvp-nums small { color: var(--ink-soft); font-size: 0.74rem; }
       .float-chip {
         position: absolute; inset-inline-end: -14px; top: 24px;
@@ -192,7 +192,7 @@
       }
       .js .float-chip { animation: bob2 6s ease-in-out 2s infinite; }
       @keyframes bob2 { 0%,100% { transform: rotate(2deg) translateY(0); } 50% { transform: rotate(2deg) translateY(-7px); } }
-      .float-chip b { font-family: 'Frank Ruhl Libre', serif; font-size: 1.05rem; }
+      .float-chip b { font-family: 'Heebo', system-ui, sans-serif; font-size: 1.05rem; }
 
       .bar { height: 9px; border-radius: 999px; background: #ece1d1; overflow: hidden; margin-top: 0.6rem; }
       .bar i { display: block; height: 100%; border-radius: 999px; width: var(--w); background: var(--grad-rose); }
@@ -241,7 +241,7 @@
       .tables { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
       .tbl { aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--line); display: flex; flex-direction: column;
         align-items: center; justify-content: center; font-size: 0.72rem; color: var(--ink-soft); background: #fbf5ec; }
-      .tbl b { font-family: 'Frank Ruhl Libre', serif; font-size: 0.95rem; color: var(--ink); }
+      .tbl b { font-family: 'Heebo', system-ui, sans-serif; font-size: 0.95rem; color: var(--ink); }
       .tbl.full { border-color: var(--sage); background: #eef2e6; }
       .tbl.full b { color: var(--sage-deep); }
       .tbl.part { border-color: var(--rose); background: #f8ebe3; }
@@ -251,13 +251,13 @@
       .vrow:last-child { border-bottom: 0; }
       .vrow .vname { font-weight: 600; font-size: 0.94rem; }
       .vrow .vsub { grid-column: 1; font-size: 0.78rem; color: var(--ink-soft); }
-      .vrow .vamt { grid-row: 1 / span 2; text-align: end; font-family: 'Frank Ruhl Libre', serif; font-size: 1rem; }
-      .vrow .vamt small { display: block; font-family: 'Assistant', sans-serif; font-size: 0.72rem; color: var(--sage-deep); font-weight: 600; }
+      .vrow .vamt { grid-row: 1 / span 2; text-align: end; font-family: 'Heebo', system-ui, sans-serif; font-size: 1rem; }
+      .vrow .vamt small { display: block; font-family: 'Heebo', sans-serif; font-size: 0.72rem; color: var(--sage-deep); font-weight: 600; }
 
       .brow { margin-bottom: 0.9rem; }
       .brow:last-child { margin-bottom: 0; }
       .brow .btop { display: flex; justify-content: space-between; font-size: 0.86rem; margin-bottom: 0.32rem; }
-      .brow .btop b { font-family: 'Frank Ruhl Libre', serif; }
+      .brow .btop b { font-family: 'Heebo', system-ui, sans-serif; }
 
       /* ---------- photo bands ---------- */
       .photoband { position: relative; min-height: 380px; display: flex; align-items: center; overflow: hidden; }
@@ -265,8 +265,8 @@
       .photoband::after { content: ''; position: absolute; inset: 0; z-index: -1; }
       .photoband.florals::after { background: linear-gradient(to left, rgba(59,53,49,0.05), rgba(59,53,49,0.52) 78%); }
       .photoband .quote { max-width: 30em; color: #fff; padding: 3.8rem 0; }
-      .photoband .quote p { font-family: 'Frank Ruhl Libre', serif; font-weight: 700; font-size: clamp(1.5rem, 3.1vw, 2.15rem); line-height: 1.35; text-shadow: 0 2px 16px rgba(0,0,0,0.3); }
-      .photoband .quote .sig { display: block; margin-top: 1rem; font-family: 'Pinyon Script', cursive; font-size: 1.7rem; opacity: 0.95; }
+      .photoband .quote p { font-family: 'Heebo', system-ui, sans-serif; font-weight: 700; font-size: clamp(1.5rem, 3.1vw, 2.15rem); line-height: 1.35; text-shadow: 0 2px 16px rgba(0,0,0,0.3); }
+      .photoband .quote .sig { display: block; margin-top: 1.1rem; font-size: 0.9rem; opacity: 0.92; }
 
       /* ---------- "more" cards ---------- */
       .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
@@ -283,7 +283,7 @@
       .prov h2 { font-size: clamp(1.7rem, 3.2vw, 2.3rem); }
       .prov p { max-width: 42em; margin: 0.9rem auto 0; color: var(--ink-soft); font-size: 1.1rem; }
       .prov-nums { display: flex; justify-content: center; gap: clamp(2rem, 7vw, 5rem); margin-top: 2.4rem; flex-wrap: wrap; }
-      .prov-nums b { display: block; font-family: 'Frank Ruhl Libre', serif; font-weight: 900; font-size: clamp(2.2rem, 5vw, 3rem); color: var(--rose-deep); line-height: 1; }
+      .prov-nums b { display: block; font-family: 'Heebo', system-ui, sans-serif; font-weight: 900; font-size: clamp(2.2rem, 5vw, 3rem); color: var(--rose-deep); line-height: 1; }
       .prov-nums span { font-size: 0.92rem; color: var(--ink-soft); margin-top: 0.3rem; display: block; }
 
       /* ---------- FAQ ---------- */
@@ -304,15 +304,15 @@
       .final .pb-img { position: absolute; inset: -12% 0; width: 100%; height: 124%; object-fit: cover; z-index: -2; will-change: transform; }
       .final::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(59,53,49,0.74), rgba(59,53,49,0.44)); }
       .final .inner { padding: 6rem 0; color: #fff; }
-      .final .sig { display: block; font-family: 'Pinyon Script', cursive; font-size: 2rem; color: var(--rose-light); margin-bottom: 0.4rem; }
+      .final .sig { display: block; font-size: 0.9rem; color: var(--rose-light); margin-bottom: 0.7rem; }
       .final h2 { font-size: clamp(2rem, 4vw, 2.9rem); color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,0.3); }
       .final p { margin: 0.9rem auto 2rem; max-width: 34em; opacity: 0.95; }
 
       /* ---------- footer ---------- */
       footer { background: var(--ink); color: #d8cec3; padding: 3rem 0 2.2rem; font-size: 0.92rem; }
       .foot { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; }
-      .foot-brand .word { font-family: 'Cormorant Garamond', serif; font-weight: 600; color: #fff; font-size: 1.5rem; letter-spacing: 0.14em; }
-      .foot-brand .sig { display: block; font-family: 'Pinyon Script', cursive; font-size: 1.4rem; color: var(--rose-light); margin-top: 0.2rem; }
+      .foot-brand .word { font-family: 'Heebo', system-ui, sans-serif; font-weight: 600; color: #fff; font-size: 1.5rem; letter-spacing: 0.14em; }
+      .foot-brand .sig { display: block; font-size: 0.82rem; color: var(--rose-light); margin-top: 0.5rem; }
       .foot-links { display: flex; gap: 1.6rem; flex-wrap: wrap; padding-top: 0.4rem; }
       footer a { color: #e7ddd0; }
       footer a:hover { color: var(--rose-light); }
