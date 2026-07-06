@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>document.documentElement.classList.add('js');</script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>WedFlow — אפליקציה לתכנון חתונה: מוזמנים, הושבה, ספקים ותקציב</title>
+    <meta
+      name="description"
+      content="WedFlow היא אפליקציה חינמית בעברית לתכנון חתונה: ניהול רשימת מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, מעקב תקציב וצ'קליסט. כל החתונה במקום אחד, מהנייד או מהמחשב."
+    />
+    <link rel="canonical" href="https://wedflow.live/" />
+    <meta name="theme-color" content="#FBF8F2" />
+
+    <!-- Open Graph / Twitter (expanded in task 03) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="WedFlow" />
+    <meta property="og:locale" content="he_IL" />
+    <meta property="og:url" content="https://wedflow.live/" />
+    <meta property="og:title" content="WedFlow — אפליקציה לתכנון חתונה" />
+    <meta property="og:description" content="כל החתונה במקום אחד: מוזמנים ואישורי הגעה, הושבה, ספקים ותשלומים, תקציב וצ'קליסט. בעברית, מהנייד, בחינם." />
+    <meta property="og:image" content="https://wedflow.live/marketing/band-couple-1600.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="WedFlow — אפליקציה לתכנון חתונה" />
+    <meta name="twitter:description" content="כל החתונה במקום אחד: מוזמנים, הושבה, ספקים, תקציב וצ'קליסט. בעברית, מהנייד, בחינם." />
+    <meta name="twitter:image" content="https://wedflow.live/marketing/band-couple-1600.webp" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=Frank+Ruhl+Libre:wght@500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preload" as="image" href="/marketing/hero-tablescape-1200.webp" />
+
+    <style>
+      :root {
+        --paper: #fbf8f2;
+        --paper-2: #f4ede1;
+        --ink: #2a2620;
+        --ink-soft: #6e6656;
+        --gold: #c9a34e;
+        --gold-deep: #977324;
+        --euc: #5f6b4e;
+        --euc-soft: #8a9576;
+        --blush: #f3e7e0;
+        --card: #ffffff;
+        --line: #e7dfcf;
+        --shadow: 0 18px 50px rgba(42, 38, 32, 0.12);
+        --shadow-sm: 0 8px 24px rgba(42, 38, 32, 0.08);
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'Assistant', system-ui, sans-serif;
+        font-size: 1.0625rem;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1, h2, h3 {
+        font-family: 'Frank Ruhl Libre', 'Times New Roman', serif;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      p { margin: 0; }
+      img { max-width: 100%; display: block; }
+      a { color: inherit; text-decoration: none; }
+      :focus-visible { outline: 2px solid var(--gold-deep); outline-offset: 3px; border-radius: 4px; }
+
+      .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem; }
+      .band { padding: 4.5rem 0; }
+
+      /* eucalyptus sprig — the page's structural signature */
+      .sprig { display: flex; align-items: center; justify-content: center; padding: 0.5rem 0; }
+      .sprig svg { width: 132px; height: 26px; color: var(--euc-soft); }
+
+      /* reveal-on-scroll — only hidden when JS is present, so JS-off shows all */
+      .js .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+      .js .reveal.in { opacity: 1; transform: none; }
+      .js .reveal.d1 { transition-delay: 0.08s; }
+      .js .reveal.d2 { transition-delay: 0.16s; }
+      .js .reveal.d3 { transition-delay: 0.24s; }
+
+      /* ---------- header ---------- */
+      header {
+        position: sticky; top: 0; z-index: 50;
+        background: rgba(251, 248, 242, 0.85);
+        backdrop-filter: saturate(140%) blur(10px);
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+      header.scrolled { border-bottom-color: var(--line); box-shadow: 0 4px 20px rgba(42,38,32,0.05); }
+      .nav { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 0; }
+      .brand { display: flex; align-items: baseline; gap: 0.5rem; }
+      .brand b { font-family: 'Frank Ruhl Libre', serif; font-weight: 900; font-size: 1.4rem; letter-spacing: 0.01em; }
+      .brand span { color: var(--gold-deep); font-size: 0.8rem; font-weight: 600; }
+      .btn { display: inline-block; font-weight: 700; border-radius: 999px; padding: 0.6rem 1.5rem; font-size: 0.98rem;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; }
+      .btn:hover { transform: translateY(-2px); }
+      .btn-gold { color: #fff; background: linear-gradient(120deg, var(--gold) 0%, #b58e30 100%); box-shadow: 0 4px 16px rgba(201,163,78,0.4); }
+      .btn-gold:hover { box-shadow: 0 8px 24px rgba(201,163,78,0.5); }
+      .btn-ghost { color: var(--ink); border: 1px solid var(--line); background: var(--card); }
+      .btn-ghost:hover { border-color: var(--gold); }
+      .btn-lg { padding: 0.85rem 2.1rem; font-size: 1.08rem; }
+
+      /* ---------- hero ---------- */
+      .hero { padding: 3.2rem 0 4rem; position: relative; overflow: hidden; }
+      .hero::before {
+        content: ''; position: absolute; inset: 0; z-index: -1;
+        background:
+          radial-gradient(60% 55% at 88% 8%, rgba(201,163,78,0.10), transparent 70%),
+          radial-gradient(50% 50% at 6% 90%, rgba(95,107,78,0.08), transparent 70%);
+      }
+      .hero-grid { display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 3.4rem; align-items: center; }
+      .eyebrow { color: var(--gold-deep); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.18em; }
+      h1 { font-size: clamp(2.1rem, 5vw, 3.35rem); margin: 0.7rem 0 1.15rem; }
+      h1 .em { color: var(--gold-deep); }
+      .lead { font-size: 1.16rem; color: var(--ink-soft); max-width: 33em; }
+      .cta-row { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.9rem; }
+      .cta-note { margin-top: 0.85rem; font-size: 0.88rem; color: var(--ink-soft); }
+      .hero-prov { display: flex; gap: 1.8rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+      .hero-prov b { font-family: 'Frank Ruhl Libre', serif; font-size: 1.55rem; color: var(--ink); display: block; line-height: 1; }
+      .hero-prov span { font-size: 0.82rem; color: var(--ink-soft); }
+
+      /* hero photo frame + floating product card */
+      .hero-media { position: relative; }
+      .frame {
+        position: relative; border-radius: 20px; overflow: hidden;
+        box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.6);
+        transform: rotate(0.6deg);
+      }
+      .frame img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/3; }
+      .float-card {
+        position: absolute; inset-inline-start: -18px; bottom: -26px; width: min(66%, 290px);
+        background: rgba(255,255,255,0.92); backdrop-filter: blur(6px);
+        border: 1px solid var(--line); border-radius: 16px; padding: 0.95rem 1.05rem;
+        box-shadow: var(--shadow); transform: rotate(-1.2deg);
+      }
+      .float-card h4 { font-family: 'Assistant', sans-serif; font-weight: 700; font-size: 0.78rem; color: var(--gold-deep); letter-spacing: 0.05em; margin: 0 0 0.55rem; }
+      .rsvp-nums { display: flex; gap: 1.1rem; align-items: baseline; }
+      .rsvp-nums b { font-family: 'Frank Ruhl Libre', serif; font-size: 1.7rem; line-height: 1; }
+      .rsvp-nums small { color: var(--ink-soft); font-size: 0.74rem; }
+      .float-chip {
+        position: absolute; inset-inline-end: -14px; top: 22px;
+        background: var(--euc); color: #fff; border-radius: 12px; padding: 0.5rem 0.8rem;
+        font-size: 0.82rem; font-weight: 600; box-shadow: var(--shadow-sm); transform: rotate(2deg);
+      }
+      .float-chip b { font-family: 'Frank Ruhl Libre', serif; font-size: 1.05rem; }
+
+      /* progress bar */
+      .bar { height: 9px; border-radius: 999px; background: #efe7d6; overflow: hidden; margin-top: 0.6rem; }
+      .bar i { display: block; height: 100%; border-radius: 999px; width: var(--w);
+        background: linear-gradient(to left, var(--gold), #e6c96a); }
+      .js .bar i { width: 0; transition: width 1.3s cubic-bezier(.22,.61,.36,1); }
+      .js .in .bar i { width: var(--w); }
+
+      /* ---------- section heads ---------- */
+      .sec-head { max-width: 42em; margin: 0 auto 3rem; text-align: center; }
+      .sec-head .eyebrow { display: block; margin-bottom: 0.6rem; }
+      .sec-head h2 { font-size: clamp(1.7rem, 3.4vw, 2.25rem); }
+      .sec-head p { color: var(--ink-soft); margin-top: 0.75rem; }
+
+      /* ---------- feature rows ---------- */
+      .feature { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+      .feature + .feature { margin-top: 4.2rem; }
+      .feature.flip .feat-media { order: -1; }
+      .feat-text .kicker { color: var(--euc); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.08em; }
+      .feat-text h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0.5rem 0 0.85rem; }
+      .feat-text p { color: var(--ink-soft); }
+      .feat-text ul { margin: 1.1rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.5rem; }
+      .feat-text li { position: relative; padding-inline-start: 1.5rem; color: var(--ink); font-size: 0.98rem; }
+      .feat-text li::before { content: ''; position: absolute; inset-inline-start: 0; top: 0.62em; width: 8px; height: 8px;
+        border-radius: 50%; background: var(--gold); }
+
+      /* product mockups (recreations of real WedFlow screens) */
+      .mock { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+      .mock-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1rem; border-bottom: 1px solid var(--line); background: #fcfaf5; }
+      .mock-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+      .mock-bar i:nth-child(1){ background:#e6b8a6;} .mock-bar i:nth-child(2){ background:#e6d3a6;} .mock-bar i:nth-child(3){ background:#bcd0a6;}
+      .mock-bar span { margin-inline-start: auto; font-size: 0.76rem; color: var(--ink-soft); font-weight: 600; }
+      .mock-body { padding: 1.1rem 1.15rem; }
+      figure { margin: 0; }
+      figcaption { font-size: 0.82rem; color: var(--ink-soft); margin-top: 0.75rem; text-align: center; }
+
+      /* guests table mock */
+      .grow { display: grid; grid-template-columns: 1.4fr 0.8fr auto; gap: 0.5rem; align-items: center;
+        padding: 0.6rem 0.2rem; border-bottom: 1px solid #f1ebdd; font-size: 0.92rem; }
+      .grow:last-child { border-bottom: 0; }
+      .grow .side { color: var(--ink-soft); font-size: 0.85rem; }
+      .tag { font-size: 0.74rem; font-weight: 700; padding: 0.16rem 0.6rem; border-radius: 999px; white-space: nowrap; }
+      .tag.ok { background: #e7f0e2; color: #4a6b3c; }
+      .tag.wait { background: #f6edd6; color: #8a6c1d; }
+      .tag.no { background: #f3e2df; color: #a25248; }
+
+      /* seating mock */
+      .tables { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; }
+      .tbl { aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--line); display: flex; flex-direction: column;
+        align-items: center; justify-content: center; font-size: 0.72rem; color: var(--ink-soft); background: #fcfaf5; }
+      .tbl b { font-family: 'Frank Ruhl Libre', serif; font-size: 0.95rem; color: var(--ink); }
+      .tbl.full { border-color: var(--euc-soft); background: #eef2e8; }
+      .tbl.full b { color: var(--euc); }
+      .tbl.part { border-color: var(--gold); background: #fbf3df; }
+
+      /* vendors / payments mock */
+      .vrow { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem 1rem; align-items: center;
+        padding: 0.65rem 0.2rem; border-bottom: 1px solid #f1ebdd; }
+      .vrow:last-child { border-bottom: 0; }
+      .vrow .vname { font-weight: 600; font-size: 0.94rem; }
+      .vrow .vsub { grid-column: 1; font-size: 0.78rem; color: var(--ink-soft); }
+      .vrow .vamt { grid-row: 1 / span 2; text-align: end; font-family: 'Frank Ruhl Libre', serif; font-size: 1rem; }
+      .vrow .vamt small { display: block; font-family: 'Assistant', sans-serif; font-size: 0.72rem; color: var(--euc); font-weight: 600; }
+
+      /* budget mock */
+      .brow { margin-bottom: 0.85rem; }
+      .brow:last-child { margin-bottom: 0; }
+      .brow .btop { display: flex; justify-content: space-between; font-size: 0.86rem; margin-bottom: 0.3rem; }
+      .brow .btop b { font-family: 'Frank Ruhl Libre', serif; }
+
+      /* ---------- photo bands ---------- */
+      .photoband { position: relative; min-height: 340px; display: flex; align-items: center; overflow: hidden; }
+      .photoband img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+      .photoband::after { content: ''; position: absolute; inset: 0; z-index: -1; }
+      .photoband.florals::after { background: linear-gradient(to left, rgba(42,38,32,0.06), rgba(42,38,32,0.5) 78%); }
+      .photoband .quote { max-width: 30em; color: #fff; padding: 3.5rem 0; }
+      .photoband .quote p { font-family: 'Frank Ruhl Libre', serif; font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.35; text-shadow: 0 1px 12px rgba(0,0,0,0.25); }
+      .photoband .quote span { display: block; margin-top: 0.9rem; font-family: 'Assistant', sans-serif; font-size: 0.95rem; opacity: 0.9; }
+
+      /* ---------- "more" cards ---------- */
+      .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+      .mcard { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.6rem 1.5rem; box-shadow: var(--shadow-sm); }
+      .mcard .glyph { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; background: var(--blush); margin-bottom: 0.9rem; }
+      .mcard .glyph svg { width: 24px; height: 24px; color: var(--gold-deep); }
+      .mcard h2 { font-size: 1.28rem; margin-bottom: 0.55rem; }
+      .mcard p { color: var(--ink-soft); font-size: 0.98rem; }
+
+      /* ---------- provenance strip ---------- */
+      .prov { background: var(--paper-2); text-align: center; }
+      .prov h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+      .prov p { max-width: 40em; margin: 0.8rem auto 0; color: var(--ink-soft); }
+      .prov-nums { display: flex; justify-content: center; gap: clamp(1.8rem, 6vw, 4rem); margin-top: 2rem; flex-wrap: wrap; }
+      .prov-nums b { display: block; font-family: 'Frank Ruhl Libre', serif; font-size: clamp(2rem, 5vw, 2.8rem); color: var(--gold-deep); line-height: 1; }
+      .prov-nums span { font-size: 0.9rem; color: var(--ink-soft); }
+
+      /* ---------- FAQ ---------- */
+      .faq-wrap { max-width: 760px; margin: 0 auto; }
+      .faq details { border-bottom: 1px solid var(--line); padding: 0.35rem 0; }
+      .faq summary { list-style: none; cursor: pointer; padding: 1rem 0; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+      .faq summary::-webkit-details-marker { display: none; }
+      .faq summary h3 { font-size: 1.12rem; }
+      .faq summary .plus { flex: none; width: 24px; height: 24px; position: relative; transition: transform 0.25s ease; }
+      .faq summary .plus::before, .faq summary .plus::after { content: ''; position: absolute; background: var(--gold-deep); border-radius: 2px; }
+      .faq summary .plus::before { inset-inline-start: 50%; top: 4px; bottom: 4px; width: 2px; transform: translateX(-50%); }
+      .faq summary .plus::after { top: 50%; inset-inline: 4px; height: 2px; transform: translateY(-50%); }
+      .faq details[open] summary .plus { transform: rotate(135deg); }
+      .faq details p { color: var(--ink-soft); padding: 0 0 1.1rem; max-width: 62ch; }
+
+      /* ---------- final CTA ---------- */
+      .final { position: relative; overflow: hidden; text-align: center; }
+      .final img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+      .final::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(42,38,32,0.72), rgba(42,38,32,0.42)); }
+      .final .inner { padding: 5.5rem 0; color: #fff; }
+      .final h2 { font-size: clamp(1.9rem, 4vw, 2.8rem); color: #fff; text-shadow: 0 2px 16px rgba(0,0,0,0.3); }
+      .final p { margin: 0.8rem auto 1.9rem; max-width: 34em; opacity: 0.95; }
+
+      /* ---------- footer ---------- */
+      footer { background: var(--ink); color: #d9d1c4; padding: 2.6rem 0 2rem; font-size: 0.92rem; }
+      .foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+      .foot-links { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+      footer a { color: #e8dfd0; }
+      footer a:hover { color: var(--gold); }
+      .foot-brand b { font-family: 'Frank Ruhl Libre', serif; font-weight: 900; color: #fff; font-size: 1.15rem; }
+      .copyright { margin-top: 1.6rem; padding-top: 1.3rem; border-top: 1px solid rgba(255,255,255,0.12); font-size: 0.82rem; opacity: 0.75; }
+
+      /* ---------- responsive ---------- */
+      @media (max-width: 860px) {
+        .band { padding: 3.2rem 0; }
+        .hero { padding-top: 2rem; }
+        .hero-grid { grid-template-columns: 1fr; gap: 3.4rem; }
+        .hero-media { margin-inline: 0.5rem; }
+        .feature { grid-template-columns: 1fr; gap: 1.8rem; }
+        .feature.flip .feat-media { order: 0; }
+        .more-grid { grid-template-columns: 1fr; }
+        .hero-prov { gap: 1.3rem; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .js .reveal { opacity: 1 !important; transform: none !important; }
+        .js .bar i { transition: none; width: var(--w); }
+        * { animation-duration: 0.001ms !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <header id="site-header">
+      <div class="wrap nav">
+        <a class="brand" href="/" aria-label="WedFlow — דף הבית">
+          <b>WedFlow</b>
+          <span>מטה החתונה שלכם</span>
+        </a>
+        <a class="btn btn-ghost" href="/app">כניסה למערכת</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============ HERO ============ -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy reveal">
+            <p class="eyebrow">מטה החתונה שלכם</p>
+            <h1>WedFlow — <span class="em">אפליקציה לתכנון חתונה</span>: כל האירוע במקום אחד</h1>
+            <p class="lead">
+              WedFlow היא אפליקציית אינטרנט בעברית לתכנון חתונה, לזוגות שמתחתנים בישראל.
+              במקום אקסל של מוזמנים, קבוצת וואטסאפ למשפחה ופנקס של תשלומים — מנהלים הכול
+              במערכת אחת: רשימת מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, תקציב
+              וצ'קליסט. מהנייד ומהמחשב, בלי להתקין כלום.
+            </p>
+            <div class="cta-row">
+              <a class="btn btn-gold btn-lg" href="/app">מתחילים לתכנן — בחינם</a>
+              <a class="btn btn-ghost btn-lg" href="/app">כניסה למערכת</a>
+            </div>
+            <p class="cta-note">הרשמה עם Google או אימייל — בלי כרטיס אשראי.</p>
+            <div class="hero-prov">
+              <div><b>352</b><span>מוזמנים נוהלו</span></div>
+              <div><b>26</b><span>שולחנות סודרו</span></div>
+              <div><b>99</b><span>משימות בצ'קליסט</span></div>
+            </div>
+          </div>
+
+          <div class="hero-media reveal d2 in">
+            <div class="frame">
+              <img
+                src="/marketing/hero-tablescape-1200.webp"
+                srcset="/marketing/hero-tablescape-640.webp 640w, /marketing/hero-tablescape-1200.webp 1200w"
+                sizes="(max-width: 860px) 92vw, 46vw"
+                width="1200" height="900" fetchpriority="high"
+                alt="שולחן חתונה ערוך עם ריצפת אקליפטוס, נרות וכלי הגשה — מתוך אירוע שנוהל ב-WedFlow"
+              />
+              <div class="float-card">
+                <h4>אישורי הגעה</h4>
+                <div class="rsvp-nums">
+                  <span><b data-count="245">245</b> <small>אישרו</small></span>
+                  <span><b data-count="58">58</b> <small>ממתינים</small></span>
+                </div>
+                <div class="bar"><i style="--w:74%"></i></div>
+              </div>
+              <div class="float-chip">שולחן 13 · <b>24/24</b> ✓</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="sprig" aria-hidden="true">
+        <svg viewBox="0 0 132 26" fill="none" stroke="currentColor" stroke-width="1.3">
+          <path d="M2 13 H130" stroke-width="1" opacity="0.5"/>
+          <g fill="currentColor" stroke="none">
+            <ellipse cx="52" cy="8" rx="7" ry="3.4" transform="rotate(-24 52 8)"/>
+            <ellipse cx="62" cy="6.5" rx="7.5" ry="3.4" transform="rotate(-12 62 6.5)"/>
+            <ellipse cx="80" cy="6.5" rx="7.5" ry="3.4" transform="rotate(12 80 6.5)"/>
+            <ellipse cx="90" cy="8" rx="7" ry="3.4" transform="rotate(24 90 8)"/>
+            <ellipse cx="57" cy="18" rx="7" ry="3.4" transform="rotate(24 57 18)"/>
+            <ellipse cx="85" cy="18" rx="7" ry="3.4" transform="rotate(-24 85 18)"/>
+            <circle cx="66" cy="13" r="2.6"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ============ FEATURES ============ -->
+      <section class="band" id="features" aria-labelledby="features-title">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="eyebrow">מה יש במערכת</span>
+            <h2 id="features-title">הכלים שמנהלים חתונה באמת</h2>
+            <p>כל מה שמרכיב את התכנון — מרשימת המוזמנים הראשונה ועד הבוקר של האירוע — במקום אחד, מעודכן ומשותף.</p>
+          </div>
+
+          <!-- Feature 1: Guests -->
+          <div class="feature reveal">
+            <div class="feat-text">
+              <span class="kicker">אורחים</span>
+              <h2>ניהול אורחים ואישורי הגעה</h2>
+              <p>
+                כל המוזמנים בטבלה אחת: צד, קרבה, מספר מקומות, סטטוס אישור הגעה והערות.
+                מסננים לפי צד או סטטוס, מעדכנים בקליק, ויודעים בכל רגע כמה אורחים באמת מגיעים.
+              </p>
+              <ul>
+                <li>ייבוא רשימה קיימת מ־iPlan ועדכון סטטוסים מ־Wiwi</li>
+                <li>ייצוא כל הרשימה ל־CSV מתי שרוצים</li>
+                <li>ספירת מקומות אמיתית לפי אישורי הגעה</li>
+              </ul>
+            </div>
+            <div class="feat-media">
+              <figure>
+                <div class="mock" role="img" aria-label="טבלת ניהול מוזמנים ב-WedFlow: לכל אורח צד, קרבה וסטטוס אישור הגעה (אישרו, ממתינים, לא מגיעים)">
+                  <div class="mock-bar"><i></i><i></i><i></i><span>רשימת מוזמנים · 352</span></div>
+                  <div class="mock-body">
+                    <div class="grow"><span>משפחת כהן</span><span class="side">כלה · משפחה</span><span class="tag ok">אישרו 6</span></div>
+                    <div class="grow"><span>דנה לוי</span><span class="side">חתן · חברים</span><span class="tag ok">אישרו 2</span></div>
+                    <div class="grow"><span>יוסי מזרחי</span><span class="side">חתן · עבודה</span><span class="tag wait">ממתין</span></div>
+                    <div class="grow"><span>משפחת אזולאי</span><span class="side">כלה · משפחה</span><span class="tag ok">אישרו 4</span></div>
+                    <div class="grow"><span>רון ושירה</span><span class="side">משותף · חברים</span><span class="tag no">לא מגיעים</span></div>
+                  </div>
+                </div>
+                <figcaption>רשימת המוזמנים — סטטוס הגעה, צד וקרבה לכל אורח</figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <!-- Feature 2: Seating -->
+          <div class="feature flip reveal">
+            <div class="feat-text">
+              <span class="kicker">הושבה</span>
+              <h2>סידורי הושבה</h2>
+              <p>
+                בונים את מפת האולם על מסך אחד: מציבים אורחים בשולחנות, רואים כמה מקומות נשארו
+                בכל שולחן, ומוודאים שאף אחד לא נשאר בלי כיסא. שינוי של הרגע האחרון? מזיזים,
+                שומרים, סוגרים עניין.
+              </p>
+              <ul>
+                <li>מפת שולחנות עם תפוסה חיה לכל שולחן</li>
+                <li>גרירה והצבה של אורחים בין שולחנות</li>
+                <li>התראה על שולחנות שחורגים מהקיבולת</li>
+              </ul>
+            </div>
+            <div class="feat-media">
+              <figure>
+                <div class="mock" role="img" aria-label="מפת סידורי הושבה ב-WedFlow: שולחנות עגולים עם תפוסת מקומות — מלאים, חלקיים ופנויים">
+                  <div class="mock-bar"><i></i><i></i><i></i><span>מפת הושבה · 26 שולחנות</span></div>
+                  <div class="mock-body">
+                    <div class="tables">
+                      <div class="tbl full"><b>13</b>24/24</div>
+                      <div class="tbl full"><b>7</b>12/12</div>
+                      <div class="tbl part"><b>9</b>9/12</div>
+                      <div class="tbl"><b>4</b>5/12</div>
+                      <div class="tbl full"><b>16</b>24/24</div>
+                      <div class="tbl part"><b>2</b>8/12</div>
+                      <div class="tbl"><b>11</b>3/12</div>
+                      <div class="tbl full"><b>1</b>12/12</div>
+                    </div>
+                  </div>
+                </div>
+                <figcaption>מפת ההושבה — תפוסה בכל שולחן במבט אחד</figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <!-- Feature 3: Vendors / payments -->
+          <div class="feature reveal">
+            <div class="feat-text">
+              <span class="kicker">ספקים ותשלומים</span>
+              <h2>ניהול ספקים ותשלומים</h2>
+              <p>
+                אולם, צלם, דיג'יי, שמלה — לכל ספק כרטיס עם הסכום שסוכם, המקדמות ששולמו והיתרה
+                שנשארה. בלי לחפש בהודעות מה סיכמתם לפני חצי שנה: הכול רשום, מסודר, וסכום־הכול
+                מתעדכן לבד.
+              </p>
+              <ul>
+                <li>מקדמות, תשלומים עתידיים ויתרה פתוחה לכל ספק</li>
+                <li>סכום כולל של האירוע מתעדכן אוטומטית</li>
+              </ul>
+            </div>
+            <div class="feat-media">
+              <figure>
+                <div class="mock" role="img" aria-label="ניהול ספקים ותשלומים ב-WedFlow: לכל ספק סכום שסוכם, ששולם והיתרה שנותרה">
+                  <div class="mock-bar"><i></i><i></i><i></i><span>ספקים · יתרה כוללת ₪2,674</span></div>
+                  <div class="mock-body">
+                    <div class="vrow"><span class="vname">אולם אירועים</span><span class="vsub">שולם ₪90,000 מתוך ₪95,000</span><span class="vamt">₪95,000<small>יתרה ₪5,000</small></span></div>
+                    <div class="vrow"><span class="vname">צילום סטילס ווידאו</span><span class="vsub">שולם במלואו</span><span class="vamt">₪14,000<small>שולם ✓</small></span></div>
+                    <div class="vrow"><span class="vname">דיג'יי</span><span class="vsub">מקדמה ₪2,000</span><span class="vamt">₪6,500<small>יתרה ₪4,500</small></span></div>
+                    <div class="vrow"><span class="vname">שמלת כלה</span><span class="vsub">שולם במלואו</span><span class="vamt">₪9,800<small>שולם ✓</small></span></div>
+                  </div>
+                </div>
+                <figcaption>ספקים ותשלומים — מקדמות ויתרות לכל ספק</figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <!-- Feature 4: Budget -->
+          <div class="feature flip reveal">
+            <div class="feat-text">
+              <span class="kicker">תקציב</span>
+              <h2>מעקב תקציב</h2>
+              <p>
+                קובעים תקציב, רושמים הוצאות, ורואים כמה נוצל וכמה נשאר — לפי קטגוריה. מחשבון
+                החתונה עוזר לבדוק איך ההוצאות מסתדרות מול המתנות הצפויות, כדי שההחלטות הגדולות
+                יתקבלו עם מספרים ולא עם תחושת בטן.
+              </p>
+              <ul>
+                <li>ניצול מול תכנון, לפי קטגוריה</li>
+                <li>מחשבון הכנסות מול הוצאות לפי צפי מתנות</li>
+              </ul>
+            </div>
+            <div class="feat-media">
+              <figure>
+                <div class="mock" role="img" aria-label="מעקב תקציב חתונה ב-WedFlow: הוצאות לפי קטגוריה מול התקציב שהוגדר">
+                  <div class="mock-bar"><i></i><i></i><i></i><span>תקציב · ₪180,000</span></div>
+                  <div class="mock-body">
+                    <div class="brow"><div class="btop"><span>אולם וקייטרינג</span><b>₪95,000</b></div><div class="bar"><i style="--w:88%"></i></div></div>
+                    <div class="brow"><div class="btop"><span>צילום</span><b>₪14,000</b></div><div class="bar"><i style="--w:52%"></i></div></div>
+                    <div class="brow"><div class="btop"><span>עיצוב ופרחים</span><b>₪12,500</b></div><div class="bar"><i style="--w:44%"></i></div></div>
+                    <div class="brow"><div class="btop"><span>מוזיקה</span><b>₪6,500</b></div><div class="bar"><i style="--w:26%"></i></div></div>
+                  </div>
+                </div>
+                <figcaption>התקציב — ניצול מול תכנון, לפי קטגוריה</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PHOTO BAND — florals ============ -->
+      <section class="photoband florals reveal" aria-label="על WedFlow">
+        <img
+          src="/marketing/band-florals-1600.webp" width="1600" height="600" loading="lazy"
+          alt="ידיים של זוג טרי נשוי עם טבעות נישואין מונחות על זר כלה"
+        />
+        <div class="wrap">
+          <div class="quote">
+            <p>כל ההחלטות הקטנות שמרכיבות יום אחד גדול — במקום אחד, רגועות ומסודרות.</p>
+            <span>WedFlow — מטה החתונה שלכם</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MORE (checklist + wedding day) ============ -->
+      <section class="band">
+        <div class="wrap">
+          <div class="more-grid">
+            <div class="mcard reveal">
+              <div class="glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </div>
+              <h2>צ'קליסט לחתונה</h2>
+              <p>
+                רשימת משימות מסודרת לאורך ציר הזמן של התכנון — מסגירת האולם ועד השבוע האחרון.
+                מסמנים מה בוצע, מוסיפים משימות משלכם, ושום דבר לא נופל בין הכיסאות.
+              </p>
+            </div>
+            <div class="mcard reveal d1">
+              <div class="glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <h2>מצב יום החתונה</h2>
+              <p>
+                ביום עצמו המערכת עוברת למצב אירוע: צ'קליסט של יום החתונה, מפת האולם, טלפונים של
+                כל הספקים וחיפוש מהיר לאיזה שולחן שייך כל אורח. הכול מהנייד, בזמן שהכול קורה —
+                ואחרי החופה, מעקב מתנות מסודר עם דוח מסכם לכל אורח.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PROVENANCE ============ -->
+      <section class="band prov reveal">
+        <div class="wrap">
+          <h2>נבנה מתוך חתונה אמיתית</h2>
+          <p>
+            WedFlow לא נולדה במצגת — היא נבנתה כדי לנהל חתונה אחת אמיתית, על כל הבלגן שבה, והפכה
+            למערכת שמסודרת מספיק בשביל כל חתונה.
+          </p>
+          <div class="prov-nums">
+            <div><b>352</b><span>מוזמנים נוהלו</span></div>
+            <div><b>26</b><span>שולחנות סודרו</span></div>
+            <div><b>99</b><span>משימות בצ'קליסט</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FAQ ============ -->
+      <section class="band" id="faq" aria-labelledby="faq-title">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="eyebrow">שאלות נפוצות</span>
+            <h2 id="faq-title">כל מה ששואלים לפני שמתחילים</h2>
+          </div>
+          <div class="faq-wrap faq reveal">
+            <details open>
+              <summary><h3>כמה עולה WedFlow?</h3><span class="plus" aria-hidden="true"></span></summary>
+              <p>בשלב זה WedFlow חינמית לגמרי. נרשמים עם חשבון Google או עם אימייל וסיסמה ומתחילים לעבוד — בלי כרטיס אשראי ובלי התחייבות.</p>
+            </details>
+            <details>
+              <summary><h3>האם זה מתאים גם לחתונה קטנה?</h3><span class="plus" aria-hidden="true"></span></summary>
+              <p>כן. המערכת נוסתה על חתונה של מאות מוזמנים, אבל עובדת באותה מידה לאירוע אינטימי — רשימת מוזמנים, תקציב וצ'קליסט צריכים סדר בכל גודל של אירוע.</p>
+            </details>
+            <details>
+              <summary><h3>אפשר לתכנן יחד — בני זוג ומשפחה?</h3><span class="plus" aria-hidden="true"></span></summary>
+              <p>כן. כל חתונה ב-WedFlow תומכת בכמה משתתפים עם הרשאות לפי תפקיד: בעלי החתונה, שותפים לתכנון ובני משפחה — כך שכל אחד רואה את מה שרלוונטי לו.</p>
+            </details>
+            <details>
+              <summary><h3>האם הנתונים שלנו מאובטחים?</h3><span class="plus" aria-hidden="true"></span></summary>
+              <p>כן. החיבור לאתר מוצפן, הנתונים נשמרים במסד נתונים עם הרשאות מבודדות לכל חתונה, וההתחברות נעשית עם Google או עם אימייל וסיסמה. הנתונים שייכים לכם — ואפשר לייצא אותם לקובץ בכל רגע.</p>
+            </details>
+            <details>
+              <summary><h3>צריך להתקין אפליקציה?</h3><span class="plus" aria-hidden="true"></span></summary>
+              <p>לא. WedFlow עובדת בדפדפן — מהנייד, מהטאבלט ומהמחשב. פותחים את wedflow.live, מתחברים, וממשיכים בדיוק מאיפה שעצרתם, מכל מכשיר.</p>
+            </details>
+            <details>
+              <summary><h3>יש לנו כבר רשימת מוזמנים — אפשר לייבא אותה?</h3><span class="plus" aria-hidden="true"></span></summary>
+              <p>כן. אפשר לייבא רשימת מוזמנים קיימת מ־iPlan, לעדכן סטטוסים של אישורי הגעה מ־Wiwi, ולייצא את הרשימה המלאה לקובץ CSV בכל שלב.</p>
+            </details>
+            <details>
+              <summary><h3>מה קורה אחרי החתונה?</h3><span class="plus" aria-hidden="true"></span></summary>
+              <p>הנתונים נשארים שלכם: מעקב המתנות מפיק דוח מסודר לכל אורח, ואת כל הרשימות אפשר לייצא ולשמור.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section class="final">
+      <img
+        src="/marketing/band-couple-1600.webp" width="1600" height="800" loading="lazy"
+        alt="זוג טרי נשוי מחייך על רקע נוף סתווי מוזהב"
+      />
+      <div class="wrap inner">
+        <h2>החתונה שלכם, מסודרת</h2>
+        <p>נרשמים בחינם ומעבירים את התכנון מהאקסל והוואטסאפ למקום אחד.</p>
+        <a class="btn btn-gold btn-lg" href="/app">מתחילים לתכנן — בחינם</a>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <div class="foot">
+          <div class="foot-brand">
+            <b>WedFlow</b> · מטה החתונה שלכם
+          </div>
+          <nav class="foot-links" aria-label="ניווט תחתון">
+            <a href="/app">כניסה למערכת</a>
+            <a href="#features">תכונות</a>
+            <a href="#faq">שאלות נפוצות</a>
+          </nav>
+        </div>
+        <div class="copyright">© 2026 WedFlow · wedflow.live · נבנה באהבה עבור זוגות שמתחתנים בישראל</div>
+      </div>
+    </footer>
+
+    <!-- JSON-LD (expanded in task 03) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "WedFlow",
+          "url": "https://wedflow.live/",
+          "applicationCategory": "LifestyleApplication",
+          "operatingSystem": "Web",
+          "inLanguage": "he",
+          "description": "אפליקציה בעברית לתכנון חתונה: ניהול מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, תקציב וצ'קליסט.",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "ILS" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "כמה עולה WedFlow?", "acceptedAnswer": { "@type": "Answer", "text": "בשלב זה WedFlow חינמית לגמרי. נרשמים עם חשבון Google או עם אימייל וסיסמה ומתחילים לעבוד — בלי כרטיס אשראי ובלי התחייבות." } },
+            { "@type": "Question", "name": "האם זה מתאים גם לחתונה קטנה?", "acceptedAnswer": { "@type": "Answer", "text": "כן. המערכת נוסתה על חתונה של מאות מוזמנים, אבל עובדת באותה מידה לאירוע אינטימי." } },
+            { "@type": "Question", "name": "אפשר לתכנן יחד — בני זוג ומשפחה?", "acceptedAnswer": { "@type": "Answer", "text": "כן. כל חתונה ב-WedFlow תומכת בכמה משתתפים עם הרשאות לפי תפקיד: בעלי החתונה, שותפים לתכנון ובני משפחה." } },
+            { "@type": "Question", "name": "האם הנתונים שלנו מאובטחים?", "acceptedAnswer": { "@type": "Answer", "text": "כן. החיבור מוצפן, הנתונים נשמרים עם הרשאות מבודדות לכל חתונה, וההתחברות נעשית עם Google או אימייל וסיסמה. אפשר לייצא את הנתונים בכל רגע." } },
+            { "@type": "Question", "name": "צריך להתקין אפליקציה?", "acceptedAnswer": { "@type": "Answer", "text": "לא. WedFlow עובדת בדפדפן — מהנייד, מהטאבלט ומהמחשב, בלי התקנה." } },
+            { "@type": "Question", "name": "יש לנו כבר רשימת מוזמנים — אפשר לייבא אותה?", "acceptedAnswer": { "@type": "Answer", "text": "כן. אפשר לייבא רשימה מ־iPlan, לעדכן סטטוסי אישורי הגעה מ־Wiwi, ולייצא הכול ל־CSV." } }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <script>
+      (function () {
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Sticky header shadow
+        var header = document.getElementById('site-header');
+        var onScroll = function () { header.classList.toggle('scrolled', window.scrollY > 8); };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        if (reduce || !('IntersectionObserver' in window)) {
+          document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+          return;
+        }
+
+        // Scroll reveals + bar fills
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+          });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+
+        // Count-up for hero RSVP numbers
+        var counters = document.querySelectorAll('[data-count]');
+        var cio = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (!e.isIntersecting) return;
+            var el = e.target, target = +el.getAttribute('data-count'), start = null;
+            var step = function (t) {
+              if (!start) start = t;
+              var p = Math.min((t - start) / 900, 1);
+              el.textContent = Math.round(p * target);
+              if (p < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+            cio.unobserve(el);
+          });
+        }, { threshold: 0.5 });
+        counters.forEach(function (el) { cio.observe(el); });
+      })();
+    </script>
+  </body>
+</html>
