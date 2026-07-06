@@ -4,6 +4,8 @@
 
 The cornerstone task. Today `wedflow.live/` renders an auth-gated login screen with ~10 words of UI text — there is nothing to rank or cite. Build a public, crawlable, Hebrew marketing landing page at `/` and move the app behind it.
 
+> ⚠️ **KEYWORD UPDATE from task 05 (2026-07-06) — affects landing copy.** The working keyword `אפליקציה לתכנון חתונה` was **demoted**: it has near-zero standalone search demand (zero autocomplete expansion). Keep it in the title/H1 as the exact category label, but the primary theme is now **`תכנון חתונה`**, and the real high-intent traffic is in feature verticals (`אישורי הגעה לחתונה`, `סידורי הושבה לחתונה`). **Positioning angle:** lead on *one integrated Hebrew suite* (guests+RSVP+seating+budget+checklist), NOT "free RSVP" — that vertical is saturated by dedicated free tools (matana, diginet, iplan) and mit4mit's WedPlanner. See task 05 §5.1–5.3 for the full evidence and competitor map.
+
 ## Architecture decision
 
 - [ ] Choose the serving strategy (pick one, document why):
