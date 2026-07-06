@@ -10,8 +10,8 @@ Full SEO + GEO (AI-answer visibility) plan for **wedflow.live**, derived from th
 
 | # | Task | Priority | Depends on | Status |
 |---|------|----------|-----------|--------|
-| 01 | [Technical foundations](01-technical-foundations.md) | P0 | — | ☑ done 2026-07-06, verified live; pending: final favicon (1.6) |
-| 02 | [Public landing page](02-landing-page.md) | P0 | 01 (partially) | ☐ |
+| 01 | [Technical foundations](01-technical-foundations.md) | P0 | — | ☑ done 2026-07-06, verified live; 1.6 favicon in progress (Omri) |
+| 02 | [Public landing page](02-landing-page.md) | P0 | 01 (partially) | ◐ in progress (separate agent/worktree) |
 | 03 | [Metadata & structured data](03-metadata-and-schema.md) | P1 | 02 | ☐ |
 | 04 | [GEO / AI visibility](04-geo-ai-visibility.md) | P1 | 02, 03 | ☐ |
 | 05 | [Keyword research & content strategy](05-content-strategy.md) | P1 | — (parallel) | ☐ |
