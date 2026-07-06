@@ -1,5 +1,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { sendEmail } from '../_shared/email/send.ts';
+import { roleLabel } from '../_shared/email/templates/index.ts';
 
 const INVITABLE_ROLES = ['coplanner', 'family', 'event_manager'];
 
@@ -41,6 +43,7 @@ Deno.serve(async (req) => {
     }
 
     const normalizedEmail = String(email).toLowerCase();
+    const appUrl = Deno.env.get('APP_URL') ?? 'https://wedflow.live';
 
     // --- Find existing user by email ---
     const { data: existingProfile, error: profileError } = await service.from('profiles')
@@ -51,16 +54,24 @@ Deno.serve(async (req) => {
 
     let userId: string;
     let existing: boolean;
+    let actionUrl = appUrl;
     if (existingProfile) {
       userId = existingProfile.id;
       existing = true;
     } else {
-      const { data: invite, error: inviteError } = await service.auth.admin.inviteUserByEmail(normalizedEmail);
-      if (inviteError) {
-        return Response.json({ error: inviteError.message }, { status: 400, headers: corsHeaders });
+      // Generate an invite link WITHOUT sending Supabase's default email — we send our own
+      // branded invite below. generateLink creates the user and returns the action link.
+      const { data: linkData, error: linkError } = await service.auth.admin.generateLink({
+        type: 'invite',
+        email: normalizedEmail,
+        options: { redirectTo: appUrl },
+      });
+      if (linkError || !linkData?.user) {
+        return Response.json({ error: linkError?.message ?? 'Failed to generate invite link' }, { status: 400, headers: corsHeaders });
       }
-      userId = invite.user.id;
+      userId = linkData.user.id;
       existing = false;
+      actionUrl = linkData.properties?.action_link ?? appUrl;
     }
 
     // --- Upsert membership (manual, to avoid rewriting the text pk on conflict) ---
@@ -81,7 +92,33 @@ Deno.serve(async (req) => {
       }
     }
 
-    return Response.json({ invited: normalizedEmail, existing }, { headers: corsHeaders });
+    // --- Send the branded invite / member-added email ---
+    // Context: who invited, which wedding, what role. A send failure must not undo the
+    // membership just created, so we report emailSent rather than throwing.
+    const [{ data: inviterProfile }, { data: wedding }] = await Promise.all([
+      service.from('profiles').select('full_name, email').eq('id', user.id).maybeSingle(),
+      service.from('weddings').select('couple_names').eq('id', wedding_id).maybeSingle(),
+    ]);
+    const inviterName = inviterProfile?.full_name || inviterProfile?.email || 'מארגן/ת החתונה';
+    const weddingName = wedding?.couple_names || 'החתונה';
+
+    let emailSent = true;
+    let emailError: string | null = null;
+    try {
+      await sendEmail({
+        to: normalizedEmail,
+        templateId: existing ? 'memberAdded' : 'weddingInvite',
+        data: { inviterName, weddingName, roleLabel: roleLabel(role), actionUrl },
+        weddingId: wedding_id,
+        createdById: user.id,
+      });
+    } catch (e) {
+      emailSent = false;
+      emailError = e instanceof Error ? e.message : String(e);
+      console.error('invite email send failed:', emailError);
+    }
+
+    return Response.json({ invited: normalizedEmail, existing, emailSent, emailError }, { headers: corsHeaders });
   } catch (e) {
     return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: corsHeaders });
   }
