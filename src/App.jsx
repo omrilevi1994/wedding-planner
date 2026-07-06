@@ -103,7 +103,7 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <WeddingProvider>
-          <Router>
+          <Router basename="/app">
             <NavigationTracker />
             <AuthenticatedApp />
           </Router>

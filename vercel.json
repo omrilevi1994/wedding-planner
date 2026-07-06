@@ -1,8 +1,19 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/(ActivityLog|AdminDashboard|Calculator|Checklist|Dashboard|Expenses|Gifts|Guests|Home|Payments|SeatingPlan|Settings|UserManagement|Vendors|WeddingMode)",
-      "destination": "/index.html"
+      "destination": "/app/$1",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/app",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/app/(.*)",
+      "destination": "/app.html"
     }
   ]
 }

@@ -1,22 +1,8 @@
 # wedflow.live — https://wedflow.live
-# App routes are auth-gated and excluded; the root will become the public landing page.
+# The app is auth-gated under /app; the root is the public landing page.
 
 User-agent: *
 Allow: /
-Disallow: /ActivityLog
-Disallow: /AdminDashboard
-Disallow: /Calculator
-Disallow: /Checklist
-Disallow: /Dashboard
-Disallow: /Expenses
-Disallow: /Gifts
-Disallow: /Guests
-Disallow: /Home
-Disallow: /Payments
-Disallow: /SeatingPlan
-Disallow: /Settings
-Disallow: /UserManagement
-Disallow: /Vendors
-Disallow: /WeddingMode
+Disallow: /app
 
 Sitemap: https://wedflow.live/sitemap.xml

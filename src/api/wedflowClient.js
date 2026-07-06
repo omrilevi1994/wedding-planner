@@ -92,7 +92,7 @@ const auth = {
   async signInWithGoogle() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}/app` },
     });
     if (error) throw error;
     return data;
@@ -104,7 +104,8 @@ const auth = {
     await supabase.auth.signOut();
   },
   redirectToLogin() {
-    window.location.href = '/login';
+    // Unauthenticated visits to /app render the Login screen (see App.jsx).
+    window.location.href = '/app';
   },
 };
 
