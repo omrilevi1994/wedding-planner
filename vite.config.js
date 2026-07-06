@@ -7,12 +7,18 @@ export default defineConfig({
   logLevel: 'error', // Suppress warnings, only show errors
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      // Trailing slash on both sides so this only matches "@/..." imports and
+      // never prefix-collides with scoped npm packages (@tanstack/*, @radix-ui/*).
+      // Mirrors the jsconfig.json paths mapping ("@/*": ["./src/*"]).
+      '@/': fileURLToPath(new URL('./src/', import.meta.url)),
     },
   },
   server: {
-    host: true,           // bind all interfaces (needed for container/preview access)
-    allowedHosts: true,   // allow tunneled preview hostnames
+    // Dev-only. `host: true` + `allowedHosts: true` are required so the Vite dev
+    // server is reachable through the container's tunneled preview hostname.
+    // Production is served as a static Vercel build, not `vite dev`.
+    host: true,
+    allowedHosts: true,
   },
   plugins: [react()],
 });

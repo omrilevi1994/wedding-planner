@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { wedflow } from '@/api/wedflowClient';
+import { supabase } from '@/lib/supabaseClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWedding } from '@/lib/WeddingContext';
 import { Button } from '@/components/ui/button';
@@ -19,9 +20,15 @@ export default function AdminDashboard() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [form, setForm] = useState({ couple_names: '', wedding_date: '', venue: '', budget_target: '', expected_guests: '' });
 
-  const { data: users = [] } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => wedflow.entities.User.list('-created_date')
+  // Per-wedding membership (platform admin sees all via RLS); joined to profiles for display names
+  const { data: members = [] } = useQuery({
+    queryKey: ['all-wedding-members'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('wedding_members')
+        .select('wedding_id, role, user_id, profiles(full_name, email)');
+      return data || [];
+    }
   });
 
   const createWeddingMutation = useMutation({
@@ -110,9 +117,9 @@ export default function AdminDashboard() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {weddings.map(wedding => {
-            const weddingUsers = users.filter(u => u.wedding_id === wedding.id);
-            const eventOwner = weddingUsers.find(u => u.role === 'user' && (!u.wedding_sides || u.wedding_sides.length === 0));
-            const dayManager = weddingUsers.find(u => u.role === 'event_manager');
+            const weddingUsers = members.filter(m => m.wedding_id === wedding.id);
+            const eventOwner = weddingUsers.find(m => m.role === 'owner');
+            const dayManager = weddingUsers.find(m => m.role === 'event_manager');
             const isActive = wedding.id === activeWeddingId;
 
             return (
@@ -150,13 +157,13 @@ export default function AdminDashboard() {
                     {eventOwner && (
                       <div className="flex items-center gap-2">
                         <UserCog className="w-4 h-4 text-gray-400" />
-                        <span className="text-xs">בעל אירוע: {eventOwner.full_name || eventOwner.email}</span>
+                        <span className="text-xs">בעל אירוע: {eventOwner.profiles?.full_name || eventOwner.profiles?.email}</span>
                       </div>
                     )}
                     {dayManager && (
                       <div className="flex items-center gap-2">
                         <Settings className="w-4 h-4 text-gray-400" />
-                        <span className="text-xs">מנהל חתונה: {dayManager.full_name || dayManager.email}</span>
+                        <span className="text-xs">מנהל חתונה: {dayManager.profiles?.full_name || dayManager.profiles?.email}</span>
                       </div>
                     )}
                     {!eventOwner && !dayManager && (
