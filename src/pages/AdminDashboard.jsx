@@ -3,6 +3,7 @@ import { wedflow } from '@/api/wedflowClient';
 import { supabase } from '@/lib/supabaseClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWedding } from '@/lib/WeddingContext';
+import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +16,7 @@ import { createPageUrl } from '../utils';
 
 export default function AdminDashboard() {
   const { weddings, refreshWeddings, selectWedding, activeWeddingId, isPlatformAdmin } = useWedding();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -34,7 +36,12 @@ export default function AdminDashboard() {
 
   const createWeddingMutation = useMutation({
     mutationFn: async (data) => {
-      const wedding = await wedflow.entities.Wedding.create(data);
+      const wedding = await wedflow.entities.Wedding.create({ ...data, owner_id: user.id });
+      // Platform admins aren't automatically wedding members; add them as
+      // owner so they can see/manage the wedding via the membership-scoped RLS policies.
+      const { error: mErr } = await supabase.from('wedding_members')
+        .insert({ wedding_id: wedding.id, user_id: user.id, role: 'owner' });
+      if (mErr) throw mErr;
       // Create matching WeddingSetting so Settings page is pre-populated
       await wedflow.entities.WeddingSetting.create({
         wedding_id: wedding.id,
