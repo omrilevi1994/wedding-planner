@@ -23,7 +23,7 @@ Measured on 2026-07-06: `/robots.txt` and `/sitemap.xml` serve the SPA's `index.
 ### 1.3 Kill soft-404s
 - [x] `vercel.json` rewrite now enumerates the 15 real app routes instead of `/(.*)`; unknown paths fall through to a 404.
 - [x] Added branded Hebrew `public/404.html` (noindex) — Vercel serves it with a real 404 status.
-- [ ] Verify on live after deploy: `curl -o /dev/null -w "%{http_code}" https://wedflow.live/definitely-not-a-page` → `404`.
+- [x] Verified on live (2026-07-06 post-deploy): unknown URL → `404` with the branded Hebrew page; `/Dashboard` → `200` (app rewrite intact).
 
 ### 1.4 Language declaration
 - [x] `index.html`: `<html lang="he" dir="rtl">` (app containers already set `dir="rtl"`, so this is consistent).
@@ -50,10 +50,12 @@ Measured on 2026-07-06: `/robots.txt` and `/sitemap.xml` serve the SPA's `index.
 - [ ] Replace placeholder `public/favicon.svg` with final brand asset (the HTML comment in `index.html` already flags this).
 - [ ] Add PNG fallback icons (192/512) to `manifest.json` for install prompts and rich results.
 
-## Acceptance criteria
+## Acceptance criteria — all verified live 2026-07-06
 
-- `curl https://wedflow.live/robots.txt` returns `text/plain` with the rules above.
-- `curl https://wedflow.live/sitemap.xml` returns valid XML, `content-type: application/xml`.
-- Unknown URL → HTTP 404.
-- `curl -A "GPTBot" https://wedflow.live/` → HTTP 200 with content.
-- Rendered homepage has `lang="he" dir="rtl"`.
+- [x] `curl https://wedflow.live/robots.txt` returns `text/plain` with the rules above.
+- [x] `curl https://wedflow.live/sitemap.xml` returns valid XML, `content-type: application/xml`.
+- [x] Unknown URL → HTTP 404 (branded Hebrew 404 page).
+- [x] `curl -A "GPTBot" https://wedflow.live/` → HTTP 200 with content.
+- [x] Rendered homepage has `lang="he" dir="rtl"`.
+
+**Task 01 status: DONE** except 1.6 (final favicon + PNG icons — awaiting brand asset) and the two "revisit later" items tied to task 02's route restructure.
