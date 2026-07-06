@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWedding } from '@/lib/WeddingContext';
 import { Button } from '@/components/ui/button';
@@ -21,14 +21,14 @@ export default function AdminDashboard() {
 
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
-    queryFn: () => base44.entities.User.list('-created_date')
+    queryFn: () => wedflow.entities.User.list('-created_date')
   });
 
   const createWeddingMutation = useMutation({
     mutationFn: async (data) => {
-      const wedding = await base44.entities.Wedding.create(data);
+      const wedding = await wedflow.entities.Wedding.create(data);
       // Create matching WeddingSetting so Settings page is pre-populated
-      await base44.entities.WeddingSetting.create({
+      await wedflow.entities.WeddingSetting.create({
         wedding_id: wedding.id,
         wedding_date: data.wedding_date,
         venue: data.venue || null,
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   });
 
   const deleteWeddingMutation = useMutation({
-    mutationFn: (id) => base44.entities.Wedding.delete(id),
+    mutationFn: (id) => wedflow.entities.Wedding.delete(id),
     onSuccess: async () => {
       await refreshWeddings();
     }

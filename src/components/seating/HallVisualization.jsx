@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQueryClient } from '@tanstack/react-query';
 
 function getTableShape(table) {
@@ -136,7 +136,7 @@ export default function HallVisualization({ tables, guests, selectedTableId, onS
     if (!dragging) return;
     const pos = localPositions[dragging.tableId];
     if (pos) {
-      await base44.entities.Table.update(dragging.tableId, { location_x: pos.x, location_y: pos.y });
+      await wedflow.entities.Table.update(dragging.tableId, { location_x: pos.x, location_y: pos.y });
       queryClient.invalidateQueries(['tables']);
     }
     setDragging(null);
@@ -174,7 +174,7 @@ export default function HallVisualization({ tables, guests, selectedTableId, onS
     if (!dragging) return;
     const pos = localPositions[dragging.tableId];
     if (pos) {
-      await base44.entities.Table.update(dragging.tableId, { location_x: pos.x, location_y: pos.y });
+      await wedflow.entities.Table.update(dragging.tableId, { location_x: pos.x, location_y: pos.y });
       queryClient.invalidateQueries(['tables']);
     }
     setDragging(null);

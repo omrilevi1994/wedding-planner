@@ -1,27 +1,27 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import VenueCalculator from '../components/dashboard/VenueCalculator';
 
 export default function Calculator() {
   const { data: expenses = [] } = useQuery({
     queryKey: ['expenses'],
-    queryFn: () => base44.entities.Expense.list()
+    queryFn: () => wedflow.entities.Expense.list()
   });
 
   const { data: payments = [] } = useQuery({
     queryKey: ['payments'],
-    queryFn: () => base44.entities.Payment.list()
+    queryFn: () => wedflow.entities.Payment.list()
   });
 
   const { data: guests = [] } = useQuery({
     queryKey: ['guests'],
-    queryFn: () => base44.entities.Guest.list()
+    queryFn: () => wedflow.entities.Guest.list()
   });
 
   const { data: settings = [] } = useQuery({
     queryKey: ['weddingSettings'],
-    queryFn: () => base44.entities.WeddingSetting.list()
+    queryFn: () => wedflow.entities.WeddingSetting.list()
   });
 
   const weddingSetting = settings[0] || {};

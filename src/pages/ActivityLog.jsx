@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -17,7 +17,7 @@ export default function ActivityLog() {
 
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ['activityLogs', activeWeddingId],
-    queryFn: () => base44.entities.ActivityLog.filter({ wedding_id: activeWeddingId }, '-created_date', 500),
+    queryFn: () => wedflow.entities.ActivityLog.filter({ wedding_id: activeWeddingId }, '-created_date', 500),
     enabled: !!activeWeddingId,
     refetchInterval: 10000 // Refresh every 10 seconds
   });

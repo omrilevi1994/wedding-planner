@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWedding } from '@/lib/WeddingContext';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,7 @@ export default function UserManagement() {
 
   const { data: allUsers = [], isLoading } = useQuery({
     queryKey: ['users'],
-    queryFn: () => base44.entities.User.list('-created_date')
+    queryFn: () => wedflow.entities.User.list('-created_date')
   });
 
   // Users already assigned to the active wedding
@@ -45,17 +45,17 @@ export default function UserManagement() {
   const canManage = isAdmin || user?.role === 'event_manager';
 
   const updateUserMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.User.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.User.update(id, data),
     onSuccess: () => queryClient.invalidateQueries(['users'])
   });
 
   const toggleApprovalMutation = useMutation({
-    mutationFn: ({ id, approved }) => base44.entities.User.update(id, { is_approved: approved }),
+    mutationFn: ({ id, approved }) => wedflow.entities.User.update(id, { is_approved: approved }),
     onSuccess: () => queryClient.invalidateQueries(['users'])
   });
 
   const assignToWeddingMutation = useMutation({
-    mutationFn: ({ id, approved }) => base44.entities.User.update(id, { wedding_id: activeWeddingId, is_approved: approved }),
+    mutationFn: ({ id, approved }) => wedflow.entities.User.update(id, { wedding_id: activeWeddingId, is_approved: approved }),
     onSuccess: () => queryClient.invalidateQueries(['users'])
   });
 
@@ -65,7 +65,7 @@ export default function UserManagement() {
     if (!email || !activeWeddingId) return;
     setIsInviting(true);
     try {
-      await base44.users.inviteUser({ email, role: 'user', wedding_id: activeWeddingId });
+      await wedflow.users.inviteUser({ email, role: 'user', wedding_id: activeWeddingId });
       // After invite, we can't set wedding_id immediately (user doesn't exist yet).
       // The event owner/admin will assign it after the user logs in.
       alert('ההזמנה נשלחה! לאחר שהמשתמש יתחבר, שייך אותו לחתונה דרך כפתור העריכה.');

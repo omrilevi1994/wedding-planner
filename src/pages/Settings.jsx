@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,7 +28,7 @@ export default function Settings() {
   const { data: settings, isLoading } = useQuery({
     queryKey: ['settings', activeWeddingId],
     queryFn: async () => {
-      const list = await base44.entities.WeddingSetting.filter({ wedding_id: activeWeddingId });
+      const list = await wedflow.entities.WeddingSetting.filter({ wedding_id: activeWeddingId });
       return list[0] || null;
     },
     enabled: !!activeWeddingId
@@ -54,9 +54,9 @@ export default function Settings() {
     mutationFn: async (data) => {
       const scoped = { ...data, wedding_id: activeWeddingId };
       if (settings?.id) {
-        return await base44.entities.WeddingSetting.update(settings.id, scoped);
+        return await wedflow.entities.WeddingSetting.update(settings.id, scoped);
       } else {
-        return await base44.entities.WeddingSetting.create(scoped);
+        return await wedflow.entities.WeddingSetting.create(scoped);
       }
     },
     onSuccess: async (result) => {
@@ -64,7 +64,7 @@ export default function Settings() {
       // Also sync to the Wedding entity
       if (activeWeddingId) {
         try {
-          await base44.entities.Wedding.update(activeWeddingId, {
+          await wedflow.entities.Wedding.update(activeWeddingId, {
             wedding_date: result.wedding_date,
             venue: result.venue,
             event_manager_name: result.event_manager_name,
@@ -82,8 +82,8 @@ export default function Settings() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
       // Log activity
-      const user = await base44.auth.me();
-      await base44.entities.ActivityLog.create({
+      const user = await wedflow.auth.me();
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,

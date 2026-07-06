@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -172,7 +172,7 @@ export default function IplanImportDialog({ open, onClose, guests, tables, onImp
       ]);
       const newTableNames = preview.newTableNames.filter(t => usedTableNames.has(t));
 
-      const result = await base44.functions.invoke('iplanBulkImport', {
+      const result = await wedflow.functions.invoke('iplanBulkImport', {
         wedding_id: activeWeddingId,
         newTableNames,
         tableUpdates: preview.tableUpdates.map(u => ({ guestId: u.guest.id, table_id: u.table_id, tableNum: u.tableNum })),

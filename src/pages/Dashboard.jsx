@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery } from '@tanstack/react-query';
 import { Wallet, TrendingDown, TrendingUp, DollarSign, Users, UserCheck, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +19,7 @@ export default function Dashboard() {
   const { activeWedding, activeWeddingId } = useWedding();
 
   useEffect(() => {
-    base44.auth.me().then(currentUser => {
+    wedflow.auth.me().then(currentUser => {
       setCurrentUser(currentUser);
       setIsCheckingAuth(false);
     }).catch(() => {
@@ -31,7 +31,7 @@ export default function Dashboard() {
   const { data: settings } = useQuery({
     queryKey: ['settings', activeWeddingId],
     queryFn: async () => {
-      const list = await base44.entities.WeddingSetting.filter({ wedding_id: activeWeddingId });
+      const list = await wedflow.entities.WeddingSetting.filter({ wedding_id: activeWeddingId });
       return list[0] || null;
     },
     enabled: !!activeWeddingId
@@ -39,19 +39,19 @@ export default function Dashboard() {
 
   const { data: expenses = [] } = useQuery({
     queryKey: ['expenses', activeWeddingId],
-    queryFn: () => base44.entities.Expense.filter({ wedding_id: activeWeddingId }),
+    queryFn: () => wedflow.entities.Expense.filter({ wedding_id: activeWeddingId }),
     enabled: !!activeWeddingId
   });
 
   const { data: payments = [] } = useQuery({
     queryKey: ['payments', activeWeddingId],
-    queryFn: () => base44.entities.Payment.filter({ wedding_id: activeWeddingId }),
+    queryFn: () => wedflow.entities.Payment.filter({ wedding_id: activeWeddingId }),
     enabled: !!activeWeddingId
   });
 
   const { data: guests = [] } = useQuery({
     queryKey: ['guests', activeWeddingId],
-    queryFn: () => base44.entities.Guest.filter({ wedding_id: activeWeddingId }),
+    queryFn: () => wedflow.entities.Guest.filter({ wedding_id: activeWeddingId }),
     enabled: !!activeWeddingId
   });
 

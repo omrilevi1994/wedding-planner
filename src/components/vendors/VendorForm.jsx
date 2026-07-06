@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 
 export default function VendorForm({ open, onClose, vendor, onSave }) {
   const [formData, setFormData] = useState({
@@ -47,7 +47,7 @@ export default function VendorForm({ open, onClose, vendor, onSave }) {
 
     setIsUploading(true);
     try {
-      const result = await base44.integrations.Core.UploadFile({ file });
+      const result = await wedflow.integrations.Core.UploadFile({ file });
       setFormData(prev => ({ ...prev, contract_file_url: result.file_url }));
     } catch (error) {
       alert('שגיאה בהעלאת הקובץ: ' + error.message);

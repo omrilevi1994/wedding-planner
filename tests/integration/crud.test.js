@@ -26,7 +26,7 @@ describe('guests CRUD', () => {
 });
 
 describe('imported data sanity', () => {
-  it('has the expected guest count from base44', async () => {
+  it('has the expected guest count from wedflow', async () => {
     const { count } = await admin.from('guests').select('*', { count: 'exact', head: true });
     expect(count).toBeGreaterThanOrEqual(352);
   });

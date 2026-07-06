@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { Heart } from 'lucide-react';
 
 // Sign-in screen shown when no authenticated Supabase session exists.
@@ -18,9 +18,9 @@ export default function Login() {
     setError(null);
     try {
       if (mode === 'signup') {
-        await base44.auth.signUp({ email, password, full_name: fullName });
+        await wedflow.auth.signUp({ email, password, full_name: fullName });
       } else {
-        await base44.auth.signInWithPassword({ email, password });
+        await wedflow.auth.signInWithPassword({ email, password });
       }
       // AuthContext's onAuthStateChange picks up the new session and re-renders.
     } catch (err) {
@@ -32,7 +32,7 @@ export default function Login() {
   const google = async () => {
     setError(null);
     try {
-      await base44.auth.signInWithGoogle();
+      await wedflow.auth.signInWithGoogle();
     } catch (err) {
       setError(err?.message || 'התחברות Google נכשלה');
     }
@@ -50,7 +50,7 @@ export default function Login() {
             <Heart className="w-12 h-12 text-[#D4AF37]" fill="currentColor" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-l from-[#D4AF37] to-amber-600 bg-clip-text text-transparent mb-1">
-            Wedding HQ
+            WedFlow
           </h1>
           <p className="text-sm text-gray-500">מטה החתונה שלכם</p>
         </div>

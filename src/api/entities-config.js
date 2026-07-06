@@ -1,4 +1,4 @@
-// Maps base44 entity names to Postgres table names
+// Maps entity names to Postgres table names
 export const TABLE_MAP = {
   Wedding: 'weddings',
   Guest: 'guests',

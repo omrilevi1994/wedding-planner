@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -21,18 +21,18 @@ export default function Vendors() {
 
   const { data: vendors = [], isLoading } = useQuery({
     queryKey: ['vendors', activeWeddingId],
-    queryFn: () => base44.entities.Vendor.filter({ wedding_id: activeWeddingId }, '-created_date'),
+    queryFn: () => wedflow.entities.Vendor.filter({ wedding_id: activeWeddingId }, '-created_date'),
     enabled: !!activeWeddingId
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Vendor.create({ ...data, wedding_id: activeWeddingId }),
+    mutationFn: (data) => wedflow.entities.Vendor.create({ ...data, wedding_id: activeWeddingId }),
     onSuccess: async (vendor) => {
       queryClient.invalidateQueries(['vendors']);
       setShowForm(false);
       // Log activity
-      const user = await base44.auth.me();
-      await base44.entities.ActivityLog.create({
+      const user = await wedflow.auth.me();
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,
@@ -46,14 +46,14 @@ export default function Vendors() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Vendor.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.Vendor.update(id, data),
     onSuccess: async (vendor) => {
       queryClient.invalidateQueries(['vendors']);
       setShowForm(false);
       setEditingVendor(null);
       // Log activity
-      const user = await base44.auth.me();
-      await base44.entities.ActivityLog.create({
+      const user = await wedflow.auth.me();
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,
@@ -67,13 +67,13 @@ export default function Vendors() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Vendor.delete(id),
+    mutationFn: (id) => wedflow.entities.Vendor.delete(id),
     onSuccess: async (_, id) => {
       queryClient.invalidateQueries(['vendors']);
       // Log activity
-      const user = await base44.auth.me();
+      const user = await wedflow.auth.me();
       const deletedVendor = vendors.find(v => v.id === id);
-      await base44.entities.ActivityLog.create({
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,

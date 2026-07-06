@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { Upload } from 'lucide-react';
 
 const CATEGORIES = [
@@ -71,7 +71,7 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
 
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await wedflow.integrations.Core.UploadFile({ file });
       setFormData({ ...formData, receipt_url: file_url });
     } catch (error) {
       alert('שגיאה בהעלאת קובץ');

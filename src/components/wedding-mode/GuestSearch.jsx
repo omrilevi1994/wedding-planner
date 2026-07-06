@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Users, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -20,13 +20,13 @@ export default function GuestSearch() {
 
   const { data: guests = [] } = useQuery({
     queryKey: ['guests', activeWeddingId],
-    queryFn: () => base44.entities.Guest.filter({ wedding_id: activeWeddingId }),
+    queryFn: () => wedflow.entities.Guest.filter({ wedding_id: activeWeddingId }),
     enabled: !!activeWeddingId
   });
 
   const { data: tables = [] } = useQuery({
     queryKey: ['tables', activeWeddingId],
-    queryFn: () => base44.entities.Table.filter({ wedding_id: activeWeddingId }),
+    queryFn: () => wedflow.entities.Table.filter({ wedding_id: activeWeddingId }),
     enabled: !!activeWeddingId
   });
 

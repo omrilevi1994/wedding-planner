@@ -1,0 +1,17 @@
+{
+  "name": "WedFlow",
+  "short_name": "WedFlow",
+  "description": "Wedding planning — guests, seating, vendors, budget and the big day.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#D4AF37",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    }
+  ]
+}

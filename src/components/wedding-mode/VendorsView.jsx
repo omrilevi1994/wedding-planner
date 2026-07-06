@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Phone, User } from 'lucide-react';
@@ -10,7 +10,7 @@ export default function VendorsView() {
   const { activeWeddingId } = useWedding();
   const { data: vendors = [], isLoading } = useQuery({
     queryKey: ['vendors', activeWeddingId],
-    queryFn: () => base44.entities.Vendor.filter({ wedding_id: activeWeddingId }, 'name'),
+    queryFn: () => wedflow.entities.Vendor.filter({ wedding_id: activeWeddingId }, 'name'),
     enabled: !!activeWeddingId
   });
 

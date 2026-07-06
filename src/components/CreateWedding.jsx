@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { useWedding } from '@/lib/WeddingContext';
@@ -16,7 +16,7 @@ export default function CreateWedding() {
     e.preventDefault();
     setBusy(true); setError(null);
     try {
-      const wedding = await base44.entities.Wedding.create({
+      const wedding = await wedflow.entities.Wedding.create({
         couple_names: coupleNames,
         wedding_date: weddingDate || null,
         owner_id: user.id,

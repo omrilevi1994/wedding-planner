@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { LogOut, ChevronDown } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useWedding } from '@/lib/WeddingContext';
 import WeddingSelector from '@/components/WeddingSelector';
 
@@ -93,7 +93,7 @@ export default function Layout({ children, currentPageName }) {
     const sessionKey = `logged_session_${user.email}`;
     if (!sessionStorage.getItem(sessionKey)) {
       sessionStorage.setItem(sessionKey, 'true');
-      base44.entities.ActivityLog.create({
+      wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId || user.wedding_id || null,
         user_email: user.email,
         user_name: user.full_name,
@@ -188,7 +188,7 @@ export default function Layout({ children, currentPageName }) {
     // Log logout activity
     if (user) {
       try {
-        await base44.entities.ActivityLog.create({
+        await wedflow.entities.ActivityLog.create({
           wedding_id: activeWeddingId || user.wedding_id || null,
           user_email: user.email,
           user_name: user.full_name,
@@ -199,7 +199,7 @@ export default function Layout({ children, currentPageName }) {
         console.error('Failed to log logout activity:', error);
       }
     }
-    await base44.auth.logout();
+    await wedflow.auth.logout();
   };
 
   if (isChecking) {
@@ -213,27 +213,7 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // בדוק אם המשתמש לא מאושר או אין לו הרשאות
-  if (user && !isAdmin && !isEventManager) {
-    if (!user.is_approved) {
-      return (
-        <div dir="rtl" className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50/30 flex items-center justify-center">
-          <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
-            <div className="mb-4 text-amber-600">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">ממתין לאישור</h2>
-            <p className="text-gray-600 mb-4">המשתמש שלך ממתין לאישור מנהל המערכת.</p>
-            <p className="text-gray-500 text-sm">אנא פנה למנהל לקבלת הרשאות גישה.</p>
-          </div>
-        </div>
-      );
-    }
-    
-    // גישה נקבעת לפי אישור המנהל בלבד; ה-RLS מגן על בידוד הנתונים לפי חתונה
-  }
+  // גישה נקבעת לפי חברות בחתונה (wedding_members) + RLS; אין עוד שלב "אישור מנהל"
 
   // בדוק אם למשתמש אין הרשאה לעמוד הנוכחי
   const hasAccessToPage = isAdmin || 
@@ -266,10 +246,11 @@ export default function Layout({ children, currentPageName }) {
             {/* Logo + Wedding Selector grouped together */}
             <div className="flex items-center gap-3">
               <Link to={createPageUrl('Dashboard')} className="flex items-center group">
+                {/* Placeholder WedFlow wordmark — swap public/logo.svg for the final asset */}
                 <img
-                  src="https://media.base44.com/images/public/6991fc347d98c9345a95d83b/639fe7ae5_generated_image.png"
-                  alt="לוגו"
-                  className="h-10 w-auto rounded-lg group-hover:shadow-md transition-all"
+                  src="/logo.svg"
+                  alt="WedFlow"
+                  className="h-10 w-auto group-hover:opacity-90 transition-all"
                 />
               </Link>
               <WeddingSelector />

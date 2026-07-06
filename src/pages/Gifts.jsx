@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,33 +36,33 @@ export default function Gifts() {
 
   const { data: guests = [] } = useQuery({
     queryKey: ['guests', activeWeddingId],
-    queryFn: () => base44.entities.Guest.filter({ wedding_id: activeWeddingId }, '-created_date'),
+    queryFn: () => wedflow.entities.Guest.filter({ wedding_id: activeWeddingId }, '-created_date'),
     enabled: !!activeWeddingId
   });
 
   const { data: gifts = [] } = useQuery({
     queryKey: ['gifts', activeWeddingId],
-    queryFn: () => base44.entities.Gift.filter({ wedding_id: activeWeddingId }, '-created_date'),
+    queryFn: () => wedflow.entities.Gift.filter({ wedding_id: activeWeddingId }, '-created_date'),
     enabled: !!activeWeddingId
   });
 
   const updateGuestMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Guest.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.Guest.update(id, data),
     onSuccess: () => queryClient.invalidateQueries(['guests'])
   });
 
   const createGiftMutation = useMutation({
-    mutationFn: (data) => base44.entities.Gift.create({ ...data, wedding_id: activeWeddingId }),
+    mutationFn: (data) => wedflow.entities.Gift.create({ ...data, wedding_id: activeWeddingId }),
     onSuccess: () => { queryClient.invalidateQueries(['gifts']); closeDialog(); }
   });
 
   const updateGiftMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Gift.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.Gift.update(id, data),
     onSuccess: () => { queryClient.invalidateQueries(['gifts']); closeDialog(); }
   });
 
   const deleteGiftMutation = useMutation({
-    mutationFn: (id) => base44.entities.Gift.delete(id),
+    mutationFn: (id) => wedflow.entities.Gift.delete(id),
     onSuccess: () => queryClient.invalidateQueries(['gifts'])
   });
 

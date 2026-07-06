@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -21,13 +21,13 @@ export default function WeddingHallMap() {
 
   const { data: tables = [], isLoading: loadingTables } = useQuery({
     queryKey: ['tables', activeWeddingId],
-    queryFn: () => base44.entities.Table.filter({ wedding_id: activeWeddingId }),
+    queryFn: () => wedflow.entities.Table.filter({ wedding_id: activeWeddingId }),
     enabled: !!activeWeddingId
   });
 
   const { data: guests = [], isLoading: loadingGuests } = useQuery({
     queryKey: ['guests', activeWeddingId],
-    queryFn: () => base44.entities.Guest.filter({ wedding_id: activeWeddingId }),
+    queryFn: () => wedflow.entities.Guest.filter({ wedding_id: activeWeddingId }),
     enabled: !!activeWeddingId
   });
 

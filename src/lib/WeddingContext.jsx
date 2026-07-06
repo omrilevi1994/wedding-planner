@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -39,7 +39,7 @@ export const WeddingProvider = ({ children }) => {
     setIsLoading(true);
     (async () => {
       try {
-        setProfile(await base44.auth.me());
+        setProfile(await wedflow.auth.me());
         const { data: rows } = await supabase
           .from('wedding_members')
           .select('wedding_id, role, wedding_sides, max_guests, weddings(*)')

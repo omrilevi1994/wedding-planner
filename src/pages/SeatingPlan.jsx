@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,18 +28,18 @@ export default function SeatingPlan() {
 
   const { data: tables = [] } = useQuery({
     queryKey: ['tables', activeWeddingId],
-    queryFn: () => base44.entities.Table.filter({ wedding_id: activeWeddingId }, '-created_date'),
+    queryFn: () => wedflow.entities.Table.filter({ wedding_id: activeWeddingId }, '-created_date'),
     enabled: !!activeWeddingId
   });
 
   const { data: guests = [] } = useQuery({
     queryKey: ['guests', activeWeddingId],
-    queryFn: () => base44.entities.Guest.filter({ wedding_id: activeWeddingId }, '-created_date'),
+    queryFn: () => wedflow.entities.Guest.filter({ wedding_id: activeWeddingId }, '-created_date'),
     enabled: !!activeWeddingId
   });
 
   const createTableMutation = useMutation({
-    mutationFn: (data) => base44.entities.Table.create({ ...data, wedding_id: activeWeddingId }),
+    mutationFn: (data) => wedflow.entities.Table.create({ ...data, wedding_id: activeWeddingId }),
     onSuccess: () => {
       queryClient.invalidateQueries(['tables']);
       setShowNewTableDialog(false);
@@ -49,13 +49,13 @@ export default function SeatingPlan() {
   });
 
   const updateGuestMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Guest.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.Guest.update(id, data),
     onSuccess: async (guest, { id, data }) => {
       queryClient.invalidateQueries(['guests']);
-      const user = await base44.auth.me();
+      const user = await wedflow.auth.me();
       const table = tables.find(t => t.id === data.table_id);
       if (data.table_id) {
-        await base44.entities.ActivityLog.create({
+        await wedflow.entities.ActivityLog.create({
           wedding_id: activeWeddingId,
           user_email: user.email, user_name: user.full_name,
           action_type: 'שיבוץ מוזמן לשולחן', entity_type: 'Guest', entity_id: id,
@@ -63,7 +63,7 @@ export default function SeatingPlan() {
           description: `שיבץ את ${guest.first_name} ${guest.last_name} לשולחן ${table?.name || data.table_id}`
         });
       } else {
-        await base44.entities.ActivityLog.create({
+        await wedflow.entities.ActivityLog.create({
           wedding_id: activeWeddingId,
           user_email: user.email, user_name: user.full_name,
           action_type: 'הסרת מוזמן משולחן', entity_type: 'Guest', entity_id: id,
@@ -75,7 +75,7 @@ export default function SeatingPlan() {
   });
 
   const updateTableMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Table.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.Table.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['tables']);
       setEditingTable(null);
@@ -84,12 +84,12 @@ export default function SeatingPlan() {
   });
 
   const deleteTableMutation = useMutation({
-    mutationFn: (id) => base44.entities.Table.delete(id),
+    mutationFn: (id) => wedflow.entities.Table.delete(id),
     onSuccess: async (_, id) => {
       queryClient.invalidateQueries(['tables']);
-      const user = await base44.auth.me();
+      const user = await wedflow.auth.me();
       const deletedTable = tables.find(t => t.id === id);
-      await base44.entities.ActivityLog.create({
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email, user_name: user.full_name,
         action_type: 'מחיקת שולחן', entity_type: 'Table', entity_id: id,
@@ -122,8 +122,8 @@ export default function SeatingPlan() {
 
   const handleDeleteAllTables = async () => {
     const assignedGuests = guests.filter(g => g.table_id);
-    await Promise.all(assignedGuests.map(g => base44.entities.Guest.update(g.id, { ...g, table_id: null })));
-    await Promise.all(tables.map(t => base44.entities.Table.delete(t.id)));
+    await Promise.all(assignedGuests.map(g => wedflow.entities.Guest.update(g.id, { ...g, table_id: null })));
+    await Promise.all(tables.map(t => wedflow.entities.Table.delete(t.id)));
     queryClient.invalidateQueries(['tables']);
     queryClient.invalidateQueries(['guests']);
     setSelectedTableId(null);
@@ -132,7 +132,7 @@ export default function SeatingPlan() {
 
   const handleResetAndCreate = async () => {
     setIsResetting(true);
-    await base44.functions.invoke('resetSeatingPlan', { wedding_id: activeWeddingId });
+    await wedflow.functions.invoke('resetSeatingPlan', { wedding_id: activeWeddingId });
     queryClient.invalidateQueries(['tables']);
     queryClient.invalidateQueries(['guests']);
     setSelectedTableId(null);

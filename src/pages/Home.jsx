@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Heart } from 'lucide-react';
@@ -10,11 +10,11 @@ export default function Home() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const isAuthenticated = await base44.auth.isAuthenticated();
+      const isAuthenticated = await wedflow.auth.isAuthenticated();
       if (isAuthenticated) {
         navigate(createPageUrl('Dashboard'));
       } else {
-        base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+        wedflow.auth.redirectToLogin(createPageUrl('Dashboard'));
       }
     };
     checkAuth();
@@ -27,7 +27,7 @@ export default function Home() {
           <Heart className="w-16 h-16 text-[#D4AF37]" fill="currentColor" />
         </div>
         <h1 className="text-4xl font-bold bg-gradient-to-l from-[#D4AF37] to-amber-600 bg-clip-text text-transparent mb-2">
-          Wedding HQ
+          WedFlow
         </h1>
         <p className="text-gray-600">מטה החתונה שלכם - טוען...</p>
       </div>

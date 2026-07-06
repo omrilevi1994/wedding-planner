@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -15,18 +15,18 @@ export default function WeddingDayChecklist() {
 
   const { data: groups = [] } = useQuery({
     queryKey: ['checklistGroups', activeWeddingId],
-    queryFn: () => base44.entities.ChecklistGroup.filter({ wedding_id: activeWeddingId }, 'order'),
+    queryFn: () => wedflow.entities.ChecklistGroup.filter({ wedding_id: activeWeddingId }, 'order'),
     enabled: !!activeWeddingId
   });
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['checklist', activeWeddingId],
-    queryFn: () => base44.entities.ChecklistItem.filter({ wedding_id: activeWeddingId }, 'order'),
+    queryFn: () => wedflow.entities.ChecklistItem.filter({ wedding_id: activeWeddingId }, 'order'),
     enabled: !!activeWeddingId
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.ChecklistItem.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.ChecklistItem.update(id, data),
     onSuccess: () => queryClient.invalidateQueries(['checklist'])
   });
 

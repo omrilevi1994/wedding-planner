@@ -1,39 +1,42 @@
-**Welcome to your Base44 project** 
+# WedFlow
 
-**About**
+A wedding-planning app: guests, seating, vendors, expenses, payments, gifts,
+checklists, and a live "wedding mode" for the event day.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+## Stack
 
-This project contains everything you need to run your app locally.
+- **Frontend:** Vite + React, Tailwind, shadcn/ui, React Query
+- **Backend:** Supabase — Postgres + Row-Level Security + Auth, plus Deno edge functions
+- **Hosting:** Vercel (frontend), Supabase Cloud (data + functions)
 
-**Edit the code in your local development environment**
+Data access goes through a small client shim at `src/api/wedflowClient.js`, which
+maps entity calls onto `@supabase/supabase-js`.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+## Local development
 
-**Prerequisites:** 
+**Prerequisites:** Node, Docker (for local Supabase), and the Supabase CLI.
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
-
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+```bash
+npm install
+cp .env.example .env   # then fill in the Supabase keys printed by `supabase start`
+npm run db:start       # local Supabase (Postgres + Auth + Storage) in Docker
+npm run functions:serve
+npm run dev            # Vite dev server
 ```
 
-Run the app: `npm run dev`
+## Scripts
 
-**Publish your changes**
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Type-check via jsconfig |
+| `npm run db:start` / `db:stop` / `db:reset` | Local Supabase lifecycle |
+| `npm run functions:serve` | Serve edge functions locally |
+| `npm run test:unit` / `test:int` | Vitest suites |
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+## Deploy
 
-**Docs & Support**
-
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+Use the `deploy` skill: it runs the tests, pushes DB migrations + edge functions
+to Supabase Cloud, and deploys the frontend to Vercel.

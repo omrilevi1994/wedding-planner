@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { TABLE_MAP } from '@/api/entities-config';
 
-// base44 sort strings: 'field' asc, '-field' desc
+// sort strings: 'field' asc, '-field' desc
 export function parseSort(sortBy) {
   if (!sortBy) return null;
   const ascending = !sortBy.startsWith('-');
@@ -59,7 +59,7 @@ const entities = new Proxy({}, {
 });
 
 const auth = {
-  // Returns the base44-shaped user: merged auth user + profile fields
+  // Returns the app-shaped user: merged auth user + profile fields
   async me() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
@@ -140,5 +140,5 @@ const users = {
   },
 };
 
-export const base44 = { entities, auth, integrations, functions, appLogs, users };
-export default base44;
+export const wedflow = { entities, auth, integrations, functions, appLogs, users };
+export default wedflow;

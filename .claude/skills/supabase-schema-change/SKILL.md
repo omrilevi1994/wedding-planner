@@ -80,7 +80,7 @@ explicitly in the same migration so a fresh `db reset` is order-independent.
 
 ### 2. If a new entity, register it in the shim and importer
 
-The shim (`src/api/base44Client.js`) is a generic Proxy over `TABLE_MAP`, so the
+The shim (`src/api/wedflowClient.js`) is a generic Proxy over `TABLE_MAP`, so the
 only shim change needed is the map entry.
 
 Add to `TABLE_MAP` in `src/api/entities-config.js`:

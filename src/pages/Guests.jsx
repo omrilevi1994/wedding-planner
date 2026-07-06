@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,7 +59,7 @@ export default function Guests() {
 
   const { data: guests = [], isLoading } = useQuery({
     queryKey: ['guests', activeWeddingId],
-    queryFn: () => base44.entities.Guest.filter({ wedding_id: activeWeddingId }, '-created_date'),
+    queryFn: () => wedflow.entities.Guest.filter({ wedding_id: activeWeddingId }, '-created_date'),
     enabled: !!activeWeddingId
   });
 
@@ -72,13 +72,13 @@ export default function Guests() {
   }, [guests, user]);
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Guest.create({ ...data, wedding_id: activeWeddingId }),
+    mutationFn: (data) => wedflow.entities.Guest.create({ ...data, wedding_id: activeWeddingId }),
     onSuccess: async (guest) => {
       queryClient.invalidateQueries(['guests']);
       setShowForm(false);
       // Log activity
-      const user = await base44.auth.me();
-      await base44.entities.ActivityLog.create({
+      const user = await wedflow.auth.me();
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,
@@ -92,14 +92,14 @@ export default function Guests() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Guest.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.Guest.update(id, data),
     onSuccess: async (guest) => {
       queryClient.invalidateQueries(['guests']);
       setShowForm(false);
       setEditingGuest(null);
       // Log activity
-      const user = await base44.auth.me();
-      await base44.entities.ActivityLog.create({
+      const user = await wedflow.auth.me();
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,
@@ -113,13 +113,13 @@ export default function Guests() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Guest.delete(id),
+    mutationFn: (id) => wedflow.entities.Guest.delete(id),
     onSuccess: async (_, id) => {
       queryClient.invalidateQueries(['guests']);
       // Log activity
-      const user = await base44.auth.me();
+      const user = await wedflow.auth.me();
       const deletedGuest = guests.find(g => g.id === id);
-      await base44.entities.ActivityLog.create({
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,
@@ -195,14 +195,14 @@ export default function Guests() {
     const selectedGuests = filteredGuests.filter(g => selectedGuestIds.has(g.id));
     const totalPeople = selectedGuests.reduce((sum, g) => sum + (g.total_people || 1), 0);
     // Create the table
-    const table = await base44.entities.Table.create({
+    const table = await wedflow.entities.Table.create({
       wedding_id: activeWeddingId,
       name: newTableName.trim(),
       capacity: totalPeople
     });
     // Assign guests to table
     await Promise.all(selectedGuests.map(g =>
-      base44.entities.Guest.update(g.id, { ...g, table_id: table.id })
+      wedflow.entities.Guest.update(g.id, { ...g, table_id: table.id })
     ));
     queryClient.invalidateQueries(['guests']);
     setIsCreatingTable(false);
@@ -334,7 +334,7 @@ export default function Guests() {
       }
 
       if (updates.length > 0) {
-        await base44.functions.invoke('bulkUpdateGuestStatus', { updates });
+        await wedflow.functions.invoke('bulkUpdateGuestStatus', { updates });
       }
       queryClient.invalidateQueries(['guests']);
       setShowWiwiDialog(false);

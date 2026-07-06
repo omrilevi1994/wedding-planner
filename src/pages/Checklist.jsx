@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { CheckCircle2, Circle, ChevronDown, ChevronUp, Calendar, Plus, X, Image, Loader2, Pencil, Check, Trash2 } from 'lucide-react';
@@ -48,30 +48,30 @@ export default function Checklist() {
 
   const { data: settings = [] } = useQuery({
     queryKey: ['weddingSettings', activeWeddingId],
-    queryFn: () => base44.entities.WeddingSetting.filter({ wedding_id: activeWeddingId }),
+    queryFn: () => wedflow.entities.WeddingSetting.filter({ wedding_id: activeWeddingId }),
     enabled: !!activeWeddingId
   });
   const weddingDate = settings[0]?.wedding_date || null;
 
   const { data: groups = [], isLoading: loadingGroups } = useQuery({
     queryKey: ['checklistGroups', activeWeddingId],
-    queryFn: () => base44.entities.ChecklistGroup.filter({ wedding_id: activeWeddingId }, 'order'),
+    queryFn: () => wedflow.entities.ChecklistGroup.filter({ wedding_id: activeWeddingId }, 'order'),
     enabled: !!activeWeddingId
   });
 
   const { data: items = [], isLoading: loadingItems } = useQuery({
     queryKey: ['checklist', activeWeddingId],
-    queryFn: () => base44.entities.ChecklistItem.filter({ wedding_id: activeWeddingId }, 'order'),
+    queryFn: () => wedflow.entities.ChecklistItem.filter({ wedding_id: activeWeddingId }, 'order'),
     enabled: !!activeWeddingId
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.ChecklistItem.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.ChecklistItem.update(id, data),
     onSuccess: () => queryClient.invalidateQueries(['checklist'])
   });
 
   const createItemMutation = useMutation({
-    mutationFn: (data) => base44.entities.ChecklistItem.create({ ...data, wedding_id: activeWeddingId }),
+    mutationFn: (data) => wedflow.entities.ChecklistItem.create({ ...data, wedding_id: activeWeddingId }),
     onSuccess: () => {
       queryClient.invalidateQueries(['checklist']);
       setNewItemTitle('');
@@ -81,7 +81,7 @@ export default function Checklist() {
   });
 
   const createGroupMutation = useMutation({
-    mutationFn: (data) => base44.entities.ChecklistGroup.create({ ...data, wedding_id: activeWeddingId }),
+    mutationFn: (data) => wedflow.entities.ChecklistGroup.create({ ...data, wedding_id: activeWeddingId }),
     onSuccess: () => {
       queryClient.invalidateQueries(['checklistGroups']);
       setNewGroupTitle('');
@@ -115,7 +115,7 @@ export default function Checklist() {
   const handleImageUpload = async (item, file) => {
     if (!file) return;
     setUploadingItemId(item.id);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await wedflow.integrations.Core.UploadFile({ file });
     updateMutation.mutate({ id: item.id, data: { ...item, image_url: file_url } });
     setUploadingItemId(null);
   };
@@ -137,7 +137,7 @@ export default function Checklist() {
   };
 
   const deleteItemMutation = useMutation({
-    mutationFn: (id) => base44.entities.ChecklistItem.delete(id),
+    mutationFn: (id) => wedflow.entities.ChecklistItem.delete(id),
     onSuccess: () => queryClient.invalidateQueries(['checklist'])
   });
 

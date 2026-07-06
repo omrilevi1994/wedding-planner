@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 
 const AuthContext = createContext();
 
@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  // Kept for API compatibility with consumers; there is no base44 public-settings
+  // Kept for API compatibility with consumers; there is no public-settings
   // step anymore, so these resolve immediately.
   const [isLoadingPublicSettings] = useState(false);
   const [authError, setAuthError] = useState(null);
@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const loadUser = async () => {
     setIsLoadingAuth(true);
     try {
-      const currentUser = await base44.auth.me();
+      const currentUser = await wedflow.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
       setAuthError(null);
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     loadUser();
     // React to sign-in / sign-out from anywhere (login form, OAuth redirect, logout)
-    const { data: sub } = base44.auth.onAuthStateChange((_event, session) => {
+    const { data: sub } = wedflow.auth.onAuthStateChange((_event, session) => {
       if (session) loadUser();
       else {
         setUser(null);
@@ -45,13 +45,13 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = async () => {
-    await base44.auth.logout();
+    await wedflow.auth.logout();
     setUser(null);
     setIsAuthenticated(false);
   };
 
   const navigateToLogin = () => {
-    base44.auth.redirectToLogin();
+    wedflow.auth.redirectToLogin();
   };
 
   return (

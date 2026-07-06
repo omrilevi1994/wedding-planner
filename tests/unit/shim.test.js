@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseSort } from '@/api/base44Client';
+import { parseSort } from '@/api/wedflowClient';
 
 describe('parseSort', () => {
   it('ascending by default', () => {

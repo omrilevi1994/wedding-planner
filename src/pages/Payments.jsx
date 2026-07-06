@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -19,17 +19,17 @@ export default function Payments() {
 
   const { data: payments = [], isLoading } = useQuery({
     queryKey: ['payments', activeWeddingId],
-    queryFn: () => base44.entities.Payment.filter({ wedding_id: activeWeddingId }, 'due_date'),
+    queryFn: () => wedflow.entities.Payment.filter({ wedding_id: activeWeddingId }, 'due_date'),
     enabled: !!activeWeddingId
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Payment.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.Payment.update(id, data),
     onSuccess: async (payment) => {
       queryClient.invalidateQueries(['payments']);
       // Log activity
-      const user = await base44.auth.me();
-      await base44.entities.ActivityLog.create({
+      const user = await wedflow.auth.me();
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,22 +20,22 @@ export default function Expenses() {
 
   const { data: expenses = [], isLoading } = useQuery({
     queryKey: ['expenses', activeWeddingId],
-    queryFn: () => base44.entities.Expense.filter({ wedding_id: activeWeddingId }, '-created_date'),
+    queryFn: () => wedflow.entities.Expense.filter({ wedding_id: activeWeddingId }, '-created_date'),
     enabled: !!activeWeddingId
   });
 
   // Sync Payment records for an expense (deposit + remainder or single)
   const syncPayments = async (expense) => {
-    const existing = await base44.entities.Payment.filter({ expense_id: expense.id, wedding_id: activeWeddingId });
+    const existing = await wedflow.entities.Payment.filter({ expense_id: expense.id, wedding_id: activeWeddingId });
 
     // Delete all existing payments for this expense and recreate
-    await Promise.all(existing.map(p => base44.entities.Payment.delete(p.id)));
+    await Promise.all(existing.map(p => wedflow.entities.Payment.delete(p.id)));
 
     if (expense.has_deposit && expense.deposit_amount) {
       const remainderAmount = expense.amount - expense.deposit_amount;
 
       // Deposit payment
-      await base44.entities.Payment.create({
+      await wedflow.entities.Payment.create({
         wedding_id: activeWeddingId,
         expense_id: expense.id,
         expense_vendor: `${expense.vendor} - מקדמה`,
@@ -49,7 +49,7 @@ export default function Expenses() {
 
       // Remainder payment
       if (remainderAmount > 0) {
-        await base44.entities.Payment.create({
+        await wedflow.entities.Payment.create({
           wedding_id: activeWeddingId,
           expense_id: expense.id,
           expense_vendor: `${expense.vendor} - יתרה`,
@@ -65,7 +65,7 @@ export default function Expenses() {
       // Single payment
       const date = expense.status === 'שולם' ? expense.paid_date : expense.due_date;
       if (date) {
-        await base44.entities.Payment.create({
+        await wedflow.entities.Payment.create({
           wedding_id: activeWeddingId,
           expense_id: expense.id,
           expense_vendor: expense.vendor,
@@ -83,14 +83,14 @@ export default function Expenses() {
   };
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Expense.create({ ...data, wedding_id: activeWeddingId }),
+    mutationFn: (data) => wedflow.entities.Expense.create({ ...data, wedding_id: activeWeddingId }),
     onSuccess: async (expense) => {
       queryClient.invalidateQueries(['expenses']);
       setShowForm(false);
       await syncPayments(expense);
       // Log activity
-      const user = await base44.auth.me();
-      await base44.entities.ActivityLog.create({
+      const user = await wedflow.auth.me();
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,
@@ -104,15 +104,15 @@ export default function Expenses() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Expense.update(id, data),
+    mutationFn: ({ id, data }) => wedflow.entities.Expense.update(id, data),
     onSuccess: async (expense) => {
       queryClient.invalidateQueries(['expenses']);
       setShowForm(false);
       setEditingExpense(null);
       await syncPayments(expense);
       // Log activity
-      const user = await base44.auth.me();
-      await base44.entities.ActivityLog.create({
+      const user = await wedflow.auth.me();
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,
@@ -126,13 +126,13 @@ export default function Expenses() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Expense.delete(id),
+    mutationFn: (id) => wedflow.entities.Expense.delete(id),
     onSuccess: async (_, id) => {
       queryClient.invalidateQueries(['expenses']);
       // Log activity
-      const user = await base44.auth.me();
+      const user = await wedflow.auth.me();
       const deletedExpense = expenses.find(e => e.id === id);
-      await base44.entities.ActivityLog.create({
+      await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,
