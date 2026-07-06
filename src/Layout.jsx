@@ -246,7 +246,6 @@ export default function Layout({ children, currentPageName }) {
             {/* Logo + Wedding Selector grouped together */}
             <div className="flex items-center gap-3">
               <Link to={createPageUrl('Dashboard')} className="flex items-center group">
-                {/* Placeholder WedFlow wordmark — swap public/logo.svg for the final asset */}
                 <img
                   src="/logo.svg"
                   alt="WedFlow"
