@@ -94,18 +94,18 @@ export default function DangerZone() {
       <Card className="shadow-md">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Download className="w-5 h-5 text-amber-600" />
+            <Download className="w-5 h-5 text-rose-deep" />
             גיבוי וייצוא
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             הורידו קובץ JSON הכולל את כל נתוני החתונה: מוזמנים, שולחנות, הוצאות, תשלומים, מתנות, ספקים, צ'קליסטים והגדרות.
           </p>
           <Button
             onClick={handleExport}
             disabled={exporting}
-            className="bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+            className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep"
           >
             <Download className="w-4 h-4 ml-2" />
             {exporting ? 'מייצא...' : 'הורד גיבוי מלא (JSON)'}
@@ -114,24 +114,24 @@ export default function DangerZone() {
       </Card>
 
       {isOwner && (
-        <Card className="shadow-md border-red-300 bg-gradient-to-br from-red-50 to-white">
+        <Card className="shadow-md border-destructive/30 bg-gradient-to-br from-destructive/10 to-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-700">
+            <CardTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="w-5 h-5" />
               אזור מסוכן
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-1">מחיקת חתונה</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="font-semibold text-foreground mb-1">מחיקת חתונה</h3>
+              <p className="text-sm text-muted-foreground">
                 מחיקת החתונה תסיר לצמיתות את כל הנתונים הקשורים אליה — מוזמנים, שולחנות, הוצאות, תשלומים, מתנות, ספקים, צ'קליסטים והגדרות. פעולה זו אינה ניתנת לביטול. מומלץ להוריד גיבוי מלא לפני המחיקה.
               </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="delete-confirm">
                 {'להמשך המחיקה, הקלידו את שם הזוג בדיוק: '}
-                <span className="font-bold text-red-700">{coupleNames}</span>
+                <span className="font-bold text-destructive">{coupleNames}</span>
               </Label>
               <Input
                 id="delete-confirm"
@@ -139,13 +139,13 @@ export default function DangerZone() {
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 placeholder={coupleNames}
-                className="border-red-200 focus-visible:ring-red-400"
+                className="border-destructive/30 focus-visible:ring-destructive/50"
               />
             </div>
             <Button
               onClick={handleDelete}
               disabled={!canDelete || deleting}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               <Trash2 className="w-4 h-4 ml-2" />
               {deleting ? 'מוחק...' : 'מחק חתונה לצמיתות'}

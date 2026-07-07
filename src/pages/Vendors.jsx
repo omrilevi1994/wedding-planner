@@ -129,12 +129,12 @@ export default function Vendors() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">ספקים</h1>
-          <p className="text-gray-600">נהל את רשימת הספקים לחתונה</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">ספקים</h1>
+          <p className="text-muted-foreground">נהל את רשימת הספקים לחתונה</p>
         </div>
         <Button
           onClick={() => setShowForm(true)}
-          className="bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+          className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep"
         >
           <Plus className="w-4 h-4 ml-2" />
           הוסף ספק
@@ -143,13 +143,13 @@ export default function Vendors() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4 bg-gradient-to-br from-blue-50 to-white">
-          <p className="text-sm text-gray-600 mb-1">סך הוצאות משוערות</p>
+        <Card className="p-4 bg-gradient-to-br from-taupe/15 to-card">
+          <p className="text-sm text-muted-foreground mb-1">סך הוצאות משוערות</p>
           <p className="text-2xl font-bold">₪{totalEstimatedCost.toLocaleString('he-IL')}</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-amber-50 to-white">
-          <p className="text-sm text-gray-600 mb-1">סך הוצאות כוללות</p>
-          <p className="text-2xl font-bold text-amber-600">₪{totalCost.toLocaleString('he-IL')}</p>
+        <Card className="p-4 bg-gradient-to-br from-champagne to-card">
+          <p className="text-sm text-muted-foreground mb-1">סך הוצאות כוללות</p>
+          <p className="text-2xl font-bold text-rose-deep">₪{totalCost.toLocaleString('he-IL')}</p>
         </Card>
       </div>
 
@@ -181,7 +181,7 @@ export default function Vendors() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
+              <TableRow className="bg-muted">
                 <TableHead>שם ספק</TableHead>
                 <TableHead>קטגוריה</TableHead>
                 <TableHead>איש קשר</TableHead>
@@ -196,28 +196,28 @@ export default function Vendors() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-gray-400">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     טוען...
                   </TableCell>
                 </TableRow>
               ) : filteredVendors.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-gray-400">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     אין עדיין ספקים. הוסף את הספק הראשון!
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredVendors.map((vendor) => (
-                  <TableRow key={vendor.id} className="hover:bg-gray-50">
+                  <TableRow key={vendor.id} className="hover:bg-muted">
                     <TableCell className="font-medium">{vendor.name}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-blue-50 border-blue-200">
+                      <Badge variant="outline" className="bg-taupe/15 border-taupe/30">
                         {vendor.category}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm">{vendor.contact_person || '-'}</TableCell>
                     <TableCell className="text-sm" dir="ltr">{vendor.phone || '-'}</TableCell>
-                    <TableCell className="text-sm text-gray-600" dir="ltr">{vendor.email || '-'}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground" dir="ltr">{vendor.email || '-'}</TableCell>
                     <TableCell className="font-semibold">
                       {vendor.estimated_cost ? `₪${vendor.estimated_cost.toLocaleString('he-IL')}` : '-'}
                     </TableCell>
@@ -230,28 +230,28 @@ export default function Vendors() {
                           href={vendor.contract_file_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                          className="text-taupe hover:text-rose-deep flex items-center gap-1"
                         >
                           <Download className="w-4 h-4" />
                           הורד
                         </a>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEdit(vendor)}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-2 hover:bg-muted rounded-lg transition-colors"
                         >
-                          <Pencil className="w-4 h-4 text-gray-600" />
+                          <Pencil className="w-4 h-4 text-muted-foreground" />
                         </button>
                         <button
                           onClick={() => handleDelete(vendor)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
                         >
-                          <Trash2 className="w-4 h-4 text-red-600" />
+                          <Trash2 className="w-4 h-4 text-destructive" />
                         </button>
                       </div>
                     </TableCell>

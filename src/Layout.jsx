@@ -1,10 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 import { createPageUrl } from './utils';
-import { LogOut, ChevronDown } from 'lucide-react';
+import { LogOut, ChevronDown, Moon, Sun } from 'lucide-react';
 import { wedflow } from '@/api/wedflowClient';
 import { useWedding } from '@/lib/WeddingContext';
 import WeddingSelector from '@/components/WeddingSelector';
+
+function ThemeToggle({ className = '' }) {
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === 'dark';
+  return (
+    <button
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      className={`p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all ${className}`}
+      title={isDark ? 'עבור למצב בהיר' : 'עבור למצב כהה'}
+    >
+      {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+    </button>
+  );
+}
 
 function DropdownGroup({ label, items, isActive, currentPageName }) {
   const [open, setOpen] = useState(false);
@@ -24,15 +39,15 @@ function DropdownGroup({ label, items, isActive, currentPageName }) {
         onClick={() => setOpen(o => !o)}
         className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
           isActive
-            ? 'bg-gradient-to-l from-amber-100 to-amber-50 text-[var(--gold-dark)] shadow-sm'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            ? 'bg-gradient-to-l from-rose to-rose-light text-primary-foreground shadow-sm'
+            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
         }`}
       >
         {label}
         <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute top-full mt-1 right-0 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[140px] z-50">
+        <div className="absolute top-full mt-1 right-0 bg-card border border-border rounded-xl shadow-lg py-1 min-w-[140px] z-50">
           {items.map(item => (
             <Link
               key={item.name}
@@ -40,8 +55,8 @@ function DropdownGroup({ label, items, isActive, currentPageName }) {
               onClick={() => setOpen(false)}
               className={`block px-4 py-2.5 text-sm font-medium transition-all ${
                 currentPageName === item.name
-                  ? 'text-[var(--gold-dark)] bg-amber-50'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'text-rose-deep bg-accent'
+                  : 'text-foreground hover:bg-muted'
               }`}
             >
               {item.label}
@@ -204,10 +219,10 @@ export default function Layout({ children, currentPageName }) {
 
   if (isChecking) {
     return (
-      <div dir="rtl" className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50/30 flex items-center justify-center">
+      <div dir="rtl" className="min-h-screen bg-gradient-to-br from-secondary via-background to-rose-light/30 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">טוען...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">טוען...</p>
         </div>
       </div>
     );
@@ -227,20 +242,15 @@ export default function Layout({ children, currentPageName }) {
     currentPageName !== 'Guests';
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50/30">
+    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-secondary via-background to-rose-light/30">
       <style>{`
-        :root {
-          --gold: #D4AF37;
-          --gold-light: #F4E4C1;
-          --gold-dark: #B8962E;
-        }
         body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
       `}</style>
       
       {/* Header - hidden while checking permissions */}
-      <header className={`bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 ${isChecking ? 'hidden' : ''}`}>
+      <header className={`bg-card border-b border-border shadow-sm sticky top-0 z-50 ${isChecking ? 'hidden' : ''}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo + Wedding Selector grouped together */}
@@ -267,8 +277,8 @@ export default function Layout({ children, currentPageName }) {
                       to={createPageUrl(item.name)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                         currentPageName === item.name
-                          ? 'bg-gradient-to-l from-amber-100 to-amber-50 text-[var(--gold-dark)] shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          ? 'bg-gradient-to-l from-rose to-rose-light text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                       }`}
                     >
                       {item.label}
@@ -287,9 +297,10 @@ export default function Layout({ children, currentPageName }) {
                   />
                 );
               })}
+              <ThemeToggle className="mr-2" />
               <button
                 onClick={handleLogout}
-                className="mr-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+                className="mr-2 p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all"
                 title="התנתק"
               >
                 <LogOut className="w-5 h-5" />
@@ -300,7 +311,7 @@ export default function Layout({ children, currentPageName }) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="md:hidden p-2 rounded-lg hover:bg-muted"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -321,19 +332,22 @@ export default function Layout({ children, currentPageName }) {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all mb-1 ${
                     currentPageName === item.name
-                      ? 'bg-gradient-to-l from-amber-100 to-amber-50 text-[var(--gold-dark)]'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-gradient-to-l from-rose to-rose-light text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted'
                   }`}
                 >
                   {item.label}
                 </Link>
               ))}
-              <button
-                onClick={handleLogout}
-                className="w-full text-right px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
-              >
-                התנתק
-              </button>
+              <div className="px-4 pt-2 flex items-center justify-between">
+                <ThemeToggle />
+                <button
+                  onClick={handleLogout}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-all"
+                >
+                  התנתק
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -345,19 +359,19 @@ export default function Layout({ children, currentPageName }) {
               <div className="space-y-8">
                 {/* Greeting */}
                 {greetingMessage && (
-                  <div className="bg-gradient-to-l from-amber-100 to-amber-50 border border-amber-200 rounded-xl p-6 text-center shadow-sm">
-                    <h2 className="text-2xl font-bold text-amber-900">{greetingMessage}</h2>
+                  <div className="bg-gradient-to-l from-rose to-rose-light border border-rose/30 rounded-xl p-6 text-center shadow-sm">
+                    <h2 className="text-2xl font-bold text-rose-deep">{greetingMessage}</h2>
                   </div>
                 )}
 
                 <div className="text-center py-16">
-                  <div className="mb-4 text-gray-400">
+                  <div className="mb-4 text-muted-foreground">
                     <svg className="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-700 mb-2">אין הרשאת גישה לעמוד זה</h2>
-                  <p className="text-gray-500">יש לך גישה רק לעמוד המוזמנים</p>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">אין הרשאת גישה לעמוד זה</h2>
+                  <p className="text-muted-foreground">יש לך גישה רק לעמוד המוזמנים</p>
                 </div>
               </div>
             ) : (
@@ -366,9 +380,9 @@ export default function Layout({ children, currentPageName }) {
           </main>
 
       {/* Footer */}
-      <footer className="mt-16 border-t border-gray-200 bg-white/50">
+      <footer className="mt-16 border-t border-border bg-card/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Daniel&Omri Wedding © 2026 | מאחלים לכם חתונה מושלמת ❤️
           </p>
         </div>

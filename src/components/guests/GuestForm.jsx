@@ -207,7 +207,7 @@ export default function GuestForm({ open, onClose, guest, onSave }) {
           <div className="flex gap-3 pt-4">
             <Button
               type="submit"
-              className="flex-1 bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+              className="flex-1 bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep"
             >
               {guest ? 'עדכן' : 'הוסף'} מוזמן
             </Button>

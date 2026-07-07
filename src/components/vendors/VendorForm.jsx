@@ -176,10 +176,10 @@ export default function VendorForm({ open, onClose, vendor, onSave }) {
                 disabled={isUploading}
                 accept=".pdf,.doc,.docx,.jpg,.png"
               />
-              {isUploading && <span className="text-sm text-gray-500">מעלה...</span>}
+              {isUploading && <span className="text-sm text-muted-foreground">מעלה...</span>}
             </div>
             {formData.contract_file_url && (
-              <div className="text-sm text-green-600">
+              <div className="text-sm text-sage-deep">
                 ✓ קובץ החוזה הועלה בהצלחה
               </div>
             )}
@@ -200,7 +200,7 @@ export default function VendorForm({ open, onClose, vendor, onSave }) {
           <Button variant="outline" onClick={onClose}>
             ביטול
           </Button>
-          <Button onClick={handleSave} className="bg-amber-600 hover:bg-amber-700">
+          <Button onClick={handleSave} className="bg-primary hover:bg-primary-hover">
             {vendor ? 'עדכן ספק' : 'הוסף ספק'}
           </Button>
         </DialogFooter>

@@ -69,11 +69,11 @@ export default function ActivityLog() {
   });
 
   const getActionColor = (actionType) => {
-    if (actionType?.includes('הוספ')) return 'bg-green-100 text-green-800 border-green-200';
-    if (actionType?.includes('מחיק')) return 'bg-red-100 text-red-800 border-red-200';
-    if (actionType?.includes('עדכון')) return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (actionType?.includes('שיבוץ') || actionType?.includes('הסר')) return 'bg-purple-100 text-purple-800 border-purple-200';
-    return 'bg-gray-100 text-gray-800 border-gray-200';
+    if (actionType?.includes('הוספ')) return 'bg-sage/15 text-sage-deep border-sage/30';
+    if (actionType?.includes('מחיק')) return 'bg-destructive/10 text-destructive border-destructive/30';
+    if (actionType?.includes('עדכון')) return 'bg-taupe/15 text-taupe border-taupe/30';
+    if (actionType?.includes('שיבוץ') || actionType?.includes('הסר')) return 'bg-taupe/15 text-taupe border-taupe/30';
+    return 'bg-muted text-muted-foreground border-border';
   };
 
   // Calculate stats
@@ -93,56 +93,56 @@ export default function ActivityLog() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">לוג פעילות</h1>
-        <p className="text-gray-600">עקוב אחר כל הפעולות והשינויים במערכת</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">לוג פעילות</h1>
+        <p className="text-muted-foreground">עקוב אחר כל הפעולות והשינויים במערכת</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-gradient-to-br from-blue-50 to-white">
+        <Card className="p-4 bg-gradient-to-br from-taupe/10 to-card">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Activity className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-taupe/15 rounded-lg">
+              <Activity className="w-6 h-6 text-taupe" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">סה״כ פעולות</p>
-              <p className="text-2xl font-bold text-gray-900">{logs.length}</p>
+              <p className="text-sm text-muted-foreground">סה״כ פעולות</p>
+              <p className="text-2xl font-bold text-foreground">{logs.length}</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 bg-gradient-to-br from-green-50 to-white">
+        <Card className="p-4 bg-gradient-to-br from-sage/10 to-card">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-green-600" />
+            <div className="p-3 bg-sage/15 rounded-lg">
+              <Calendar className="w-6 h-6 text-sage-deep" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">היום</p>
-              <p className="text-2xl font-bold text-gray-900">{todayLogs}</p>
+              <p className="text-sm text-muted-foreground">היום</p>
+              <p className="text-2xl font-bold text-foreground">{todayLogs}</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 bg-gradient-to-br from-purple-50 to-white">
+        <Card className="p-4 bg-gradient-to-br from-taupe/10 to-card">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-purple-600" />
+            <div className="p-3 bg-taupe/15 rounded-lg">
+              <Calendar className="w-6 h-6 text-taupe" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">השבוע</p>
-              <p className="text-2xl font-bold text-gray-900">{weekLogs}</p>
+              <p className="text-sm text-muted-foreground">השבוע</p>
+              <p className="text-2xl font-bold text-foreground">{weekLogs}</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 bg-gradient-to-br from-amber-50 to-white">
+        <Card className="p-4 bg-gradient-to-br from-rose-light/20 to-card">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-amber-100 rounded-lg">
-              <User className="w-6 h-6 text-amber-600" />
+            <div className="p-3 bg-rose-light/30 rounded-lg">
+              <User className="w-6 h-6 text-rose-deep" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">משתמשים פעילים</p>
-              <p className="text-2xl font-bold text-gray-900">{uniqueUsers}</p>
+              <p className="text-sm text-muted-foreground">משתמשים פעילים</p>
+              <p className="text-2xl font-bold text-foreground">{uniqueUsers}</p>
             </div>
           </div>
         </Card>
@@ -174,7 +174,7 @@ export default function ActivityLog() {
           </SelectContent>
         </Select>
 
-        <div className="flex-1 text-left text-sm text-gray-500 flex items-center">
+        <div className="flex-1 text-left text-sm text-muted-foreground flex items-center">
           מציג {filteredLogs.length} מתוך {logs.length} פעולות
         </div>
       </div>
@@ -184,7 +184,7 @@ export default function ActivityLog() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
+              <TableRow className="bg-muted">
                 <TableHead>תאריך ושעה</TableHead>
                 <TableHead>משתמש</TableHead>
                 <TableHead>סוג פעולה</TableHead>
@@ -196,27 +196,27 @@ export default function ActivityLog() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-400">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     טוען...
                   </TableCell>
                 </TableRow>
               ) : filteredLogs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-400">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     אין פעולות להצגה
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredLogs.map((log) => (
-                  <TableRow key={log.id} className="hover:bg-gray-50">
+                  <TableRow key={log.id} className="hover:bg-muted">
                     <TableCell className="text-sm">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
                         <div>
                           <div className="font-medium">
                             {format(new Date(log.created_date), 'dd/MM/yyyy', { locale: he })}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-muted-foreground">
                             {format(new Date(log.created_date), 'HH:mm:ss')}
                           </div>
                         </div>
@@ -224,13 +224,13 @@ export default function ActivityLog() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-gray-400" />
+                        <User className="w-4 h-4 text-muted-foreground" />
                         <div>
                           <div className="font-medium text-sm">
                             {log.user_name || log.user_email || log.created_by || 'לא ידוע'}
                           </div>
                           {log.user_email && log.user_email !== log.user_name && (
-                            <div className="text-xs text-gray-500">{log.user_email}</div>
+                            <div className="text-xs text-muted-foreground">{log.user_email}</div>
                           )}
                         </div>
                       </div>
@@ -248,12 +248,12 @@ export default function ActivityLog() {
                         <div>
                           <div className="font-medium">{log.entity_type}</div>
                           {log.entity_name && (
-                            <div className="text-xs text-gray-500">{log.entity_name}</div>
+                            <div className="text-xs text-muted-foreground">{log.entity_name}</div>
                           )}
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="text-xs text-gray-500 max-w-[200px] truncate">
+                    <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">
                       {log.details || '-'}
                     </TableCell>
                   </TableRow>

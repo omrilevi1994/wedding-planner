@@ -172,9 +172,9 @@ export default function Checklist() {
           <div className="relative max-w-2xl w-full" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => setPreviewItem(null)}
-              className="absolute -top-3 -left-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg z-10"
+              className="absolute -top-3 -left-3 w-8 h-8 bg-card rounded-full flex items-center justify-center shadow-lg z-10"
             >
-              <X className="w-4 h-4 text-gray-700" />
+              <X className="w-4 h-4 text-foreground" />
             </button>
             <img
               src={previewItem.image_url}
@@ -188,38 +188,38 @@ export default function Checklist() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">צ'ק ליסט</h1>
-          <p className="text-gray-600">מעקב אחר משימות וסידורים לחתונה</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">צ'ק ליסט</h1>
+          <p className="text-muted-foreground">מעקב אחר משימות וסידורים לחתונה</p>
         </div>
       </div>
 
       {/* Global Progress */}
-      <Card className="p-6 bg-gradient-to-br from-green-50 to-white shadow-md">
+      <Card className="p-6 bg-gradient-to-br from-sage/10 to-card shadow-md">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="text-sm text-gray-600 mb-1">התקדמות כללית</p>
-            <p className="text-3xl font-bold text-green-600">{progressPercent}%</p>
+            <p className="text-sm text-muted-foreground mb-1">התקדמות כללית</p>
+            <p className="text-3xl font-bold text-sage-deep">{progressPercent}%</p>
           </div>
           <div className="text-left">
-            <p className="text-sm text-gray-600">בוצע</p>
+            <p className="text-sm text-muted-foreground">בוצע</p>
             <p className="text-2xl font-bold">{completedCount} / {totalCount}</p>
           </div>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
           <div
-            className="bg-gradient-to-l from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
+            className="bg-gradient-to-l from-sage to-sage-deep h-3 rounded-full transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
       </Card>
 
       {isLoading ? (
-        <div className="text-center py-12 text-gray-400">טוען...</div>
+        <div className="text-center py-12 text-muted-foreground">טוען...</div>
       ) : (
         <div className="space-y-4">
           {/* Add Group */}
           {showAddGroup ? (
-            <Card className="p-4 border-2 border-dashed border-amber-300 bg-amber-50/30 space-y-2">
+            <Card className="p-4 border-2 border-dashed border-primary/40 bg-accent/30 space-y-2">
               <input
                 autoFocus
                 type="text"
@@ -227,19 +227,19 @@ export default function Checklist() {
                 onChange={(e) => setNewGroupTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddGroup()}
                 placeholder="שם הקבוצה החדשה..."
-                className="w-full text-sm border border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
+                className="w-full text-sm border border-input rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring bg-card"
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleAddGroup}
                   disabled={!newGroupTitle.trim() || createGroupMutation.isPending}
-                  className="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 disabled:opacity-50 transition-colors"
+                  className="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-hover disabled:opacity-50 transition-colors"
                 >
                   הוסף קבוצה
                 </button>
                 <button
                   onClick={() => { setShowAddGroup(false); setNewGroupTitle(''); }}
-                  className="px-4 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                  className="px-4 py-1.5 border border-border rounded-lg text-sm text-muted-foreground hover:bg-muted transition-colors"
                 >
                   ביטול
                 </button>
@@ -248,7 +248,7 @@ export default function Checklist() {
           ) : (
             <button
               onClick={() => setShowAddGroup(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-300 rounded-xl text-sm text-gray-500 hover:border-amber-400 hover:text-amber-600 hover:bg-amber-50/30 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground hover:border-primary hover:text-primary hover:bg-accent/30 transition-colors"
             >
               <Plus className="w-4 h-4" />
               הוסף קבוצה חדשה
@@ -264,30 +264,30 @@ export default function Checklist() {
             const allDone = groupTotal > 0 && groupCompleted === groupTotal;
 
             return (
-              <Card key={group.id} className={`overflow-hidden shadow-sm border ${allDone ? 'border-green-200 bg-green-50/30' : 'border-gray-200'}`}>
+              <Card key={group.id} className={`overflow-hidden shadow-sm border ${allDone ? 'border-sage/30 bg-sage/10' : 'border-border'}`}>
                 {/* Group Header */}
                 <button
                   onClick={() => toggleGroup(group.id)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50/50 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     {allDone ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-sage flex-shrink-0" />
                     ) : (
-                      <div className="w-5 h-5 rounded-full border-2 border-amber-400 flex-shrink-0" />
+                      <div className="w-5 h-5 rounded-full border-2 border-primary flex-shrink-0" />
                     )}
                     <div className="text-right">
-                      <p className={`font-semibold text-base ${allDone ? 'text-green-700' : 'text-gray-800'}`}>
+                      <p className={`font-semibold text-base ${allDone ? 'text-sage-deep' : 'text-foreground'}`}>
                         {group.title}
                       </p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-xs text-gray-500">{groupCompleted}/{groupTotal} משימות</p>
+                        <p className="text-xs text-muted-foreground">{groupCompleted}/{groupTotal} משימות</p>
                         {(() => {
                           const gDate = getGroupDate(group.title, weddingDate);
                           if (!gDate) return null;
                           const past = isPast(gDate);
                           return (
-                            <span className={`flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-full ${past ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
+                            <span className={`flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-full ${past ? 'bg-destructive/10 text-destructive' : 'bg-taupe/15 text-taupe'}`}>
                               <Calendar className="w-3 h-3" />
                               {format(gDate, 'd/M/yyyy')}
                             </span>
@@ -299,38 +299,38 @@ export default function Checklist() {
                   <div className="flex items-center gap-3">
                     {/* Mini progress bar */}
                     <div className="hidden sm:flex items-center gap-2">
-                      <div className="w-24 bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                      <div className="w-24 bg-muted rounded-full h-1.5 overflow-hidden">
                         <div
-                          className={`h-1.5 rounded-full transition-all duration-300 ${allDone ? 'bg-green-500' : 'bg-amber-500'}`}
+                          className={`h-1.5 rounded-full transition-all duration-300 ${allDone ? 'bg-sage' : 'bg-primary'}`}
                           style={{ width: `${groupProgress}%` }}
                         />
                       </div>
-                      <span className={`text-xs font-medium ${allDone ? 'text-green-600' : 'text-amber-600'}`}>
+                      <span className={`text-xs font-medium ${allDone ? 'text-sage-deep' : 'text-primary'}`}>
                         {groupProgress}%
                       </span>
                     </div>
                     {isCollapsed ? (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <ChevronUp className="w-4 h-4 text-gray-400" />
+                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
                     )}
                   </div>
                 </button>
 
                 {/* Group Items */}
                 {!isCollapsed && (
-                  <div className="border-t border-gray-100 divide-y divide-gray-50">
+                  <div className="border-t border-border divide-y divide-border/50">
                     {groupItems.map((item) => (
                       <div
                         key={item.id}
-                        className={`flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors ${item.completed ? 'bg-green-50/40' : ''}`}
+                        className={`flex items-center gap-3 px-5 py-3 hover:bg-muted transition-colors ${item.completed ? 'bg-sage/10' : ''}`}
                       >
                         {/* Toggle button */}
                         <button onClick={() => handleToggle(item)} className="flex-shrink-0">
                           {item.completed ? (
-                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            <CheckCircle2 className="w-5 h-5 text-sage" />
                           ) : (
-                            <Circle className="w-5 h-5 text-gray-300" />
+                            <Circle className="w-5 h-5 text-muted-foreground/40" />
                           )}
                         </button>
 
@@ -343,7 +343,7 @@ export default function Checklist() {
                               value={editTitle}
                               onChange={(e) => setEditTitle(e.target.value)}
                               onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEdit(item); if (e.key === 'Escape') setEditingItemId(null); }}
-                              className="w-full text-sm border border-amber-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
+                              className="w-full text-sm border border-primary/40 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-ring bg-card"
                             />
                             <input
                               type="text"
@@ -351,16 +351,16 @@ export default function Checklist() {
                               onChange={(e) => setEditNotes(e.target.value)}
                               placeholder="הערה (אופציונלי)..."
                               onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEdit(item); if (e.key === 'Escape') setEditingItemId(null); }}
-                              className="w-full text-xs border border-amber-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-amber-300 bg-white"
+                              className="w-full text-xs border border-input rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-ring bg-card"
                             />
                           </div>
                         ) : (
                           <div className="flex-1 text-right min-w-0">
-                            <span className={`text-sm ${item.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                            <span className={`text-sm ${item.completed ? 'line-through text-muted-foreground' : 'text-foreground/80'}`}>
                               {item.title}
                             </span>
                             {item.notes && (
-                              <p className="text-xs text-gray-400 truncate">{item.notes}</p>
+                              <p className="text-xs text-muted-foreground truncate">{item.notes}</p>
                             )}
                           </div>
                         )}
@@ -371,13 +371,13 @@ export default function Checklist() {
                             <>
                               <button
                                 onClick={() => handleSaveEdit(item)}
-                                className="p-1.5 rounded-lg hover:bg-green-50 text-green-600 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-sage/10 text-sage-deep transition-colors"
                               >
                                 <Check className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setEditingItemId(null)}
-                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
                               >
                                 <X className="w-4 h-4" />
                               </button>
@@ -386,13 +386,13 @@ export default function Checklist() {
                             <>
                               <button
                                 onClick={() => handleEditItem(item)}
-                                className="p-1.5 rounded-lg hover:bg-amber-50 text-gray-300 hover:text-amber-500 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground/50 hover:text-primary transition-colors"
                               >
                                 <Pencil className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteItem(item)}
-                                className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-500 transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive transition-colors"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -406,19 +406,19 @@ export default function Checklist() {
                                 src={item.image_url}
                                 alt={item.title}
                                 onClick={() => setPreviewItem(item)}
-                                className="w-10 h-10 rounded-lg object-cover cursor-pointer border border-gray-200 hover:opacity-80 transition-opacity"
+                                className="w-10 h-10 rounded-lg object-cover cursor-pointer border border-border hover:opacity-80 transition-opacity"
                               />
                               <button
                                 onClick={() => handleRemoveImage(item)}
-                                className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full text-xs items-center justify-center hidden group-hover:flex"
+                                className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-destructive text-destructive-foreground rounded-full text-xs items-center justify-center hidden group-hover:flex"
                               >
                                 <X className="w-2.5 h-2.5" />
                               </button>
                             </div>
                           ) : (
-                            <label className="cursor-pointer p-1.5 rounded-lg hover:bg-amber-50 text-gray-400 hover:text-amber-500 transition-colors">
+                            <label className="cursor-pointer p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-primary transition-colors">
                               {uploadingItemId === item.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                                <Loader2 className="w-4 h-4 animate-spin text-primary" />
                               ) : (
                                 <Image className="w-4 h-4" />
                               )}
@@ -434,12 +434,12 @@ export default function Checklist() {
                       </div>
                     ))}
                     {groupItems.length === 0 && (
-                      <p className="text-center text-sm text-gray-400 py-4">אין משימות בקבוצה זו</p>
+                      <p className="text-center text-sm text-muted-foreground py-4">אין משימות בקבוצה זו</p>
                     )}
 
                     {/* Add item form */}
                     {addingToGroup === group.id ? (
-                      <div className="px-5 py-3 bg-amber-50/50 space-y-2">
+                      <div className="px-5 py-3 bg-accent/50 space-y-2">
                         <input
                           autoFocus
                           type="text"
@@ -447,26 +447,26 @@ export default function Checklist() {
                           onChange={(e) => setNewItemTitle(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && handleAddItem(group.id)}
                           placeholder="שם המשימה..."
-                          className="w-full text-sm border border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
+                          className="w-full text-sm border border-input rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring bg-card"
                         />
                         <input
                           type="text"
                           value={newItemNotes}
                           onChange={(e) => setNewItemNotes(e.target.value)}
                           placeholder="הערה (אופציונלי)..."
-                          className="w-full text-sm border border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
+                          className="w-full text-sm border border-input rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring bg-card"
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleAddItem(group.id)}
                             disabled={!newItemTitle.trim() || createItemMutation.isPending}
-                            className="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 disabled:opacity-50 transition-colors"
+                            className="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-hover disabled:opacity-50 transition-colors"
                           >
                             הוסף
                           </button>
                           <button
                             onClick={() => { setAddingToGroup(null); setNewItemTitle(''); setNewItemNotes(''); }}
-                            className="px-4 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                            className="px-4 py-1.5 border border-border rounded-lg text-sm text-muted-foreground hover:bg-muted transition-colors"
                           >
                             ביטול
                           </button>
@@ -475,7 +475,7 @@ export default function Checklist() {
                     ) : (
                       <button
                         onClick={() => { setAddingToGroup(group.id); setNewItemTitle(''); setNewItemNotes(''); }}
-                        className="w-full flex items-center gap-2 px-5 py-2.5 text-right text-sm text-amber-600 hover:bg-amber-50 transition-colors"
+                        className="w-full flex items-center gap-2 px-5 py-2.5 text-right text-sm text-primary hover:bg-accent transition-colors"
                       >
                         <Plus className="w-4 h-4" />
                         הוסף משימה

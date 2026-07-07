@@ -17,38 +17,38 @@ export default function TableCard({ table, guests, onAddGuest, onRemoveGuest, on
   const remainingCapacity = table.capacity - seatedGuestCount;
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-amber-50 to-white border-2 border-amber-200">
+    <Card className="p-6 bg-gradient-to-br from-champagne to-card border-2 border-rose/30">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="text-xl font-bold text-gray-900">{table.name}</h3>
-          <p className="text-sm text-gray-600">
-            {table.iplan_number && <span className="font-medium text-amber-700 ml-2">#{table.iplan_number}</span>}
+          <h3 className="text-xl font-bold text-foreground">{table.name}</h3>
+          <p className="text-sm text-muted-foreground">
+            {table.iplan_number && <span className="font-medium text-rose-deep ml-2">#{table.iplan_number}</span>}
             קיבולת: {table.capacity}
           </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => onEditTable(table)}
-            className="p-2 hover:bg-amber-50 rounded-lg transition-colors"
+            className="p-2 hover:bg-champagne rounded-lg transition-colors"
           >
-            <Pencil className="w-5 h-5 text-amber-600" />
+            <Pencil className="w-5 h-5 text-rose-deep" />
           </button>
           <button
             onClick={() => onDeleteTable(table.id)}
-            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+            className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-red-600" />
+            <X className="w-5 h-5 text-destructive" />
           </button>
         </div>
       </div>
 
       <div className="mb-4">
         <Badge className={
-          seatedGuestCount > table.capacity 
-            ? 'bg-red-100 text-red-800' 
-            : seatedGuestCount === table.capacity 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-blue-100 text-blue-800'
+          seatedGuestCount > table.capacity
+            ? 'bg-destructive/10 text-destructive'
+            : seatedGuestCount === table.capacity
+            ? 'bg-sage/15 text-sage-deep'
+            : 'bg-taupe/15 text-taupe'
         }>
           {seatedGuestCount}/{table.capacity} אנשים
         </Badge>
@@ -56,15 +56,15 @@ export default function TableCard({ table, guests, onAddGuest, onRemoveGuest, on
 
       {seatedGuests.length > 0 && (
         <div className="mb-4 space-y-2">
-          <p className="text-sm font-semibold text-gray-700">מוזמנים בשולחן:</p>
+          <p className="text-sm font-semibold text-foreground/80">מוזמנים בשולחן:</p>
           {seatedGuests.map(guest => (
-            <div key={guest.id} className={`flex justify-between items-center p-2 rounded border ${guest.status !== 'אישר' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}>
-              <span className="text-sm">{guest.first_name} {guest.last_name} <span className="text-gray-400 text-xs">({guest.confirmed_people != null ? guest.confirmed_people : (guest.total_people || 1)})</span></span>
+            <div key={guest.id} className={`flex justify-between items-center p-2 rounded border ${guest.status !== 'אישר' ? 'bg-destructive/10 border-destructive/30' : 'bg-card border-border'}`}>
+              <span className="text-sm">{guest.first_name} {guest.last_name} <span className="text-muted-foreground text-xs">({guest.confirmed_people != null ? guest.confirmed_people : (guest.total_people || 1)})</span></span>
               <button
                 onClick={() => onRemoveGuest(guest.id)}
-                className="p-1 hover:bg-red-50 rounded transition-colors"
+                className="p-1 hover:bg-destructive/10 rounded transition-colors"
               >
-                <X className="w-4 h-4 text-red-600" />
+                <X className="w-4 h-4 text-destructive" />
               </button>
             </div>
           ))}
@@ -73,17 +73,17 @@ export default function TableCard({ table, guests, onAddGuest, onRemoveGuest, on
 
       {remainingCapacity > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-gray-700">הוסף מוזמן:</p>
+          <p className="text-sm font-semibold text-foreground/80">הוסף מוזמן:</p>
           <div className="space-y-2">
             <input
               type="text"
               placeholder="חפש מוזמן..."
               value={searchGuest}
               onChange={(e) => setSearchGuest(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
             {filteredGuests.length > 0 && (
-              <div className="border border-gray-200 rounded-md max-h-48 overflow-y-auto">
+              <div className="border border-border rounded-md max-h-48 overflow-y-auto">
                 {filteredGuests.map(guest => (
                   <button
                     key={guest.id}
@@ -91,16 +91,16 @@ export default function TableCard({ table, guests, onAddGuest, onRemoveGuest, on
                       onAddGuest(guest.id, table.id);
                       setSearchGuest('');
                     }}
-                    className="w-full text-right px-3 py-2 hover:bg-amber-100 text-sm border-b border-gray-100 last:border-b-0 transition-colors"
+                    className="w-full text-right px-3 py-2 hover:bg-accent text-sm border-b border-border last:border-b-0 transition-colors"
                   >
                     <span>{guest.first_name} {guest.last_name}</span>
-                    <span className="text-gray-400 text-xs mr-1">({guest.confirmed_people != null ? guest.confirmed_people : (guest.total_people || 1)} אנשים)</span>
+                    <span className="text-muted-foreground text-xs mr-1">({guest.confirmed_people != null ? guest.confirmed_people : (guest.total_people || 1)} אנשים)</span>
                   </button>
                 ))}
               </div>
             )}
             {searchGuest && filteredGuests.length === 0 && (
-              <div className="text-sm text-gray-500 py-2 px-3">אין תוצאות</div>
+              <div className="text-sm text-muted-foreground py-2 px-3">אין תוצאות</div>
             )}
           </div>
         </div>

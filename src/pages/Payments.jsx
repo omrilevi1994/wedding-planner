@@ -96,32 +96,32 @@ export default function Payments() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">תשלומים</h1>
-        <p className="text-gray-600">מעקב אחר תשלומים ותאריכי יעד</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">תשלומים</h1>
+        <p className="text-muted-foreground">מעקב אחר תשלומים ותאריכי יעד</p>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4 bg-gradient-to-br from-yellow-50 to-white">
-          <p className="text-sm text-gray-600 mb-1">תשלומים מתוכננים</p>
+        <Card className="p-4 bg-gradient-to-br from-champagne to-card">
+          <p className="text-sm text-muted-foreground mb-1">תשלומים מתוכננים</p>
           <p className="text-2xl font-bold">₪{totalPlanned.toLocaleString('he-IL')}</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-green-50 to-white">
-          <p className="text-sm text-gray-600 mb-1">תשלומים ששולמו</p>
-          <p className="text-2xl font-bold text-green-600">₪{totalPaid.toLocaleString('he-IL')}</p>
+        <Card className="p-4 bg-gradient-to-br from-sage/15 to-card">
+          <p className="text-sm text-muted-foreground mb-1">תשלומים ששולמו</p>
+          <p className="text-2xl font-bold text-sage-deep">₪{totalPaid.toLocaleString('he-IL')}</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-red-50 to-white">
-          <p className="text-sm text-gray-600 mb-1">תשלומים בשבועיים הקרובים</p>
-          <p className="text-2xl font-bold text-red-600">{upcomingPayments.length}</p>
+        <Card className="p-4 bg-gradient-to-br from-destructive/10 to-card">
+          <p className="text-sm text-muted-foreground mb-1">תשלומים בשבועיים הקרובים</p>
+          <p className="text-2xl font-bold text-destructive">{upcomingPayments.length}</p>
         </Card>
       </div>
 
       {/* Upcoming Payments */}
       {upcomingPayments.length > 0 && (
-        <Card className="shadow-md border-amber-200 bg-gradient-to-br from-amber-50 to-white">
+        <Card className="shadow-md border-rose/30 bg-gradient-to-br from-rose-light/20 to-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-600" />
+              <AlertCircle className="w-5 h-5 text-rose-deep" />
               תשלומים דחופים - שבועיים הקרובים
             </CardTitle>
           </CardHeader>
@@ -129,11 +129,11 @@ export default function Payments() {
             {upcomingPayments.map((payment) => (
               <div
                 key={payment.id}
-                className="flex items-center justify-between p-4 bg-white rounded-lg border border-amber-200"
+                className="flex items-center justify-between p-4 bg-card rounded-lg border border-rose/30"
               >
                 <div className="flex-1">
                   <p className="font-medium">{payment.expense_vendor}</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     {format(parseISO(payment.due_date), 'dd MMMM yyyy', { locale: he })}
                   </p>
                 </div>
@@ -142,7 +142,7 @@ export default function Payments() {
                   <Button
                     size="sm"
                     onClick={() => handleMarkAsPaid(payment)}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-sage hover:bg-sage-deep"
                   >
                     <CheckCircle className="w-4 h-4 ml-1" />
                     סמן כשולם
@@ -157,17 +157,17 @@ export default function Payments() {
       {/* Payments by Month */}
       <div className="space-y-6">
         {isLoading ? (
-          <Card className="p-8 text-center text-gray-400">טוען...</Card>
+          <Card className="p-8 text-center text-muted-foreground">טוען...</Card>
         ) : sortedMonths.length === 0 ? (
-          <Card className="p-8 text-center text-gray-400">
+          <Card className="p-8 text-center text-muted-foreground">
             אין עדיין תשלומים מתוכננים
           </Card>
         ) : (
           sortedMonths.map((monthKey) => (
             <Card key={monthKey} className="shadow-md">
-              <CardHeader className="bg-gradient-to-l from-amber-50 to-white border-b">
+              <CardHeader className="bg-gradient-to-l from-champagne to-card border-b">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Calendar className="w-5 h-5 text-[var(--gold-dark)]" />
+                  <Calendar className="w-5 h-5 text-rose-deep" />
                   {format(parseISO(monthKey + '-01'), 'MMMM yyyy', { locale: he })}
                 </CardTitle>
               </CardHeader>
@@ -176,17 +176,17 @@ export default function Payments() {
                   {groupedPayments[monthKey].map((payment) => (
                     <div
                       key={payment.id}
-                      className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-between p-4 hover:bg-muted transition-colors"
                     >
                       <div className="flex items-center gap-4 flex-1">
                         {payment.status === 'שולם' ? (
-                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <CheckCircle className="w-5 h-5 text-sage" />
                         ) : (
-                          <Clock className="w-5 h-5 text-yellow-500" />
+                          <Clock className="w-5 h-5 text-rose" />
                         )}
                         <div className="flex-1">
                           <p className="font-medium">{payment.expense_vendor}</p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-muted-foreground">
                             יעד: {format(parseISO(payment.due_date), 'dd/MM/yyyy')}
                             {payment.status === 'שולם' && payment.paid_date && (
                               <span className="mr-2">
@@ -195,7 +195,7 @@ export default function Payments() {
                             )}
                           </p>
                           {payment.notes && (
-                            <p className="text-xs text-gray-500 mt-1">{payment.notes}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{payment.notes}</p>
                           )}
                         </div>
                       </div>
@@ -203,8 +203,8 @@ export default function Payments() {
                         <Badge
                           className={
                             payment.status === 'שולם'
-                              ? 'bg-green-100 text-green-800 border-green-200'
-                              : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                              ? 'bg-sage/15 text-sage-deep border-sage/30'
+                              : 'bg-champagne text-rose-deep border-taupe/40'
                           }
                         >
                           {payment.status}
@@ -229,10 +229,10 @@ export default function Payments() {
                         ) : (
                           <button
                             onClick={() => setEditingPaidBy(payment.id)}
-                            className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg border border-border hover:bg-muted transition-colors"
                           >
-                            <User className="w-3 h-3 text-gray-400" />
-                            <span className={payment.paid_by ? 'text-gray-700 font-medium' : 'text-gray-400'}>
+                            <User className="w-3 h-3 text-muted-foreground" />
+                            <span className={payment.paid_by ? 'text-foreground font-medium' : 'text-muted-foreground'}>
                               {payment.paid_by || 'מי שילם?'}
                             </span>
                           </button>
@@ -245,7 +245,7 @@ export default function Payments() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleMarkAsPaid(payment)}
-                            className="border-green-300 hover:bg-green-50"
+                            className="border-sage/40 hover:bg-sage/10"
                           >
                             סמן כשולם
                           </Button>

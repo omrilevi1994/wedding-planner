@@ -158,7 +158,7 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
                 </SelectContent>
               </Select>
               {formData.paid_by_party === 'אחר' && (
-                <p className="text-xs text-orange-600">⚠ הוצאה זו לא תיכלל בחישובי הסה״כ ומחיר המנה</p>
+                <p className="text-xs text-destructive">⚠ הוצאה זו לא תיכלל בחישובי הסה״כ ומחיר המנה</p>
               )}
             </div>
 
@@ -246,22 +246,22 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
           </div>
 
           {/* Deposit Section */}
-          <div className="border rounded-xl p-4 space-y-3 bg-blue-50/40">
+          <div className="border rounded-xl p-4 space-y-3 bg-taupe/15">
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
                 id="has_deposit"
                 checked={formData.has_deposit}
                 onChange={(e) => setFormData({ ...formData, has_deposit: e.target.checked })}
-                className="w-4 h-4 accent-blue-600"
+                className="w-4 h-4 accent-taupe"
               />
-              <Label htmlFor="has_deposit" className="cursor-pointer font-semibold text-blue-800">פיצול לתשלומים: מקדמה + יתרה</Label>
+              <Label htmlFor="has_deposit" className="cursor-pointer font-semibold text-taupe">פיצול לתשלומים: מקדמה + יתרה</Label>
             </div>
 
             {formData.has_deposit && (
               <div className="space-y-3 pt-2">
                 {/* Deposit */}
-                <p className="text-xs font-bold text-blue-700 uppercase tracking-wide">מקדמה</p>
+                <p className="text-xs font-bold text-taupe uppercase tracking-wide">מקדמה</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs">סכום מקדמה (₪) *</Label>
@@ -300,7 +300,7 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
                 </div>
 
                 {/* Remainder */}
-                <p className="text-xs font-bold text-gray-600 uppercase tracking-wide pt-1">יתרה</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide pt-1">יתרה</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs">סכום יתרה (₪)</Label>
@@ -312,11 +312,11 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
                           : ''
                       }
                       readOnly
-                      className="bg-gray-100 text-gray-600"
+                      className="bg-muted text-muted-foreground"
                       placeholder="מחושב אוטומטית"
                     />
                   </div>
-                  <div className="text-xs text-gray-500 flex items-end pb-2">
+                  <div className="text-xs text-muted-foreground flex items-end pb-2">
                     מחושב אוטומטית: סה״כ פחות המקדמה
                   </div>
                 </div>
@@ -353,7 +353,7 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
                   href={formData.receipt_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline flex items-center"
+                  className="text-sm text-primary hover:underline flex items-center"
                 >
                   צפה בקובץ
                 </a>
@@ -371,7 +371,7 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
           <div className="flex gap-3 pt-4">
             <Button
               type="submit"
-              className="flex-1 bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+              className="flex-1 bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep"
             >
               {expense ? 'עדכן' : 'הוסף'} הוצאה
             </Button>

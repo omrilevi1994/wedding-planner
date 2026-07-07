@@ -58,12 +58,12 @@ export default function WeddingDayChecklist() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-16 text-gray-400 text-lg">טוען...</div>;
+    return <div className="text-center py-16 text-muted-foreground text-lg">טוען...</div>;
   }
 
   if (!weddingDayGroup) {
     return (
-      <div className="text-center py-16 text-gray-400">
+      <div className="text-center py-16 text-muted-foreground">
         <p className="text-xl">אין קבוצות בצ'ק ליסט</p>
         <p className="text-sm mt-2">ניתן ליצור קבוצות בצ'ק ליסט הרגיל</p>
       </div>
@@ -73,20 +73,20 @@ export default function WeddingDayChecklist() {
   return (
     <div className="space-y-5">
       {/* Progress */}
-      <Card className="p-5 bg-gradient-to-br from-amber-50 to-white shadow-md">
+      <Card className="p-5 bg-gradient-to-br from-champagne to-card shadow-md">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="text-sm text-gray-500">התקדמות - {weddingDayGroup.title}</p>
-            <p className="text-4xl font-bold text-amber-600">{progressPercent}%</p>
+            <p className="text-sm text-muted-foreground">התקדמות - {weddingDayGroup.title}</p>
+            <p className="text-4xl font-bold text-rose-deep">{progressPercent}%</p>
           </div>
           <div className="text-left">
-            <p className="text-sm text-gray-500">בוצע</p>
-            <p className="text-3xl font-bold text-gray-800">{completedCount} / {totalCount}</p>
+            <p className="text-sm text-muted-foreground">בוצע</p>
+            <p className="text-3xl font-bold text-foreground">{completedCount} / {totalCount}</p>
           </div>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+        <div className="w-full bg-muted rounded-full h-4 overflow-hidden">
           <div
-            className="bg-gradient-to-l from-amber-500 to-amber-400 h-4 rounded-full transition-all duration-500"
+            className="bg-gradient-to-l from-rose to-rose-deep h-4 rounded-full transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -94,36 +94,36 @@ export default function WeddingDayChecklist() {
 
       {/* Items */}
       <Card className="overflow-hidden shadow-sm">
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-border">
           {weddingDayItems.length === 0 && (
-            <p className="text-center text-gray-400 py-10">אין משימות בקבוצה זו</p>
+            <p className="text-center text-muted-foreground py-10">אין משימות בקבוצה זו</p>
           )}
           {weddingDayItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleToggle(item)}
               className={`w-full flex items-center gap-4 px-6 py-4 text-right transition-colors active:scale-98 ${
-                item.completed ? 'bg-green-50/60' : 'hover:bg-amber-50/40'
+                item.completed ? 'bg-sage/15' : 'hover:bg-champagne/40'
               }`}
             >
               {item.completed ? (
-                <CheckCircle2 className="w-7 h-7 text-green-500 flex-shrink-0" />
+                <CheckCircle2 className="w-7 h-7 text-sage-deep flex-shrink-0" />
               ) : (
-                <Circle className="w-7 h-7 text-gray-300 flex-shrink-0" />
+                <Circle className="w-7 h-7 text-muted-foreground flex-shrink-0" />
               )}
               <div className="flex-1">
-                <span className={`text-base font-medium ${item.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                <span className={`text-base font-medium ${item.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                   {item.title}
                 </span>
                 {item.notes && (
-                  <p className="text-sm text-gray-400 mt-0.5">{item.notes}</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{item.notes}</p>
                 )}
               </div>
               {item.image_url && (
                 <img
                   src={item.image_url}
                   alt={item.title}
-                  className="w-14 h-14 rounded-lg object-cover flex-shrink-0 border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                  className="w-14 h-14 rounded-lg object-cover flex-shrink-0 border border-border cursor-pointer hover:opacity-80 transition-opacity"
                   onClick={(e) => { e.stopPropagation(); setSelectedImage(item.image_url); }}
                 />
               )}
@@ -141,7 +141,7 @@ export default function WeddingDayChecklist() {
           </AlertDialogDescription>
           <div className="flex gap-2 justify-end">
             <AlertDialogCancel>ביטול</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirm} className="bg-green-600 hover:bg-green-700">
+            <AlertDialogAction onClick={handleConfirm} className="bg-sage hover:bg-sage-deep">
               אישור
             </AlertDialogAction>
           </div>

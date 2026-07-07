@@ -36,7 +36,7 @@ export default function ExpensesPieChart({ expenses }) {
           <CardTitle className="text-lg">התפלגות הוצאות לפי קטגוריות</CardTitle>
         </CardHeader>
         <CardContent className="h-64 flex items-center justify-center">
-          <p className="text-gray-400 text-sm">אין עדיין הוצאות להצגה</p>
+          <p className="text-muted-foreground text-sm">אין עדיין הוצאות להצגה</p>
         </CardContent>
       </Card>
     );

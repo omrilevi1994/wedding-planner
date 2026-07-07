@@ -225,48 +225,48 @@ export default function SeatingPlan() {
     <div className="space-y-4">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">סידור ישיבה</h1>
-          <div className="flex gap-4 text-sm text-gray-600">
+          <h1 className="text-3xl font-bold text-foreground mb-1">סידור ישיבה</h1>
+          <div className="flex gap-4 text-sm text-muted-foreground">
             <span>מושבים: <strong>{seatedCount}</strong> / <strong>{totalCapacity}</strong></span>
-            {overflowTables > 0 && <span className="text-red-600 font-semibold">⚠️ {overflowTables} שולחנות בעומס</span>}
+            {overflowTables > 0 && <span className="text-destructive font-semibold">⚠️ {overflowTables} שולחנות בעומס</span>}
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => { setSelectedExportTables([]); setShowExportDialog(true); }} className="border-green-300 text-green-700 hover:bg-green-50 text-sm">
+          <Button variant="outline" onClick={() => { setSelectedExportTables([]); setShowExportDialog(true); }} className="border-sage/30 text-sage-deep hover:bg-sage/15 text-sm">
             <Download className="w-4 h-4 ml-1" />
             ייצא שולחנות לCSV
           </Button>
-          <Button variant="outline" onClick={() => setShowResetConfirm(true)} className="border-blue-300 text-blue-600 hover:bg-blue-50 text-sm">
+          <Button variant="outline" onClick={() => setShowResetConfirm(true)} className="border-taupe/30 text-taupe hover:bg-taupe/15 text-sm">
             <RefreshCw className="w-4 h-4 ml-1" />
             אפס וצור שולחנות 1-25
           </Button>
           {tables.length > 0 && (
-            <Button variant="outline" onClick={() => setShowDeleteAllConfirm(true)} className="border-red-300 text-red-600 hover:bg-red-50 text-sm">
+            <Button variant="outline" onClick={() => setShowDeleteAllConfirm(true)} className="border-destructive/30 text-destructive hover:bg-destructive/10 text-sm">
               <Trash2 className="w-4 h-4 ml-1" />
               מחק הכל
             </Button>
           )}
           <Button onClick={() => { setEditingTable(null); setNewTableName(''); setNewTableCapacity('12'); setShowNewTableDialog(true); }}
-            className="bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700">
+            className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">
             <Plus className="w-4 h-4 ml-1" />
             שולחן חדש
           </Button>
         </div>
       </div>
 
-      <div className="flex gap-3 text-xs text-gray-600">
-        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-amber-600" /> פנוי</div>
-        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-blue-500" /> מלא</div>
-        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-red-500" /> עומס יתר</div>
-        <span className="mr-2 text-amber-700 font-medium">לחץ על שולחן לפרטים</span>
+      <div className="flex gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-rose-deep" /> פנוי</div>
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-taupe" /> מלא</div>
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-destructive" /> עומס יתר</div>
+        <span className="mr-2 text-rose-deep font-medium">לחץ על שולחן לפרטים</span>
       </div>
 
       <div className="flex gap-4">
         <div className={selectedTable ? 'flex-1' : 'w-full'}>
           {tables.length === 0 ? (
-            <div className="text-center py-20 bg-gray-100 rounded-xl">
-              <p className="text-gray-500 mb-2 text-lg">עדיין אין שולחנות</p>
-              <p className="text-gray-400 text-sm">ייבא מ-iPlan או הוסף ידנית</p>
+            <div className="text-center py-20 bg-muted rounded-xl">
+              <p className="text-muted-foreground mb-2 text-lg">עדיין אין שולחנות</p>
+              <p className="text-muted-foreground text-sm">ייבא מ-iPlan או הוסף ידנית</p>
             </div>
           ) : (
             <HallVisualization
@@ -322,7 +322,7 @@ export default function SeatingPlan() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewTableDialog(false)}>ביטול</Button>
-            <Button onClick={handleSaveTable} className="bg-amber-600 hover:bg-amber-700">
+            <Button onClick={handleSaveTable} className="bg-primary hover:bg-primary-hover">
               {editingTable ? 'שמור' : 'הוסף'}
             </Button>
           </DialogFooter>
@@ -334,10 +334,10 @@ export default function SeatingPlan() {
           <DialogHeader>
             <DialogTitle>אפס ויצור שולחנות 1-25</DialogTitle>
           </DialogHeader>
-          <p className="text-gray-600">פעולה זו תמחק את כל השולחנות הקיימים, תנקה שיבוץ שולחן מכל המוזמנים, ותיצור שולחנות 1-25 מחדש (שולחן 13 ו-16 עם 24 מקומות, השאר 12).</p>
+          <p className="text-muted-foreground">פעולה זו תמחק את כל השולחנות הקיימים, תנקה שיבוץ שולחן מכל המוזמנים, ותיצור שולחנות 1-25 מחדש (שולחן 13 ו-16 עם 24 מקומות, השאר 12).</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowResetConfirm(false)} disabled={isResetting}>ביטול</Button>
-            <Button onClick={handleResetAndCreate} className="bg-blue-600 hover:bg-blue-700" disabled={isResetting}>
+            <Button onClick={handleResetAndCreate} className="bg-taupe hover:bg-taupe/90" disabled={isResetting}>
               {isResetting ? 'מעבד...' : 'אפס ויצור'}
             </Button>
           </DialogFooter>
@@ -351,9 +351,9 @@ export default function SeatingPlan() {
             <DialogTitle>ייצוא שולחנות ל-CSV</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 max-h-72 overflow-y-auto">
-            <div className="flex justify-between text-xs text-gray-500 mb-2">
-              <button onClick={() => setSelectedExportTables(tables.map(t => String(t.iplan_number || t.name)))} className="text-blue-600 hover:underline">בחר הכל</button>
-              <button onClick={() => setSelectedExportTables([])} className="text-gray-500 hover:underline">נקה הכל</button>
+            <div className="flex justify-between text-xs text-muted-foreground mb-2">
+              <button onClick={() => setSelectedExportTables(tables.map(t => String(t.iplan_number || t.name)))} className="text-taupe hover:underline">בחר הכל</button>
+              <button onClick={() => setSelectedExportTables([])} className="text-muted-foreground hover:underline">נקה הכל</button>
             </div>
             {[...tables]
               .sort((a, b) => Number(a.iplan_number) - Number(b.iplan_number))
@@ -364,12 +364,12 @@ export default function SeatingPlan() {
                   .filter(g => g.table_id === table.id)
                   .reduce((sum, g) => sum + (g.confirmed_people != null ? g.confirmed_people : (g.total_people || 1)), 0);
                 return (
-                  <div key={table.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => toggleExportTable(key)}>
+                  <div key={table.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer" onClick={() => toggleExportTable(key)}>
                     <Checkbox checked={isChecked} onCheckedChange={() => toggleExportTable(key)} onClick={e => e.stopPropagation()} />
                     <div className="flex-1">
                       <span className="font-medium text-sm">{table.iplan_number ? `${table.iplan_number}. ` : ''}{table.name}</span>
                     </div>
-                    <span className="text-xs text-gray-400">{count} מגיעים</span>
+                    <span className="text-xs text-muted-foreground">{count} מגיעים</span>
                   </div>
                 );
               })}
@@ -379,7 +379,7 @@ export default function SeatingPlan() {
             <Button
               disabled={selectedExportTables.length === 0}
               onClick={() => { exportTablesCsv(selectedExportTables); setShowExportDialog(false); }}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-sage-deep hover:bg-sage-deep/90"
             >
               <Download className="w-4 h-4 ml-1" />
               ייצא ({selectedExportTables.length} שולחנות)
@@ -393,10 +393,10 @@ export default function SeatingPlan() {
           <DialogHeader>
             <DialogTitle>מחיקת כל השולחנות</DialogTitle>
           </DialogHeader>
-          <p className="text-gray-600">האם אתה בטוח? כל השולחנות יימחקו והמוזמנים ישוחררו.</p>
+          <p className="text-muted-foreground">האם אתה בטוח? כל השולחנות יימחקו והמוזמנים ישוחררו.</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteAllConfirm(false)}>ביטול</Button>
-            <Button onClick={handleDeleteAllTables} className="bg-red-600 hover:bg-red-700">מחק הכל</Button>
+            <Button onClick={handleDeleteAllTables} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">מחק הכל</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

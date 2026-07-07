@@ -22,6 +22,7 @@ module.exports = {
   			},
   			primary: {
   				DEFAULT: 'hsl(var(--primary))',
+  				hover: 'hsl(var(--primary-hover))',
   				foreground: 'hsl(var(--primary-foreground))'
   			},
   			secondary: {
@@ -59,7 +60,19 @@ module.exports = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+  			rose: {
+  				DEFAULT: 'hsl(var(--primary))',
+  				light: 'hsl(var(--rose-light))',
+  				deep: 'hsl(var(--rose-deep))'
+  			},
+  			sage: {
+  				DEFAULT: 'hsl(var(--sage))',
+  				deep: 'hsl(var(--sage-deep))'
+  			},
+  			champagne: 'hsl(var(--champagne))',
+  			taupe: 'hsl(var(--taupe))',
+  			disabled: 'hsl(var(--disabled))'
   		},
   		keyframes: {
   			'accordion-down': {

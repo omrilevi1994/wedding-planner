@@ -208,21 +208,21 @@ export default function Gifts() {
     <div className="space-y-6" dir="rtl">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">מתנות</h1>
-          <p className="text-gray-500 text-sm">מתנות שהתקבלו מהאורחים — כספי ואחר</p>
+          <h1 className="text-3xl font-bold text-foreground mb-1">מתנות</h1>
+          <p className="text-muted-foreground text-sm">מתנות שהתקבלו מהאורחים — כספי ואחר</p>
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
             onClick={exportCSV}
-            className="border-green-300 text-green-700 hover:bg-green-50"
+            className="border-sage/30 text-sage-deep hover:bg-sage/15"
           >
             <Download className="w-4 h-4 ml-1" />
             יצוא דוח CSV
           </Button>
           <Button
             onClick={() => openAdd()}
-            className="bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+            className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep"
           >
             <Plus className="w-4 h-4 ml-1" />
             הוסף מתנה נוספת
@@ -232,44 +232,44 @@ export default function Gifts() {
 
       {/* Missing gifts banner */}
       {guestsWithoutGift.length > 0 && (
-        <div className="border border-orange-200 rounded-xl bg-orange-50 overflow-hidden">
+        <div className="border border-taupe/40 rounded-xl bg-champagne overflow-hidden">
           <button
-            className="w-full flex items-center justify-between px-4 py-3 hover:bg-orange-100 transition-colors"
+            className="w-full flex items-center justify-between px-4 py-3 hover:bg-champagne/70 transition-colors"
             onClick={() => setShowMissingGifts(v => !v)}
           >
-            <div className="flex items-center gap-2 text-orange-700">
+            <div className="flex items-center gap-2 text-rose-deep">
               <AlertCircle className="w-5 h-5 shrink-0" />
               <span className="font-semibold text-sm">{guestsWithoutGift.length} אורחים שאישרו / אולי ועדיין לא רשמנו מתנה</span>
             </div>
-            {showMissingGifts ? <ChevronUp className="w-4 h-4 text-orange-400" /> : <ChevronDown className="w-4 h-4 text-orange-400" />}
+            {showMissingGifts ? <ChevronUp className="w-4 h-4 text-taupe" /> : <ChevronDown className="w-4 h-4 text-taupe" />}
           </button>
           {showMissingGifts && (
-            <div className="border-t border-orange-200 divide-y divide-orange-100">
+            <div className="border-t border-taupe/40 divide-y divide-taupe/20">
               {guestsWithoutGift.map(guest => (
-                <div key={guest.id} className="flex items-center justify-between px-4 py-2.5 bg-white">
+                <div key={guest.id} className="flex items-center justify-between px-4 py-2.5 bg-card">
                   <div className="flex items-center gap-3">
-                    <div className="bg-orange-100 rounded-full w-8 h-8 flex items-center justify-center shrink-0">
-                      <span className="text-orange-700 font-bold text-xs">{guest.first_name?.[0]}{guest.last_name?.[0]}</span>
+                    <div className="bg-champagne rounded-full w-8 h-8 flex items-center justify-center shrink-0">
+                      <span className="text-rose-deep font-bold text-xs">{guest.first_name?.[0]}{guest.last_name?.[0]}</span>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800 text-sm">{guest.first_name} {guest.last_name}</p>
-                      <p className="text-xs text-gray-400">{guest.side}{guest.relationship ? ` · ${guest.relationship}` : ''}</p>
+                      <p className="font-medium text-foreground text-sm">{guest.first_name} {guest.last_name}</p>
+                      <p className="text-xs text-muted-foreground">{guest.side}{guest.relationship ? ` · ${guest.relationship}` : ''}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={`text-xs ${guest.status === 'אולי' ? 'bg-yellow-50 border-yellow-300 text-yellow-700' : 'bg-green-50 border-green-300 text-green-700'}`}>
+                    <Badge variant="outline" className={`text-xs ${guest.status === 'אולי' ? 'bg-champagne border-taupe/40 text-rose-deep' : 'bg-sage/15 border-sage/30 text-sage-deep'}`}>
                       {guest.status}
                     </Badge>
-                    <Button size="sm" variant="ghost" className="text-green-600 hover:bg-green-50 h-7 px-2"
+                    <Button size="sm" variant="ghost" className="text-sage-deep hover:bg-sage/15 h-7 px-2"
                       onClick={() => updateGuestMutation.mutate({ id: guest.id, data: { gift_received: true } })}>
                       <Gift className="w-3.5 h-3.5 ml-1" />
                       הביא מתנה
                     </Button>
-                    <Button size="sm" variant="ghost" className="text-red-500 hover:bg-red-50 h-7 px-2"
+                    <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 h-7 px-2"
                       onClick={() => updateGuestMutation.mutate({ id: guest.id, data: { status: 'לא מגיע' } })}>
                       לא הגיע
                     </Button>
-                    <Button size="sm" variant="ghost" className="text-amber-600 hover:bg-amber-50 h-7 px-2"
+                    <Button size="sm" variant="ghost" className="text-rose hover:bg-accent h-7 px-2"
                       onClick={() => openAdd(guest.id)}>
                       <Plus className="w-3.5 h-3.5 ml-1" />
                       הוסף מתנה
@@ -284,46 +284,46 @@ export default function Gifts() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card className="p-4 bg-gradient-to-br from-green-50 to-white text-center">
-          <p className="text-sm text-gray-500">סה״כ מזומן / העברה</p>
-          <p className="text-2xl font-bold text-green-700">₪{totalCashAmount.toLocaleString()}</p>
+        <Card className="p-4 bg-gradient-to-br from-sage/15 to-card text-center">
+          <p className="text-sm text-muted-foreground">סה״כ מזומן / העברה</p>
+          <p className="text-2xl font-bold text-sage-deep">₪{totalCashAmount.toLocaleString()}</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-purple-50 to-white text-center">
-          <p className="text-sm text-gray-500">מתנות נוספות (שווי)</p>
-          <p className="text-2xl font-bold text-purple-700">₪{totalExtraAmount.toLocaleString()}</p>
+        <Card className="p-4 bg-gradient-to-br from-taupe/15 to-card text-center">
+          <p className="text-sm text-muted-foreground">מתנות נוספות (שווי)</p>
+          <p className="text-2xl font-bold text-taupe">₪{totalExtraAmount.toLocaleString()}</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-amber-50 to-white text-center">
-          <p className="text-sm text-gray-500">סה״כ כולל</p>
-          <p className="text-2xl font-bold text-amber-700">₪{totalAmount.toLocaleString()}</p>
+        <Card className="p-4 bg-gradient-to-br from-rose-light/40 to-card text-center">
+          <p className="text-sm text-muted-foreground">סה״כ כולל</p>
+          <p className="text-2xl font-bold text-rose-deep">₪{totalAmount.toLocaleString()}</p>
         </Card>
       </div>
 
       {/* Analytics */}
       {guestTotals.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
-          <Card className="p-4 bg-gradient-to-br from-red-50 to-white text-center">
+          <Card className="p-4 bg-gradient-to-br from-destructive/10 to-card text-center">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <TrendingDown className="w-4 h-4 text-red-400" />
-              <p className="text-sm text-gray-500">מתנה הכי נמוכה</p>
+              <TrendingDown className="w-4 h-4 text-destructive/70" />
+              <p className="text-sm text-muted-foreground">מתנה הכי נמוכה</p>
             </div>
-            <p className="text-2xl font-bold text-red-600">₪{minGift?.toLocaleString()}</p>
-            {minGuest && <p className="text-xs text-gray-400 mt-1 truncate">{minGuest.name}</p>}
+            <p className="text-2xl font-bold text-destructive">₪{minGift?.toLocaleString()}</p>
+            {minGuest && <p className="text-xs text-muted-foreground mt-1 truncate">{minGuest.name}</p>}
           </Card>
-          <Card className="p-4 bg-gradient-to-br from-blue-50 to-white text-center">
+          <Card className="p-4 bg-gradient-to-br from-taupe/15 to-card text-center">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <BarChart2 className="w-4 h-4 text-blue-400" />
-              <p className="text-sm text-gray-500">ממוצע מתנות</p>
+              <BarChart2 className="w-4 h-4 text-taupe" />
+              <p className="text-sm text-muted-foreground">ממוצע מתנות</p>
             </div>
-            <p className="text-2xl font-bold text-blue-600">₪{avgGift?.toLocaleString()}</p>
-            <p className="text-xs text-gray-400 mt-1">{guestTotals.length} משלמים</p>
+            <p className="text-2xl font-bold text-taupe">₪{avgGift?.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">{guestTotals.length} משלמים</p>
           </Card>
-          <Card className="p-4 bg-gradient-to-br from-emerald-50 to-white text-center">
+          <Card className="p-4 bg-gradient-to-br from-sage/15 to-card text-center">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <TrendingUp className="w-4 h-4 text-emerald-500" />
-              <p className="text-sm text-gray-500">מתנה הכי גבוהה</p>
+              <TrendingUp className="w-4 h-4 text-sage" />
+              <p className="text-sm text-muted-foreground">מתנה הכי גבוהה</p>
             </div>
-            <p className="text-2xl font-bold text-emerald-600">₪{maxGift?.toLocaleString()}</p>
-            {maxGuest && <p className="text-xs text-gray-400 mt-1 truncate">{maxGuest.name}</p>}
+            <p className="text-2xl font-bold text-sage-deep">₪{maxGift?.toLocaleString()}</p>
+            {maxGuest && <p className="text-xs text-muted-foreground mt-1 truncate">{maxGuest.name}</p>}
           </Card>
         </div>
       )}
@@ -331,7 +331,7 @@ export default function Gifts() {
       {/* Search + Amount filter */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
             placeholder="חיפוש לפי שם אורח..."
             value={searchTerm}
@@ -340,7 +340,7 @@ export default function Gifts() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500 shrink-0">סכום:</span>
+          <span className="text-sm text-muted-foreground shrink-0">סכום:</span>
           <Input
             type="number"
             placeholder="מינימום ₪"
@@ -349,7 +349,7 @@ export default function Gifts() {
             className="w-32"
             min="0"
           />
-          <span className="text-gray-400">–</span>
+          <span className="text-muted-foreground">–</span>
           <Input
             type="number"
             placeholder="מקסימום ₪"
@@ -359,7 +359,7 @@ export default function Gifts() {
             min="0"
           />
           {(minAmountFilter || maxAmountFilter) && (
-            <button onClick={() => { setMinAmountFilter(''); setMaxAmountFilter(''); }} className="text-xs text-gray-400 hover:text-gray-600 underline shrink-0">נקה</button>
+            <button onClick={() => { setMinAmountFilter(''); setMaxAmountFilter(''); }} className="text-xs text-muted-foreground hover:text-foreground underline shrink-0">נקה</button>
           )}
         </div>
       </div>
@@ -367,35 +367,35 @@ export default function Gifts() {
       {/* Side + Relationship multi-select filters */}
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-gray-500 shrink-0">צד:</span>
+          <span className="text-sm text-muted-foreground shrink-0">צד:</span>
           {uniqueSides.map(side => (
             <button
               key={side}
               onClick={() => setFilterSides(prev => prev.includes(side) ? prev.filter(s => s !== side) : [...prev, side])}
-              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${filterSides.includes(side) ? 'bg-amber-500 text-white border-amber-500' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}
+              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${filterSides.includes(side) ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:bg-muted'}`}
             >
               {side}
             </button>
           ))}
           {filterSides.length > 0 && (
-            <button onClick={() => setFilterSides([])} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
+            <button onClick={() => setFilterSides([])} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
               <X className="w-3 h-3" /> נקה
             </button>
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-gray-500 shrink-0">קרבה:</span>
+          <span className="text-sm text-muted-foreground shrink-0">קרבה:</span>
           {uniqueRelationships.map(rel => (
             <button
               key={rel}
               onClick={() => setFilterRelationships(prev => prev.includes(rel) ? prev.filter(r => r !== rel) : [...prev, rel])}
-              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${filterRelationships.includes(rel) ? 'bg-amber-500 text-white border-amber-500' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}
+              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${filterRelationships.includes(rel) ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:bg-muted'}`}
             >
               {rel}
             </button>
           ))}
           {filterRelationships.length > 0 && (
-            <button onClick={() => setFilterRelationships([])} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
+            <button onClick={() => setFilterRelationships([])} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
               <X className="w-3 h-3" /> נקה
             </button>
           )}
@@ -404,7 +404,7 @@ export default function Gifts() {
 
       {/* Guest cards */}
       {guestsWithGifts.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-muted-foreground">
           <Gift className="w-14 h-14 mx-auto mb-3 opacity-30" />
           <p className="text-lg">אין מתנות עדיין</p>
           <p className="text-sm">עדכן סכום מתנה בדף המוזמנים או הוסף מתנה נוספת כאן</p>
@@ -420,18 +420,18 @@ export default function Gifts() {
               <Card key={guest.id} className="overflow-hidden">
                 {/* Guest header row */}
                 <div
-                  className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted transition-colors"
                   onClick={() => toggleExpand(guest.id)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="bg-amber-100 rounded-full w-9 h-9 flex items-center justify-center shrink-0">
-                      <span className="text-amber-800 font-bold text-sm">
+                    <div className="bg-champagne rounded-full w-9 h-9 flex items-center justify-center shrink-0">
+                      <span className="text-rose-deep font-bold text-sm">
                         {guest.first_name?.[0]}{guest.last_name?.[0]}
                       </span>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{guest.first_name} {guest.last_name}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="font-semibold text-foreground">{guest.first_name} {guest.last_name}</p>
+                      <p className="text-xs text-muted-foreground">
                         {guest.gift_amount != null ? `מזומן/העברה: ₪${guest.gift_amount.toLocaleString()}` : ''}
                         {guest.gift_amount != null && extraGifts.length > 0 ? ' · ' : ''}
                         {extraGifts.length > 0 ? `${extraGifts.length} מתנות נוספות` : ''}
@@ -440,7 +440,7 @@ export default function Gifts() {
                   </div>
                   <div className="flex items-center gap-3">
                     {guestTotal > 0 && (
-                      <Badge className="bg-green-100 text-green-800 border-green-200">
+                      <Badge className="bg-sage/15 text-sage-deep border-sage/30">
                         סה״כ ₪{guestTotal.toLocaleString()}
                       </Badge>
                     )}
@@ -448,28 +448,28 @@ export default function Gifts() {
                       size="sm"
                       variant="ghost"
                       onClick={e => { e.stopPropagation(); openAdd(guest.id); }}
-                      className="text-amber-600 hover:bg-amber-50"
+                      className="text-rose hover:bg-accent"
                       title="הוסף מתנה נוספת"
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
-                    {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                    {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                   </div>
                 </div>
 
                 {isExpanded && (
-                  <div className="border-t divide-y bg-gray-50/50">
+                  <div className="border-t divide-y bg-muted/50">
                     {/* Cash / transfer amount row - only show if has amount or editing */}
                     {(guest.gift_amount != null && guest.gift_amount > 0) || editingGiftAmount?.guestId === guest.id ? (
                     <div className="flex items-center justify-between px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-gray-500 w-28">מזומן / העברה</span>
+                        <span className="text-xs font-medium text-muted-foreground w-28">מזומן / העברה</span>
                         {editingGiftAmount?.guestId === guest.id ? (
                           <input
                             type="number"
                             min="0"
                             autoFocus
-                            className="w-28 border border-green-400 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-green-400"
+                            className="w-28 border border-sage rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-sage"
                             value={editingGiftAmount.value}
                             onChange={e => setEditingGiftAmount({ guestId: guest.id, value: e.target.value })}
                             onBlur={() => handleSaveGiftAmount(guest, editingGiftAmount.value)}
@@ -480,7 +480,7 @@ export default function Gifts() {
                           />
                         ) : (
                           <span
-                            className={`cursor-pointer hover:bg-green-100 rounded px-2 py-1 text-sm font-semibold ${guest.gift_amount != null ? 'text-green-700' : 'text-gray-300'}`}
+                            className={`cursor-pointer hover:bg-sage/15 rounded px-2 py-1 text-sm font-semibold ${guest.gift_amount != null ? 'text-sage-deep' : 'text-muted-foreground/50'}`}
                             onClick={() => setEditingGiftAmount({ guestId: guest.id, value: guest.gift_amount ?? '' })}
                             title="לחץ לעריכה"
                           >
@@ -488,7 +488,7 @@ export default function Gifts() {
                           </span>
                         )}
                       </div>
-                      <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">חתונה</Badge>
+                      <Badge variant="outline" className="text-xs bg-sage/15 border-sage/30 text-sage-deep">חתונה</Badge>
                     </div>
                     ) : null}
 
@@ -496,31 +496,31 @@ export default function Gifts() {
                     {extraGifts.map(gift => (
                       <div key={gift.id} className="flex items-center justify-between px-4 py-3">
                         <div className="flex items-center gap-3 flex-1">
-                          <span className="text-xs font-medium text-gray-500 w-28 shrink-0">מתנה נוספת</span>
+                          <span className="text-xs font-medium text-muted-foreground w-28 shrink-0">מתנה נוספת</span>
                           <div>
-                            <span className="font-medium text-gray-800 text-sm">{gift.description}</span>
-                            {gift.notes && <p className="text-xs text-gray-400">{gift.notes}</p>}
+                            <span className="font-medium text-foreground text-sm">{gift.description}</span>
+                            {gift.notes && <p className="text-xs text-muted-foreground">{gift.notes}</p>}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {gift.event && (
-                            <Badge variant="outline" className="text-xs bg-purple-50 border-purple-200 text-purple-700">
+                            <Badge variant="outline" className="text-xs bg-taupe/15 border-taupe/30 text-taupe">
                               {gift.event}
                             </Badge>
                           )}
                           {gift.amount != null && (
-                            <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">
+                            <Badge variant="outline" className="text-xs bg-sage/15 border-sage/30 text-sage-deep">
                               ₪{gift.amount.toLocaleString()}
                             </Badge>
                           )}
-                          <button onClick={() => openEdit(gift)} className="p-1.5 hover:bg-gray-100 rounded-lg">
-                            <Edit2 className="w-3.5 h-3.5 text-gray-400" />
+                          <button onClick={() => openEdit(gift)} className="p-1.5 hover:bg-muted rounded-lg">
+                            <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
                           </button>
                           <button
                             onClick={() => window.confirm('למחוק מתנה זו?') && deleteGiftMutation.mutate(gift.id)}
-                            className="p-1.5 hover:bg-red-50 rounded-lg"
+                            className="p-1.5 hover:bg-destructive/10 rounded-lg"
                           >
-                            <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                            <Trash2 className="w-3.5 h-3.5 text-destructive/70" />
                           </button>
                         </div>
                       </div>
@@ -550,14 +550,14 @@ export default function Gifts() {
                 autoComplete="off"
               />
               {showGuestDropdown && guestSearch && (
-                <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto mt-1">
+                <div className="absolute z-50 w-full bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto mt-1">
                   {guests
                     .filter(g => `${g.first_name} ${g.last_name}`.toLowerCase().includes(guestSearch.toLowerCase()))
                     .sort((a, b) => `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`, 'he'))
                     .map(g => (
                       <div
                         key={g.id}
-                        className="px-3 py-2 hover:bg-amber-50 cursor-pointer text-sm"
+                        className="px-3 py-2 hover:bg-accent cursor-pointer text-sm"
                         onMouseDown={() => {
                           setFormGuestId(g.id);
                           setGuestSearch(`${g.first_name} ${g.last_name}`);
@@ -586,7 +586,7 @@ export default function Gifts() {
                     key={opt}
                     type="button"
                     onClick={() => setFormEvent(opt)}
-                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${formEvent === opt ? 'bg-amber-500 text-white border-amber-500' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${formEvent === opt ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:bg-muted'}`}
                   >
                     {opt}
                   </button>
@@ -605,7 +605,7 @@ export default function Gifts() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog}>ביטול</Button>
-            <Button onClick={handleSaveGift} disabled={!formGuestId || !formDescription.trim()} className="bg-amber-600 hover:bg-amber-700">
+            <Button onClick={handleSaveGift} disabled={!formGuestId || !formDescription.trim()} className="bg-primary hover:bg-primary-hover">
               {editingGift ? 'שמור' : 'הוסף'}
             </Button>
           </DialogFooter>

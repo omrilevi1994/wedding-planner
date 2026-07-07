@@ -12,8 +12,8 @@ export default function WeddingMode() {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center py-4">
-        <h1 className="text-3xl font-bold text-gray-900">💍 מוד חתונה</h1>
-        <p className="text-gray-500 mt-1">ניהול אירוע בזמן אמת</p>
+        <h1 className="text-3xl font-bold text-foreground">💍 מוד חתונה</h1>
+        <p className="text-muted-foreground mt-1">ניהול אירוע בזמן אמת</p>
       </div>
 
       {/* Event Info Dashboard */}
@@ -21,31 +21,31 @@ export default function WeddingMode() {
 
       {/* Tabs */}
       <Tabs defaultValue="checklist" dir="rtl" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-14 text-base rounded-xl bg-amber-50 border border-amber-200">
+        <TabsList className="grid w-full grid-cols-4 h-14 text-base rounded-xl bg-accent border border-border">
           <TabsTrigger
             value="checklist"
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-amber-500 data-[state=active]:text-white text-base font-medium h-10"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-base font-medium h-10"
           >
             <CheckSquare className="w-5 h-5" />
             צ'ק ליסט
           </TabsTrigger>
           <TabsTrigger
             value="map"
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-amber-500 data-[state=active]:text-white text-base font-medium h-10"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-base font-medium h-10"
           >
             <Map className="w-5 h-5" />
             מפת האולם
           </TabsTrigger>
           <TabsTrigger
             value="vendors"
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-amber-500 data-[state=active]:text-white text-base font-medium h-10"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-base font-medium h-10"
           >
             <Phone className="w-5 h-5" />
             ספקים
           </TabsTrigger>
           <TabsTrigger
             value="search"
-            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-amber-500 data-[state=active]:text-white text-base font-medium h-10"
+            className="flex items-center gap-2 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-base font-medium h-10"
           >
             <Search className="w-5 h-5" />
             חיפוש

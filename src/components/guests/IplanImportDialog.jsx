@@ -218,14 +218,14 @@ export default function IplanImportDialog({ open, onClose, guests, tables, onImp
 
         {!preview ? (
           <div className="flex flex-col items-center gap-6 py-8">
-            <p className="text-gray-600 text-sm text-center">
+            <p className="text-muted-foreground text-sm text-center">
               העלה קובץ Excel מ-iPlan.<br/>
               המערכת תזהה שינויים ותציג אותם לאישורך לפני הייבוא.
             </p>
             <Button
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessing}
-              className="bg-amber-500 hover:bg-amber-600"
+              className="bg-primary hover:bg-primary-hover"
             >
               {isProcessing ? (
                 <><RefreshCw className="w-4 h-4 ml-2 animate-spin" /> מעבד...</>
@@ -240,16 +240,16 @@ export default function IplanImportDialog({ open, onClose, guests, tables, onImp
 
             {/* Table seating updates for existing guests */}
             {preview.tableUpdates.length > 0 && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <p className="text-sm font-semibold text-green-800 mb-2">
+              <div className="bg-sage/15 border border-sage/30 rounded-lg p-3">
+                <p className="text-sm font-semibold text-sage-deep mb-2">
                   🪑 {preview.tableUpdates.length} אורחים קיימים יושבצו לשולחן:
                 </p>
                 <div className="space-y-1 max-h-48 overflow-y-auto">
                   {preview.tableUpdates.map((upd, i) => (
-                    <div key={i} className="flex items-center gap-3 p-2 rounded bg-white border border-green-100 text-sm">
+                    <div key={i} className="flex items-center gap-3 p-2 rounded bg-card border border-sage/20 text-sm">
                       <span className="font-medium">{upd.guest.first_name} {upd.guest.last_name}</span>
-                      <span className="text-gray-400">→</span>
-                      <Badge className="bg-green-100 text-green-700 text-xs">שולחן {upd.tableNum}</Badge>
+                      <span className="text-muted-foreground">→</span>
+                      <Badge className="bg-sage/20 text-sage-deep text-xs">שולחן {upd.tableNum}</Badge>
                     </div>
                   ))}
                 </div>
@@ -258,8 +258,8 @@ export default function IplanImportDialog({ open, onClose, guests, tables, onImp
 
             {/* New guests */}
             {preview.newGuests.length > 0 && (
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                <p className="text-sm font-semibold text-orange-800 mb-2 flex items-center gap-1">
+              <div className="bg-champagne border border-taupe/40 rounded-lg p-3">
+                <p className="text-sm font-semibold text-rose-deep mb-2 flex items-center gap-1">
                   <AlertTriangle className="w-4 h-4" />
                   {preview.newGuests.length} מוזמנים חדשים (לא קיימים במערכת) — סמן מי לייבא:
                 </p>
@@ -268,13 +268,13 @@ export default function IplanImportDialog({ open, onClose, guests, tables, onImp
                     <div
                       key={i}
                       onClick={() => toggleNewGuest(i)}
-                      className={`flex items-center gap-3 p-2 rounded cursor-pointer border text-sm ${g._approved ? 'bg-green-50 border-green-300' : 'bg-white border-orange-100'}`}
+                      className={`flex items-center gap-3 p-2 rounded cursor-pointer border text-sm ${g._approved ? 'bg-sage/15 border-sage/40' : 'bg-card border-taupe/30'}`}
                     >
                       <input type="checkbox" checked={!!g._approved} onChange={() => toggleNewGuest(i)} onClick={e => e.stopPropagation()} />
                       <span className="font-medium">{g.first_name} {g.last_name}</span>
-                      <span className="text-gray-400">{g.phone}</span>
-                      <Badge className="bg-blue-50 text-blue-700 text-xs">{g.side}</Badge>
-                      {g.tableNum && <Badge className="bg-gray-100 text-gray-600 text-xs">שולחן {g.tableNum}</Badge>}
+                      <span className="text-muted-foreground">{g.phone}</span>
+                      <Badge className="bg-taupe/15 text-taupe text-xs">{g.side}</Badge>
+                      {g.tableNum && <Badge className="bg-muted text-muted-foreground text-xs">שולחן {g.tableNum}</Badge>}
                     </div>
                   ))}
                 </div>
@@ -282,7 +282,7 @@ export default function IplanImportDialog({ open, onClose, guests, tables, onImp
             )}
 
             {preview.newGuests.length === 0 && preview.tableUpdates.length === 0 && (
-              <p className="text-center text-gray-500 py-4">✅ אין שינויים — כל הנתונים עדכניים!</p>
+              <p className="text-center text-muted-foreground py-4">✅ אין שינויים — כל הנתונים עדכניים!</p>
             )}
 
             <div className="flex gap-2 justify-end pt-2 border-t">
@@ -291,7 +291,7 @@ export default function IplanImportDialog({ open, onClose, guests, tables, onImp
                 <Button
                   onClick={handleApprove}
                   disabled={isApplying}
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  className="bg-sage hover:bg-sage-deep text-white"
                 >
                   {isApplying ? 'מייבא...' : `אשר ויבא`}
                 </Button>

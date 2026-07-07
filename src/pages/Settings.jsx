@@ -113,7 +113,7 @@ export default function Settings() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-400">טוען...</div>
+        <div className="text-muted-foreground">טוען...</div>
       </div>
     );
   }
@@ -121,8 +121,8 @@ export default function Settings() {
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">הגדרות</h1>
-        <p className="text-gray-600">נהל את הגדרות החתונה שלך</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">הגדרות</h1>
+        <p className="text-muted-foreground">נהל את הגדרות החתונה שלך</p>
       </div>
 
       <Card className="shadow-md">
@@ -212,7 +212,7 @@ export default function Settings() {
                 onChange={(e) => setFormData({ ...formData, expected_guests: e.target.value })}
                 placeholder="לדוגמה: 250"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 שדה זה ישמש לחישוב עלות ממוצעת למוזמן לפי צפי
               </p>
             </div>
@@ -242,7 +242,7 @@ export default function Settings() {
                   <SelectItem value="invited">כל המוזמנים</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 בחר איך לחשב את העלות הממוצעת למוזמן בדשבורד
               </p>
             </div>
@@ -251,7 +251,7 @@ export default function Settings() {
               <Button
                 type="submit"
                 disabled={saveMutation.isPending}
-                className="bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+                className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep"
               >
                 {saveMutation.isPending ? (
                   'שומר...'
@@ -263,7 +263,7 @@ export default function Settings() {
                 )}
               </Button>
               {saved && (
-                <div className="flex items-center gap-2 text-green-600 text-sm">
+                <div className="flex items-center gap-2 text-sage-deep text-sm">
                   <CheckCircle className="w-4 h-4" />
                   נשמר בהצלחה!
                 </div>
@@ -273,11 +273,11 @@ export default function Settings() {
         </CardContent>
       </Card>
 
-      <Card className="shadow-md bg-gradient-to-br from-amber-50 to-white border-amber-200">
+      <Card className="shadow-md bg-gradient-to-br from-champagne to-card border-taupe/40">
         <CardHeader>
           <CardTitle>טיפים שימושיים</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-gray-700">
+        <CardContent className="space-y-3 text-sm text-foreground">
           <p>💡 <strong>תקציב יעד:</strong> זהו הסכום המקסימלי שאתם מתכננים להוציא על החתונה</p>
           <p>💡 <strong>חישוב עלות:</strong> בחרו "מאושרים בלבד" לחישוב מדויק יותר, או "כל המוזמנים" לתחזית שמרנית</p>
           <p>💡 <strong>עדכון שוטף:</strong> עדכנו את ההגדרות ככל שהתוכניות משתנות</p>

@@ -50,7 +50,7 @@ export default function MonthlyTimeline({ expenses, payments }) {
           <CardTitle className="text-lg">ציר זמן חודשי - הוצאות ותשלומים</CardTitle>
         </CardHeader>
         <CardContent className="h-64 flex items-center justify-center">
-          <p className="text-gray-400 text-sm">אין עדיין נתונים להצגה</p>
+          <p className="text-muted-foreground text-sm">אין עדיין נתונים להצגה</p>
         </CardContent>
       </Card>
     );
@@ -72,8 +72,8 @@ export default function MonthlyTimeline({ expenses, payments }) {
               contentStyle={{ direction: 'rtl' }}
             />
             <Legend wrapperStyle={{ direction: 'rtl' }} />
-            <Bar dataKey="paid" fill="#D4AF37" name="שולם" />
-            <Bar dataKey="planned" fill="#F4E4C1" name="מתוכנן" />
+            <Bar dataKey="paid" fill="#E89B8B" name="שולם" />
+            <Bar dataKey="planned" fill="#F3D48C" name="מתוכנן" />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

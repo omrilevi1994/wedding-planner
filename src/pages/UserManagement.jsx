@@ -26,10 +26,10 @@ const ROLE_LABELS = {
 };
 
 const ROLE_BADGE_STYLES = {
-  owner: 'bg-green-100 border-green-200 text-green-800',
-  coplanner: 'bg-purple-100 border-purple-200 text-purple-800',
-  family: 'bg-blue-100 border-blue-200 text-blue-800',
-  event_manager: 'bg-orange-100 border-orange-200 text-orange-800'
+  owner: 'bg-sage/15 border-sage/30 text-sage-deep',
+  coplanner: 'bg-taupe/15 border-taupe/30 text-taupe',
+  family: 'bg-taupe/15 border-taupe/30 text-taupe',
+  event_manager: 'bg-champagne border-taupe/40 text-rose-deep'
 };
 
 const INVITABLE_ROLES = ['coplanner', 'family', 'event_manager'];
@@ -148,10 +148,10 @@ export default function UserManagement() {
   if (!activeWeddingId) {
     return (
       <div className="text-center py-16" dir="rtl">
-        <Heart className="w-14 h-14 mx-auto mb-3 text-gray-300" />
-        <p className="text-lg text-gray-500">בחר חתונה כדי לנהל את המשתמשים שלה</p>
+        <Heart className="w-14 h-14 mx-auto mb-3 text-muted-foreground" />
+        <p className="text-lg text-muted-foreground">בחר חתונה כדי לנהל את המשתמשים שלה</p>
         {isAdmin && (
-          <Button className="mt-4 bg-amber-600 hover:bg-amber-700" onClick={() => navigate(createPageUrl('AdminDashboard'))}>
+          <Button className="mt-4 bg-primary hover:bg-primary-hover" onClick={() => navigate(createPageUrl('AdminDashboard'))}>
             לדף ניהול החתונות
           </Button>
         )}
@@ -163,13 +163,13 @@ export default function UserManagement() {
     <div className="space-y-6" dir="rtl">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">ניהול משתמשים</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-foreground mb-2">ניהול משתמשים</h1>
+          <p className="text-muted-foreground">
             משתמשים של החתונה של {activeWedding?.couple_names || ''}
           </p>
         </div>
         {canManage && (
-          <Button onClick={() => setShowInviteDialog(true)} className="bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700">
+          <Button onClick={() => setShowInviteDialog(true)} className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">
             <Plus className="w-4 h-4 ml-2" />
             הזמן משתמש
           </Button>
@@ -180,7 +180,7 @@ export default function UserManagement() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
+              <TableRow className="bg-muted">
                 <TableHead>שם</TableHead>
                 <TableHead>אימייל</TableHead>
                 <TableHead>תפקיד</TableHead>
@@ -191,38 +191,38 @@ export default function UserManagement() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={canManage ? 6 : 5} className="text-center py-8 text-gray-400">טוען...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={canManage ? 6 : 5} className="text-center py-8 text-muted-foreground">טוען...</TableCell></TableRow>
               ) : members.length === 0 ? (
-                <TableRow><TableCell colSpan={canManage ? 6 : 5} className="text-center py-8 text-gray-400">אין משתמשים בחתונה זו עדיין</TableCell></TableRow>
+                <TableRow><TableCell colSpan={canManage ? 6 : 5} className="text-center py-8 text-muted-foreground">אין משתמשים בחתונה זו עדיין</TableCell></TableRow>
               ) : (
                 members.map(member => (
-                  <TableRow key={member.id} className="hover:bg-gray-50">
+                  <TableRow key={member.id} className="hover:bg-muted">
                     <TableCell className="font-medium">{member.profiles?.full_name || '-'}</TableCell>
-                    <TableCell className="text-sm text-gray-600">{member.profiles?.email || '-'}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{member.profiles?.email || '-'}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={ROLE_BADGE_STYLES[member.role] || 'bg-gray-100 border-gray-200 text-gray-800'}>
+                      <Badge variant="outline" className={ROLE_BADGE_STYLES[member.role] || 'bg-muted border-border text-foreground'}>
                         {ROLE_LABELS[member.role] || member.role}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       {member.wedding_sides && member.wedding_sides.length > 0 ? (
-                        <span className="text-sm text-gray-700">{member.wedding_sides.join(', ')}</span>
+                        <span className="text-sm text-foreground">{member.wedding_sides.join(', ')}</span>
                       ) : (
-                        <span className="text-gray-400 text-sm">גישה מלאה</span>
+                        <span className="text-muted-foreground text-sm">גישה מלאה</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-gray-600">
+                    <TableCell className="text-sm text-muted-foreground">
                       {member.max_guests != null ? `${member.max_guests}` : '-'}
                     </TableCell>
                     {canManage && (
                       <TableCell>
                         {member.role !== 'owner' && (
                           <div className="flex items-center gap-1">
-                            <button onClick={() => handleOpenEdit(member)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="עריכה">
-                              <Pencil className="w-4 h-4 text-gray-600" />
+                            <button onClick={() => handleOpenEdit(member)} className="p-2 hover:bg-muted rounded-lg transition-colors" title="עריכה">
+                              <Pencil className="w-4 h-4 text-muted-foreground" />
                             </button>
-                            <button onClick={() => handleRemove(member)} className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="הסרה">
-                              <Trash2 className="w-4 h-4 text-red-500" />
+                            <button onClick={() => handleRemove(member)} className="p-2 hover:bg-destructive/10 rounded-lg transition-colors" title="הסרה">
+                              <Trash2 className="w-4 h-4 text-destructive" />
                             </button>
                           </div>
                         )}
@@ -264,7 +264,7 @@ export default function UserManagement() {
               <>
                 <div className="space-y-2">
                   <Label>צדדים בחתונה</Label>
-                  <p className="text-sm text-gray-500 mb-2">אם לא תבחר צדדים, המשתמש יקבל גישה מלאה לכל המוזמנים</p>
+                  <p className="text-sm text-muted-foreground mb-2">אם לא תבחר צדדים, המשתמש יקבל גישה מלאה לכל המוזמנים</p>
                   <div className="space-y-2 border rounded-lg p-3">
                     {allSides.map(side => (
                       <div key={side} className="flex items-center gap-2">
@@ -281,7 +281,7 @@ export default function UserManagement() {
               </>
             )}
             <div className="flex gap-3 pt-4">
-              <Button onClick={handleInvite} disabled={isInviting || !email} className="flex-1 bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700">
+              <Button onClick={handleInvite} disabled={isInviting || !email} className="flex-1 bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">
                 {isInviting ? 'מזמין...' : 'שלח הזמנה'}
               </Button>
               <Button variant="outline" onClick={() => { setShowInviteDialog(false); resetInviteForm(); }}>ביטול</Button>
@@ -299,9 +299,9 @@ export default function UserManagement() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>משתמש</Label>
-              <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="p-3 bg-muted rounded-lg">
                 <p className="font-medium">{editingMember?.profiles?.full_name || editingMember?.profiles?.email || '-'}</p>
-                <p className="text-sm text-gray-500">{editingMember?.profiles?.email || ''}</p>
+                <p className="text-sm text-muted-foreground">{editingMember?.profiles?.email || ''}</p>
               </div>
             </div>
             <div className="space-y-2">
@@ -321,7 +321,7 @@ export default function UserManagement() {
               <>
                 <div className="space-y-2">
                   <Label>צדדים בחתונה</Label>
-                  <p className="text-sm text-gray-500 mb-2">אם לא תבחר צדדים, המשתמש יקבל גישה מלאה לכל המוזמנים</p>
+                  <p className="text-sm text-muted-foreground mb-2">אם לא תבחר צדדים, המשתמש יקבל גישה מלאה לכל המוזמנים</p>
                   <div className="space-y-2 border rounded-lg p-3">
                     {allSides.map(side => (
                       <div key={side} className="flex items-center gap-2">
@@ -338,7 +338,7 @@ export default function UserManagement() {
               </>
             )}
             <div className="flex gap-3 pt-4">
-              <Button onClick={handleSaveEdit} className="flex-1 bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700">שמור שינויים</Button>
+              <Button onClick={handleSaveEdit} className="flex-1 bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">שמור שינויים</Button>
               <Button variant="outline" onClick={() => { setShowEditDialog(false); setEditingMember(null); }}>ביטול</Button>
             </div>
           </div>

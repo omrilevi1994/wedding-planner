@@ -106,8 +106,8 @@ export default function AdminDashboard() {
   if (!isPlatformAdmin) {
     return (
       <div className="text-center py-16" dir="rtl">
-        <Heart className="w-14 h-14 mx-auto mb-3 text-gray-300" />
-        <p className="text-lg text-gray-500">אין לך הרשאה לדף זה</p>
+        <Heart className="w-14 h-14 mx-auto mb-3 text-muted-foreground" />
+        <p className="text-lg text-muted-foreground">אין לך הרשאה לדף זה</p>
       </div>
     );
   }
@@ -116,10 +116,10 @@ export default function AdminDashboard() {
     <div className="space-y-6" dir="rtl">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">ניהול חתונות</h1>
-          <p className="text-gray-500 text-sm">צור חתונה חדשה, הזמן את בעל האירוע, ונהל את כל החתונות במערכת</p>
+          <h1 className="text-3xl font-bold text-foreground mb-1">ניהול חתונות</h1>
+          <p className="text-muted-foreground text-sm">צור חתונה חדשה, הזמן את בעל האירוע, ונהל את כל החתונות במערכת</p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)} className="bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700">
+        <Button onClick={() => setShowCreateDialog(true)} className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">
           <Plus className="w-4 h-4 ml-1" />
           צור חתונה חדשה
         </Button>
@@ -127,36 +127,36 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="p-4 flex items-center gap-3">
-          <div className="bg-amber-100 p-2.5 rounded-lg">
-            <Heart className="w-5 h-5 text-amber-700" />
+          <div className="bg-rose/15 p-2.5 rounded-lg">
+            <Heart className="w-5 h-5 text-rose-deep" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-gray-900">{weddings.length}</p>
-            <p className="text-sm text-gray-500">סה"כ חתונות</p>
+            <p className="text-2xl font-bold text-foreground">{weddings.length}</p>
+            <p className="text-sm text-muted-foreground">סה"כ חתונות</p>
           </div>
         </Card>
         <Card className="p-4 flex items-center gap-3">
-          <div className="bg-blue-100 p-2.5 rounded-lg">
-            <Users className="w-5 h-5 text-blue-700" />
+          <div className="bg-taupe/15 p-2.5 rounded-lg">
+            <Users className="w-5 h-5 text-taupe" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-gray-900">{totalUsers}</p>
-            <p className="text-sm text-gray-500">סה"כ משתמשים</p>
+            <p className="text-2xl font-bold text-foreground">{totalUsers}</p>
+            <p className="text-sm text-muted-foreground">סה"כ משתמשים</p>
           </div>
         </Card>
         <Card className="p-4 flex items-center gap-3">
-          <div className="bg-green-100 p-2.5 rounded-lg">
-            <CalendarCheck className="w-5 h-5 text-green-700" />
+          <div className="bg-sage/15 p-2.5 rounded-lg">
+            <CalendarCheck className="w-5 h-5 text-sage-deep" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-gray-900">{activeCount}</p>
-            <p className="text-sm text-gray-500">חתונות פעילות</p>
+            <p className="text-2xl font-bold text-foreground">{activeCount}</p>
+            <p className="text-sm text-muted-foreground">חתונות פעילות</p>
           </div>
         </Card>
       </div>
 
       <div className="relative max-w-sm">
-        <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2" />
         <Input
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -167,14 +167,14 @@ export default function AdminDashboard() {
 
       {weddings.length === 0 ? (
         <Card className="p-12 text-center">
-          <Heart className="w-14 h-14 mx-auto mb-3 text-gray-300" />
-          <p className="text-lg text-gray-500 mb-1">אין חתונות עדיין</p>
-          <p className="text-sm text-gray-400">צור חתונה ראשונה כדי להתחיל</p>
+          <Heart className="w-14 h-14 mx-auto mb-3 text-muted-foreground" />
+          <p className="text-lg text-muted-foreground mb-1">אין חתונות עדיין</p>
+          <p className="text-sm text-muted-foreground">צור חתונה ראשונה כדי להתחיל</p>
         </Card>
       ) : filteredWeddings.length === 0 ? (
         <Card className="p-12 text-center">
-          <Search className="w-14 h-14 mx-auto mb-3 text-gray-300" />
-          <p className="text-lg text-gray-500">לא נמצאו חתונות תואמות לחיפוש</p>
+          <Search className="w-14 h-14 mx-auto mb-3 text-muted-foreground" />
+          <p className="text-lg text-muted-foreground">לא נמצאו חתונות תואמות לחיפוש</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -185,18 +185,18 @@ export default function AdminDashboard() {
             const isActive = wedding.id === activeWeddingId;
 
             return (
-              <Card key={wedding.id} className={`p-5 hover:shadow-lg transition-all ${isActive ? 'ring-2 ring-amber-400' : ''}`}>
+              <Card key={wedding.id} className={`p-5 hover:shadow-lg transition-all ${isActive ? 'ring-2 ring-primary' : ''}`}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-amber-100 to-amber-200 p-2.5 rounded-lg">
-                      <Heart className="w-6 h-6 text-amber-700" fill="currentColor" />
+                    <div className="bg-gradient-to-br from-rose-light to-rose p-2.5 rounded-lg">
+                      <Heart className="w-6 h-6 text-rose-deep" fill="currentColor" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 text-lg">{wedding.couple_names}</h3>
+                      <h3 className="font-bold text-foreground text-lg">{wedding.couple_names}</h3>
                       <div className="flex items-center gap-1.5">
-                        {wedding.status === 'archived' && <Badge variant="outline" className="bg-gray-100 text-gray-600">מוקפא</Badge>}
+                        {wedding.status === 'archived' && <Badge variant="outline" className="bg-muted text-muted-foreground">מוקפא</Badge>}
                         {wedding.plan && (
-                          <Badge variant="outline" className={wedding.plan === 'premium' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'bg-gray-50 text-gray-500'}>
+                          <Badge variant="outline" className={wedding.plan === 'premium' ? 'bg-champagne text-rose-deep border-primary' : 'bg-muted text-muted-foreground'}>
                             {wedding.plan}
                           </Badge>
                         )}
@@ -205,54 +205,54 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-sm text-gray-600 mb-4">
+                <div className="space-y-1.5 text-sm text-muted-foreground mb-4">
                   {wedding.wedding_date && (
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
                       {new Date(wedding.wedding_date).toLocaleDateString('he-IL')}
                     </div>
                   )}
                   {wedding.venue && (
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-gray-400" />
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
                       {wedding.venue}
                     </div>
                   )}
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-gray-400" />
+                      <Users className="w-4 h-4 text-muted-foreground" />
                       {weddingUsers.length} משתמשים
                     </div>
                     {eventOwner && (
                       <div className="flex items-center gap-2">
-                        <UserCog className="w-4 h-4 text-gray-400" />
+                        <UserCog className="w-4 h-4 text-muted-foreground" />
                         <span className="text-xs">בעל אירוע: {eventOwner.profiles?.full_name || eventOwner.profiles?.email}</span>
                       </div>
                     )}
                     {dayManager && (
                       <div className="flex items-center gap-2">
-                        <Settings className="w-4 h-4 text-gray-400" />
+                        <Settings className="w-4 h-4 text-muted-foreground" />
                         <span className="text-xs">מנהל חתונה: {dayManager.profiles?.full_name || dayManager.profiles?.email}</span>
                       </div>
                     )}
                     {!eventOwner && !dayManager && (
                       <div className="flex items-center gap-2">
-                        <UserCog className="w-4 h-4 text-gray-400" />
-                        <span className="text-xs text-gray-400">אין בעל אירוע</span>
+                        <UserCog className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">אין בעל אירוע</span>
                       </div>
                     )}
                   </div>
                 </div>
 
                 <div className="flex gap-2">
-                  <Button size="sm" className="flex-1 bg-amber-600 hover:bg-amber-700" onClick={() => handleEnterWedding(wedding.id)}>
+                  <Button size="sm" className="flex-1 bg-primary hover:bg-primary-hover" onClick={() => handleEnterWedding(wedding.id)}>
                     <Settings className="w-3.5 h-3.5 ml-1" />
                     כניסה לחתונה
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => { selectWedding(wedding.id); navigate(createPageUrl('UserManagement')); }} title="נהל משתמשים">
                     <UserCog className="w-3.5 h-3.5" />
                   </Button>
-                  <Button size="sm" variant="ghost" className="text-red-500 hover:bg-red-50" onClick={() => handleDelete(wedding)}>
+                  <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(wedding)}>
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 </div>
@@ -293,7 +293,7 @@ export default function AdminDashboard() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>ביטול</Button>
-            <Button onClick={handleCreate} disabled={!form.couple_names || !form.wedding_date || createWeddingMutation.isLoading} className="bg-amber-600 hover:bg-amber-700">
+            <Button onClick={handleCreate} disabled={!form.couple_names || !form.wedding_date || createWeddingMutation.isLoading} className="bg-primary hover:bg-primary-hover">
               {createWeddingMutation.isLoading ? 'יוצר...' : 'צור חתונה'}
             </Button>
           </DialogFooter>

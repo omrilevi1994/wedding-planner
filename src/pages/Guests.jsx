@@ -457,11 +457,11 @@ export default function Guests() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">מוזמנים</h1>
-          <p className="text-gray-600">נהל את רשימת המוזמנים לחתונה</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">מוזמנים</h1>
+          <p className="text-muted-foreground">נהל את רשימת המוזמנים לחתונה</p>
           {hasQuota && (
             <div className="mt-2">
-              <Badge className={quotaReached ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}>
+              <Badge className={quotaReached ? 'bg-destructive/10 text-destructive' : 'bg-taupe/15 text-taupe'}>
                 הוספת {myTotalPeople} מתוך {user?.max_guests} אנשים מותרים
               </Badge>
             </div>
@@ -481,11 +481,11 @@ export default function Guests() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52" dir="rtl">
               <DropdownMenuLabel>iPlan</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setShowIplanImport(true)} className="text-purple-700">
+              <DropdownMenuItem onClick={() => setShowIplanImport(true)} className="text-taupe">
                 <Upload className="w-4 h-4 ml-2" />
                 ייבוא מ-iPlan
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportIplan} className="text-purple-700">
+              <DropdownMenuItem onClick={handleExportIplan} className="text-taupe">
                 <Download className="w-4 h-4 ml-2" />
                 ייצוא ל-iPlan
               </DropdownMenuItem>
@@ -500,7 +500,7 @@ export default function Guests() {
               <DropdownMenuItem
                 onClick={() => document.getElementById('wiwiImport').click()}
                 disabled={isUpdatingStatus}
-                className="text-green-700"
+                className="text-sage-deep"
               >
                 <RefreshCw className={`w-4 h-4 ml-2 ${isUpdatingStatus ? 'animate-spin' : ''}`} />
                 {isUpdatingStatus ? 'מעבד...' : 'עדכון מ-Wiwi'}
@@ -511,7 +511,7 @@ export default function Guests() {
           <Button
             onClick={() => setShowSyncWizard(true)}
             variant="outline"
-            className="border-amber-400 text-amber-700 hover:bg-amber-50"
+            className="border-rose text-rose-deep hover:bg-rose/10"
           >
             🔁 סינכרון
           </Button>
@@ -519,7 +519,7 @@ export default function Guests() {
           <Button
             onClick={() => setShowForm(true)}
             disabled={quotaReached}
-            className="bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-4 h-4 ml-2" />
             {quotaReached ? 'הגעת למכסה' : 'הוסף מוזמן'}
@@ -529,31 +529,31 @@ export default function Guests() {
 
       {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-gradient-to-br from-blue-50 to-white">
-          <p className="text-sm text-gray-600 mb-1">סה״כ מוזמנים</p>
+        <Card className="p-4 bg-gradient-to-br from-taupe/15 to-card">
+          <p className="text-sm text-muted-foreground mb-1">סה״כ מוזמנים</p>
           <p className="text-2xl font-bold">{totalInvited}</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-green-50 to-white">
-          <p className="text-sm text-gray-600 mb-1">אישרו</p>
-          <p className="text-2xl font-bold text-green-600">{totalConfirmed}</p>
+        <Card className="p-4 bg-gradient-to-br from-sage/15 to-card">
+          <p className="text-sm text-muted-foreground mb-1">אישרו</p>
+          <p className="text-2xl font-bold text-sage-deep">{totalConfirmed}</p>
           {hasAnyConfirmedPeople && (
-            <p className="text-xs text-gray-400 mt-0.5">לפי נתוני Wiwi</p>
+            <p className="text-xs text-muted-foreground mt-0.5">לפי נתוני Wiwi</p>
           )}
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-red-50 to-white">
-          <p className="text-sm text-gray-600 mb-1">לא מגיעים</p>
-          <p className="text-2xl font-bold text-red-600">{totalDeclined}</p>
+        <Card className="p-4 bg-gradient-to-br from-destructive/10 to-card">
+          <p className="text-sm text-muted-foreground mb-1">לא מגיעים</p>
+          <p className="text-2xl font-bold text-destructive">{totalDeclined}</p>
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-purple-50 to-white">
-          <p className="text-sm text-gray-600 mb-1">הגיעו</p>
-          <p className="text-2xl font-bold text-purple-600">{totalAttended}</p>
+        <Card className="p-4 bg-gradient-to-br from-rose-light/30 to-card">
+          <p className="text-sm text-muted-foreground mb-1">הגיעו</p>
+          <p className="text-2xl font-bold text-rose-deep">{totalAttended}</p>
         </Card>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
           <Input
             type="text"
             placeholder="חיפוש לפי שם או טלפון..."
@@ -609,14 +609,14 @@ export default function Guests() {
 
       {/* Selection action bar */}
       {selectedGuestIds.size > 0 && (
-        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-          <span className="text-sm font-medium text-amber-800">
+        <div className="flex items-center gap-3 bg-champagne border border-taupe/40 rounded-xl px-4 py-3">
+          <span className="text-sm font-medium text-rose-deep">
             {selectedGuestIds.size} מוזמנים נבחרו
           </span>
           <Button
             size="sm"
             onClick={() => setShowCreateTableDialog(true)}
-            className="bg-amber-500 hover:bg-amber-600 text-white mr-auto"
+            className="bg-primary hover:bg-primary-hover text-primary-foreground mr-auto"
           >
             <LayoutGrid className="w-4 h-4 ml-1" />
             צור שולחן מהנבחרים
@@ -625,7 +625,7 @@ export default function Guests() {
             size="sm"
             variant="outline"
             onClick={handleExportCSV}
-            className="border-green-300 text-green-700 hover:bg-green-50"
+            className="border-sage/30 text-sage-deep hover:bg-sage/15"
           >
             <Download className="w-4 h-4 ml-1" />
             ייצוא נבחרים CSV
@@ -641,7 +641,7 @@ export default function Guests() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
+              <TableRow className="bg-muted">
                 <TableHead className="w-10">
                   <Checkbox
                     checked={filteredGuests.length > 0 && selectedGuestIds.size === filteredGuests.length}
@@ -662,19 +662,19 @@ export default function Guests() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-gray-400">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     טוען...
                   </TableCell>
                 </TableRow>
               ) : filteredGuests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-gray-400">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     אין עדיין מוזמנים. הוסף את המוזמן הראשון!
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredGuests.map((guest) => (
-                  <TableRow key={guest.id} className={`hover:bg-gray-50 ${selectedGuestIds.has(guest.id) ? 'bg-amber-50' : ''}`}>
+                  <TableRow key={guest.id} className={`hover:bg-muted ${selectedGuestIds.has(guest.id) ? 'bg-champagne' : ''}`}>
                     <TableCell>
                       <Checkbox
                         checked={selectedGuestIds.has(guest.id)}
@@ -684,14 +684,14 @@ export default function Guests() {
                     <TableCell className="font-medium">
                       {guest.first_name} {guest.last_name}
                     </TableCell>
-                    <TableCell className="text-sm text-gray-600">{guest.phone || '-'}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{guest.phone || '-'}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-blue-50 border-blue-200">
+                      <Badge variant="outline" className="bg-taupe/15 border-taupe/30">
                         {guest.side}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-purple-50 border-purple-200">
+                      <Badge variant="outline" className="bg-rose-light/20 border-rose-light/40">
                         {guest.relationship || '-'}
                       </Badge>
                     </TableCell>
@@ -700,18 +700,18 @@ export default function Guests() {
                         <Badge
                           className={
                             guest.status === 'אישר'
-                              ? 'bg-green-100 text-green-800 border-green-200'
+                              ? 'bg-sage/15 text-sage-deep border-sage/30'
                               : guest.status === 'לא מגיע'
-                              ? 'bg-red-100 text-red-800 border-red-200'
+                              ? 'bg-destructive/10 text-destructive border-destructive/30'
                               : guest.status === 'הגיע'
-                              ? 'bg-purple-100 text-purple-800 border-purple-200'
-                              : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                              ? 'bg-rose-light/20 text-rose-deep border-rose-light/40'
+                              : 'bg-champagne text-rose-deep border-taupe/40'
                           }
                         >
                           {guest.status}
                         </Badge>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
                     <TableCell className="font-semibold">{guest.total_people || 1}</TableCell>
@@ -720,7 +720,7 @@ export default function Guests() {
                         <input
                           type="number"
                           min="0"
-                          className="w-16 border border-green-400 rounded px-1 py-0.5 text-sm text-center focus:outline-none focus:ring-1 focus:ring-green-400"
+                          className="w-16 border border-sage rounded px-1 py-0.5 text-sm text-center focus:outline-none focus:ring-1 focus:ring-sage"
                           value={editingConfirmed.value}
                           autoFocus
                           onChange={e => setEditingConfirmed({ guestId: guest.id, value: e.target.value })}
@@ -738,7 +738,7 @@ export default function Guests() {
                         />
                       ) : (
                         <span
-                          className={`cursor-pointer hover:bg-green-50 rounded px-1 py-0.5 ${guest.confirmed_people != null ? 'text-green-600' : 'text-gray-300'}`}
+                          className={`cursor-pointer hover:bg-sage/15 rounded px-1 py-0.5 ${guest.confirmed_people != null ? 'text-sage-deep' : 'text-muted-foreground'}`}
                           title="לחץ לעריכה ידנית"
                           onClick={() => setEditingConfirmed({ guestId: guest.id, value: guest.confirmed_people ?? '' })}
                         >
@@ -746,7 +746,7 @@ export default function Guests() {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-gray-500 max-w-[200px] truncate">
+                    <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
                       {guest.notes || '-'}
                     </TableCell>
                     <TableCell>
@@ -754,23 +754,23 @@ export default function Guests() {
                         {guest.status !== 'אישר' && (
                           <button
                             onClick={() => updateMutation.mutate({ id: guest.id, data: { ...guest, status: 'אישר' } })}
-                            className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+                            className="p-2 hover:bg-sage/15 rounded-lg transition-colors"
                             title="אשר הגעה"
                           >
-                            <Check className="w-4 h-4 text-green-600" />
+                            <Check className="w-4 h-4 text-sage-deep" />
                           </button>
                         )}
                         <button
                           onClick={() => handleEdit(guest)}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-2 hover:bg-muted rounded-lg transition-colors"
                         >
-                          <Pencil className="w-4 h-4 text-gray-600" />
+                          <Pencil className="w-4 h-4 text-muted-foreground" />
                         </button>
                         <button
                           onClick={() => handleDelete(guest)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
                         >
-                          <Trash2 className="w-4 h-4 text-red-600" />
+                          <Trash2 className="w-4 h-4 text-destructive" />
                         </button>
                       </div>
                     </TableCell>
@@ -808,13 +808,13 @@ export default function Guests() {
           </DialogHeader>
           {wiwiPreview && (
             <>
-              <p className="text-sm text-gray-600 mb-2">
-                נמצאו <span className="font-bold text-amber-700">{wiwiPreview.length}</span> מוזמנים לעדכון. אשר כדי להחיל את השינויים:
+              <p className="text-sm text-muted-foreground mb-2">
+                נמצאו <span className="font-bold text-rose-deep">{wiwiPreview.length}</span> מוזמנים לעדכון. אשר כדי להחיל את השינויים:
               </p>
               <div className="overflow-y-auto flex-1 border rounded-lg">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50">
+                    <TableRow className="bg-muted">
                       <TableHead>שם במערכת</TableHead>
                       <TableHead>טלפון</TableHead>
                       <TableHead>סטטוס נוכחי</TableHead>
@@ -827,22 +827,22 @@ export default function Guests() {
                     {wiwiPreview.map(({ guest, newStatus, oldStatus, newConfirmed }) => (
                       <TableRow key={guest.id}>
                         <TableCell className="font-medium">{guest.first_name} {guest.last_name}</TableCell>
-                        <TableCell className="text-sm text-gray-500">{guest.phone}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{guest.phone}</TableCell>
                         <TableCell>
-                          <Badge className="bg-gray-100 text-gray-600">{oldStatus}</Badge>
+                          <Badge className="bg-muted text-muted-foreground">{oldStatus}</Badge>
                         </TableCell>
-                        <TableCell className="text-gray-400">
+                        <TableCell className="text-muted-foreground">
                           <ArrowRight className="w-4 h-4" />
                         </TableCell>
                         <TableCell>
-                          <Badge className={newStatus === 'אישר' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                          <Badge className={newStatus === 'אישר' ? 'bg-sage/15 text-sage-deep' : 'bg-destructive/10 text-destructive'}>
                             {newStatus}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm font-semibold">
                           {newConfirmed != null
-                            ? <span className="text-green-700">{newConfirmed} <span className="text-gray-400 font-normal">/ {guest.total_people || 1}</span></span>
-                            : <span className="text-gray-300">—</span>}
+                            ? <span className="text-sage-deep">{newConfirmed} <span className="text-muted-foreground font-normal">/ {guest.total_people || 1}</span></span>
+                            : <span className="text-muted-foreground">—</span>}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -850,22 +850,22 @@ export default function Guests() {
                 </Table>
               </div>
               {wiwiUnmatched.length > 0 && (
-                <div className="mt-3 border border-orange-200 rounded-lg bg-orange-50 p-3">
-                  <p className="text-sm font-semibold text-orange-800 mb-2">
+                <div className="mt-3 border border-taupe/40 rounded-lg bg-champagne p-3">
+                  <p className="text-sm font-semibold text-rose-deep mb-2">
                     ⚠️ {wiwiUnmatched.length} אורחים ב-Wiwi לא נמצאו — שייך אותם לאורח קיים:
                   </p>
                   <div className="space-y-2 max-h-52 overflow-y-auto">
                     {wiwiUnmatched.map((row, i) => (
-                      <div key={i} className="flex flex-col gap-1 bg-white border border-orange-100 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-xs text-orange-700">
+                      <div key={i} className="flex flex-col gap-1 bg-card border border-taupe/30 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-xs text-rose-deep">
                           <span className="font-semibold">{row.name}</span>
-                          <span className="text-orange-300">|</span>
+                          <span className="text-taupe">|</span>
                           <span dir="ltr">{row.phone}</span>
-                          <span className="text-orange-300">|</span>
+                          <span className="text-taupe">|</span>
                           <span>מגיעים: <b>{row.confirmed_people}</b></span>
                         </div>
                         <select
-                          className="text-sm border border-orange-200 rounded px-2 py-1 bg-white w-full"
+                          className="text-sm border border-taupe/30 rounded px-2 py-1 bg-card w-full"
                           value={unmatchedLinks[row.phone] || ''}
                           onChange={e => setUnmatchedLinks(prev => ({ ...prev, [row.phone]: e.target.value }))}
                         >
@@ -889,7 +889,7 @@ export default function Guests() {
                   <Button
                     onClick={handleConfirmWiwiUpdates}
                     disabled={isUpdatingStatus}
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    className="bg-sage-deep hover:bg-sage-deep/90 text-white"
                   >
                     {isUpdatingStatus ? 'מעדכן...' : `אשר עדכון ${(wiwiPreview?.length || 0) + Object.keys(unmatchedLinks).filter(k => unmatchedLinks[k]).length} מוזמנים`}
                   </Button>
@@ -916,12 +916,12 @@ export default function Guests() {
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
-              <p className="text-sm text-gray-500 mb-1">
+              <p className="text-sm text-muted-foreground mb-1">
                 {selectedGuestIds.size} מוזמנים נבחרו ({filteredGuests.filter(g => selectedGuestIds.has(g.id)).reduce((s, g) => s + (g.total_people || 1), 0)} אנשים)
               </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">שם השולחן</label>
+              <label className="text-sm font-medium text-foreground mb-1 block">שם השולחן</label>
               <Input
                 value={newTableName}
                 onChange={(e) => setNewTableName(e.target.value)}
@@ -934,7 +934,7 @@ export default function Guests() {
               <Button
                 onClick={handleCreateTableFromSelected}
                 disabled={!newTableName.trim() || isCreatingTable}
-                className="bg-amber-500 hover:bg-amber-600"
+                className="bg-primary hover:bg-primary-hover"
               >
                 {isCreatingTable ? 'יוצר...' : 'צור שולחן'}
               </Button>

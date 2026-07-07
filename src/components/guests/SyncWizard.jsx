@@ -92,7 +92,7 @@ export default function SyncWizard({ open, onClose, onWiwiImport, onIplanExport,
       <DialogContent dir="rtl" className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl">🔁 אשף סינכרון מוזמנים</DialogTitle>
-          <p className="text-sm text-gray-500">בצע את השלבים לפי הסדר לסנכרון מלא</p>
+          <p className="text-sm text-muted-foreground">בצע את השלבים לפי הסדר לסנכרון מלא</p>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
@@ -106,20 +106,20 @@ export default function SyncWizard({ open, onClose, onWiwiImport, onIplanExport,
                 key={step.id}
                 className={`rounded-xl border p-4 transition-all ${
                   isCurrent
-                    ? 'border-amber-400 bg-amber-50 shadow-sm'
+                    ? 'border-primary bg-accent shadow-sm'
                     : isCompleted
-                    ? 'border-green-200 bg-green-50'
-                    : 'border-gray-200 bg-gray-50 opacity-60'
+                    ? 'border-sage/30 bg-sage/15'
+                    : 'border-border bg-muted opacity-60'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   {/* Step indicator */}
                   <div className="mt-0.5 shrink-0">
                     {isCompleted ? (
-                      <CheckCircle2 className="w-6 h-6 text-green-500" />
+                      <CheckCircle2 className="w-6 h-6 text-sage-deep" />
                     ) : (
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
-                        isCurrent ? 'border-amber-500 text-amber-600' : 'border-gray-300 text-gray-400'
+                        isCurrent ? 'border-primary text-primary' : 'border-border text-muted-foreground'
                       }`}>
                         {step.id}
                       </div>
@@ -129,17 +129,17 @@ export default function SyncWizard({ open, onClose, onWiwiImport, onIplanExport,
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-lg">{step.icon}</span>
-                      <span className={`font-semibold ${isCompleted ? 'text-green-700' : isCurrent ? 'text-amber-800' : 'text-gray-500'}`}>
+                      <span className={`font-semibold ${isCompleted ? 'text-sage-deep' : isCurrent ? 'text-rose-deep' : 'text-muted-foreground'}`}>
                         {step.title}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{step.description}</p>
+                    <p className="text-sm text-muted-foreground mb-2">{step.description}</p>
 
                     {isCurrent && (
                       <div className="space-y-1 mb-3">
                         {step.instructions.map((inst, i) => (
-                          <div key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                            <span className="text-amber-500 font-bold shrink-0">{i + 1}.</span>
+                          <div key={i} className="flex items-start gap-2 text-sm text-foreground">
+                            <span className="text-primary font-bold shrink-0">{i + 1}.</span>
                             <span>{inst}</span>
                           </div>
                         ))}
@@ -152,7 +152,7 @@ export default function SyncWizard({ open, onClose, onWiwiImport, onIplanExport,
                           <Button
                             size="sm"
                             onClick={() => handleAction(step)}
-                            className="bg-amber-500 hover:bg-amber-600 text-white"
+                            className="bg-primary hover:bg-primary-hover text-primary-foreground"
                           >
                             {step.action === 'import_wiwi' && <RefreshCw className="w-4 h-4 ml-1" />}
                             {step.action === 'export_iplan' && <Download className="w-4 h-4 ml-1" />}
@@ -171,7 +171,7 @@ export default function SyncWizard({ open, onClose, onWiwiImport, onIplanExport,
                     )}
 
                     {isCompleted && (
-                      <p className="text-sm text-green-600 font-medium">✓ הושלם</p>
+                      <p className="text-sm text-sage-deep font-medium">✓ הושלם</p>
                     )}
                   </div>
                 </div>
@@ -181,16 +181,16 @@ export default function SyncWizard({ open, onClose, onWiwiImport, onIplanExport,
         </div>
 
         {allDone && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-green-700 font-bold text-lg">🎉 הסינכרון הושלם בהצלחה!</p>
-            <p className="text-green-600 text-sm mt-1">כל השלבים בוצעו</p>
+          <div className="bg-sage/15 border border-sage/30 rounded-xl p-4 text-center">
+            <p className="text-sage-deep font-bold text-lg">🎉 הסינכרון הושלם בהצלחה!</p>
+            <p className="text-sage-deep text-sm mt-1">כל השלבים בוצעו</p>
           </div>
         )}
 
         <div className="flex justify-between pt-2">
           <Button variant="outline" onClick={() => { onClose(); handleReset(); }}>סגור</Button>
           {allDone && (
-            <Button variant="ghost" onClick={handleReset} className="text-gray-500">
+            <Button variant="ghost" onClick={handleReset} className="text-muted-foreground">
               התחל מחדש
             </Button>
           )}

@@ -34,18 +34,19 @@ export default function CreateWedding() {
   };
 
   return (
-    <div dir="rtl" className="fixed inset-0 flex items-center justify-center bg-slate-50 p-4">
-      <form onSubmit={submit} className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-slate-100 p-8 space-y-3">
-        <h1 className="text-2xl font-bold text-slate-800 text-center">יצירת חתונה</h1>
-        <p className="text-sm text-slate-500 text-center mb-4">בואו נתחיל לתכנן</p>
+    <div dir="rtl" className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-background via-secondary to-rose-light/20 p-4">
+      <form onSubmit={submit} className="w-full max-w-sm bg-card rounded-2xl shadow-sm border border-border p-8 space-y-3">
+        <img src="/monogram.png" alt="" className="w-16 mx-auto mb-1" />
+        <h1 className="text-2xl font-bold text-foreground text-center">יצירת חתונה</h1>
+        <p className="text-sm text-muted-foreground text-center mb-4">בואו נתחיל לתכנן</p>
         <input required value={coupleNames} onChange={e => setCoupleNames(e.target.value)}
           placeholder="שמות בני הזוג"
-          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-right" />
+          className="w-full px-3 py-2 border border-input rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition" />
         <input type="date" value={weddingDate} onChange={e => setWeddingDate(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-right" />
-        {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+          className="w-full px-3 py-2 border border-input rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition" />
+        {error && <p className="text-sm text-destructive text-center">{error}</p>}
         <button type="submit" disabled={busy}
-          className="w-full py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-700 disabled:opacity-50">
+          className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover disabled:opacity-50 transition">
           {busy ? 'יוצר…' : 'צור חתונה'}
         </button>
       </form>

@@ -49,7 +49,7 @@ export default function GuestsPieCharts({ guests }) {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">פילוח מוזמנים לפי צד</h3>
         {sideChartData.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">אין עדיין נתונים</p>
+          <p className="text-muted-foreground text-center py-8">אין עדיין נתונים</p>
         ) : (
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
@@ -85,7 +85,7 @@ export default function GuestsPieCharts({ guests }) {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">פילוח מוזמנים לפי קרבה</h3>
         {relationshipChartData.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">אין עדיין נתונים</p>
+          <p className="text-muted-foreground text-center py-8">אין עדיין נתונים</p>
         ) : (
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>

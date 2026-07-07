@@ -5,14 +5,14 @@ import { Plus, CheckCircle, UserPlus } from 'lucide-react';
 
 export default function QuickActions({ onAddExpense, onAddGuest, onMarkPayment }) {
   return (
-    <Card className="shadow-md bg-gradient-to-br from-white to-amber-50/30">
+    <Card className="shadow-md bg-gradient-to-br from-card to-champagne/30">
       <CardHeader>
         <CardTitle className="text-lg">פעולות מהירות</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <Button
           onClick={onAddExpense}
-          className="w-full bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md"
+          className="w-full bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep text-white shadow-md"
         >
           <Plus className="w-4 h-4 ml-2" />
           הוסף הוצאה
@@ -20,7 +20,7 @@ export default function QuickActions({ onAddExpense, onAddGuest, onMarkPayment }
         <Button
           onClick={onAddGuest}
           variant="outline"
-          className="w-full border-amber-300 hover:bg-amber-50"
+          className="w-full border-primary hover:bg-accent"
         >
           <UserPlus className="w-4 h-4 ml-2" />
           הוסף מוזמן
@@ -28,7 +28,7 @@ export default function QuickActions({ onAddExpense, onAddGuest, onMarkPayment }
         <Button
           onClick={onMarkPayment}
           variant="outline"
-          className="w-full border-green-300 hover:bg-green-50"
+          className="w-full border-sage/40 hover:bg-sage/15"
         >
           <CheckCircle className="w-4 h-4 ml-2" />
           סמן תשלום שבוצע

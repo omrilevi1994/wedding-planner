@@ -50,13 +50,13 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
   const costPerGuestTotal = (parseInt(guestCount) || 0) > 0 ? grandTotal / (parseInt(guestCount) || 1) : 0;
 
   return (
-    <Card className="shadow-md border-2 border-amber-200">
-      <CardHeader className="bg-gradient-to-l from-amber-50 to-white border-b border-amber-100">
-        <CardTitle className="flex items-center gap-2 text-amber-900">
-          <Calculator className="w-5 h-5 text-amber-600" />
+    <Card className="shadow-md border-2 border-rose/30">
+      <CardHeader className="bg-gradient-to-l from-champagne to-card border-b border-rose/20">
+        <CardTitle className="flex items-center gap-2 text-rose-deep">
+          <Calculator className="w-5 h-5 text-rose" />
           מחשבון אולם
         </CardTitle>
-        <p className="text-sm text-gray-500 mt-1">בדוק עלות חתונה לפי מחיר האולם מבלי לשנות הגדרות</p>
+        <p className="text-sm text-muted-foreground mt-1">בדוק עלות חתונה לפי מחיר האולם מבלי לשנות הגדרות</p>
       </CardHeader>
       <CardContent className="pt-6 space-y-5">
 
@@ -70,16 +70,16 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
             onChange={(e) => setGuestCount(e.target.value)}
             placeholder="מספר מוזמנים"
           />
-          <p className="text-xs text-gray-400">צפי מוזמנים לפי הגדרות: {totalInvited}</p>
+          <p className="text-xs text-muted-foreground">צפי מוזמנים לפי הגדרות: {totalInvited}</p>
         </div>
 
         <div className="border-t pt-4 space-y-3">
-          <p className="text-sm font-semibold text-gray-700">עלויות לראש באולם:</p>
+          <p className="text-sm font-semibold text-foreground">עלויות לראש באולם:</p>
 
           {/* Dish */}
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <Label className="text-xs text-gray-500">עלות מנה *</Label>
+              <Label className="text-xs text-muted-foreground">עלות מנה *</Label>
               <div className="relative">
                 <Input
                   type="number"
@@ -89,7 +89,7 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
                   placeholder="לדוגמה: 370"
                   className="pr-3"
                 />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₪</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₪</span>
               </div>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
           {/* Bar */}
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <Label className="text-xs text-gray-500">שתייה בבר (אופציונלי)</Label>
+              <Label className="text-xs text-muted-foreground">שתייה בבר (אופציונלי)</Label>
               <div className="relative">
                 <Input
                   type="number"
@@ -106,7 +106,7 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
                   onChange={(e) => setBarCost(e.target.value)}
                   placeholder="לדוגמה: 35"
                 />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₪</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₪</span>
               </div>
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
           {/* Service */}
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <Label className="text-xs text-gray-500">הגשה (אופציונלי)</Label>
+              <Label className="text-xs text-muted-foreground">הגשה (אופציונלי)</Label>
               <div className="relative">
                 <Input
                   type="number"
@@ -123,7 +123,7 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
                   onChange={(e) => setServiceCost(e.target.value)}
                   placeholder="לדוגמה: 35"
                 />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₪</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₪</span>
               </div>
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
           {extraItems.map((item) => (
             <div key={item.id} className="flex items-end gap-2">
               <div className="flex-1">
-                <Label className="text-xs text-gray-500">תיאור</Label>
+                <Label className="text-xs text-muted-foreground">תיאור</Label>
                 <Input
                   type="text"
                   value={item.label}
@@ -141,7 +141,7 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
                 />
               </div>
               <div className="w-32">
-                <Label className="text-xs text-gray-500">סכום לראש</Label>
+                <Label className="text-xs text-muted-foreground">סכום לראש</Label>
                 <div className="relative">
                   <Input
                     type="number"
@@ -150,16 +150,16 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
                     onChange={(e) => updateExtraItem(item.id, 'amount', e.target.value)}
                     placeholder="₪"
                   />
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₪</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₪</span>
                 </div>
               </div>
-              <button onClick={() => removeExtraItem(item.id)} className="mb-1 p-2 hover:bg-red-50 rounded-lg">
-                <X className="w-4 h-4 text-red-500" />
+              <button onClick={() => removeExtraItem(item.id)} className="mb-1 p-2 hover:bg-destructive/10 rounded-lg">
+                <X className="w-4 h-4 text-destructive" />
               </button>
             </div>
           ))}
 
-          <Button variant="outline" size="sm" onClick={addExtraItem} className="w-full border-dashed border-amber-300 text-amber-700 hover:bg-amber-50">
+          <Button variant="outline" size="sm" onClick={addExtraItem} className="w-full border-dashed border-rose text-rose-deep hover:bg-accent">
             <Plus className="w-4 h-4 ml-1" />
             הוסף סעיף לראש
           </Button>
@@ -167,13 +167,13 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
 
         {/* Fixed global costs */}
         <div className="border-t pt-4 space-y-3">
-          <p className="text-sm font-semibold text-gray-700">עלויות גלובליות (סכום קבוע):</p>
-          <p className="text-xs text-gray-400">עלויות שאינן תלויות במספר האורחים, כגון תאורה, הגברה וכד'</p>
+          <p className="text-sm font-semibold text-foreground">עלויות גלובליות (סכום קבוע):</p>
+          <p className="text-xs text-muted-foreground">עלויות שאינן תלויות במספר האורחים, כגון תאורה, הגברה וכד'</p>
 
           {fixedItems.map((item) => (
             <div key={item.id} className="flex items-end gap-2">
               <div className="flex-1">
-                <Label className="text-xs text-gray-500">תיאור</Label>
+                <Label className="text-xs text-muted-foreground">תיאור</Label>
                 <Input
                   type="text"
                   value={item.label}
@@ -182,7 +182,7 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
                 />
               </div>
               <div className="w-36">
-                <Label className="text-xs text-gray-500">סכום כולל</Label>
+                <Label className="text-xs text-muted-foreground">סכום כולל</Label>
                 <div className="relative">
                   <Input
                     type="number"
@@ -191,28 +191,28 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
                     onChange={(e) => updateFixedItem(item.id, 'amount', e.target.value)}
                     placeholder="₪"
                   />
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₪</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₪</span>
                 </div>
               </div>
-              <button onClick={() => removeFixedItem(item.id)} className="mb-1 p-2 hover:bg-red-50 rounded-lg">
-                <X className="w-4 h-4 text-red-500" />
+              <button onClick={() => removeFixedItem(item.id)} className="mb-1 p-2 hover:bg-destructive/10 rounded-lg">
+                <X className="w-4 h-4 text-destructive" />
               </button>
             </div>
           ))}
 
-          <Button variant="outline" size="sm" onClick={addFixedItem} className="w-full border-dashed border-blue-300 text-blue-700 hover:bg-blue-50">
+          <Button variant="outline" size="sm" onClick={addFixedItem} className="w-full border-dashed border-taupe text-taupe hover:bg-taupe/15">
             <Plus className="w-4 h-4 ml-1" />
             הוסף עלות גלובלית
           </Button>
         </div>
 
         {/* Results */}
-        <div className="border-t pt-4 space-y-3 bg-gradient-to-br from-amber-50 to-white rounded-xl p-4">
-          <p className="text-sm font-bold text-gray-700 mb-3">תוצאות החישוב:</p>
+        <div className="border-t pt-4 space-y-3 bg-gradient-to-br from-champagne to-card rounded-xl p-4">
+          <p className="text-sm font-bold text-foreground mb-3">תוצאות החישוב:</p>
 
           <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-600">עלות אולם לראש:</span>
-            <span className="font-semibold text-amber-800">
+            <span className="text-muted-foreground">עלות אולם לראש:</span>
+            <span className="font-semibold text-rose-deep">
               {dishCost || barCost || serviceCost || extraItems.length > 0
                 ? `₪${costPerHeadVenue.toLocaleString('he-IL')}`
                 : '-'}
@@ -220,20 +220,20 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
           </div>
 
           <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-600">סך עלות אולם ({guestCount || 0} אנשים):</span>
+            <span className="text-muted-foreground">סך עלות אולם ({guestCount || 0} אנשים):</span>
             <span className="font-semibold">
               {totalVenueCost > 0 ? `₪${totalVenueCost.toLocaleString('he-IL')}` : '-'}
             </span>
           </div>
 
           <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-600">שאר הוצאות מהמערכת:</span>
+            <span className="text-muted-foreground">שאר הוצאות מהמערכת:</span>
             <span className="font-semibold">₪{totalExpenses.toLocaleString('he-IL')}</span>
           </div>
 
-          <div className="border-t border-amber-200 pt-3 flex justify-between items-center">
-            <span className="font-bold text-gray-800">סה״כ עלות חתונה:</span>
-            <span className="text-xl font-bold text-amber-700">
+          <div className="border-t border-rose/30 pt-3 flex justify-between items-center">
+            <span className="font-bold text-foreground">סה״כ עלות חתונה:</span>
+            <span className="text-xl font-bold text-rose-deep">
               {grandTotal > 0 ? `₪${Math.round(grandTotal).toLocaleString('he-IL')}` : '-'}
             </span>
           </div>
@@ -246,9 +246,9 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
             const isGreen = costPerGuestTotal > 0 && val <= TARGET;
             const isOrange = costPerGuestTotal > 0 && val > TARGET && val <= WARN;
             const isRed = costPerGuestTotal > 0 && val > WARN;
-            const bgClass = isGreen ? 'bg-green-100' : isOrange ? 'bg-orange-100' : isRed ? 'bg-red-100' : 'bg-amber-100';
-            const textClass = isGreen ? 'text-green-800' : isOrange ? 'text-orange-800' : isRed ? 'text-red-800' : 'text-amber-900';
-            const barColor = isGreen ? 'bg-green-500' : isOrange ? 'bg-orange-400' : 'bg-red-500';
+            const bgClass = isGreen ? 'bg-sage/15' : isOrange ? 'bg-champagne' : isRed ? 'bg-destructive/10' : 'bg-champagne';
+            const textClass = isGreen ? 'text-sage-deep' : isOrange ? 'text-rose-deep' : isRed ? 'text-destructive' : 'text-rose-deep';
+            const barColor = isGreen ? 'bg-sage' : isOrange ? 'bg-rose' : 'bg-destructive';
             const barWidth = costPerGuestTotal > 0 ? Math.min((val / (TARGET * 1.3)) * 100, 100) : 0;
             const statusText = isGreen ? '✓ בתקציב' : isOrange ? '⚠ קרוב לגבול' : isRed ? '✗ חורג מהתקציב' : '';
 
@@ -265,13 +265,13 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
                 </div>
                 {costPerGuestTotal > 0 && (
                   <div className="space-y-1">
-                    <div className="w-full bg-white/60 rounded-full h-2.5 overflow-hidden">
+                    <div className="w-full bg-card/60 rounded-full h-2.5 overflow-hidden">
                       <div
                         className={`${barColor} h-2.5 rounded-full transition-all duration-500`}
                         style={{ width: `${barWidth}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className="flex justify-between text-xs text-muted-foreground">
                       <span>₪0</span>
                       <span className="font-medium">יעד: ₪{TARGET.toLocaleString('he-IL')}</span>
                     </div>

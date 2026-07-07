@@ -19,9 +19,9 @@ export default function WeddingSelector() {
   if (!isAdmin) {
     if (!activeWedding) return null;
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
-        <Heart className="w-4 h-4 text-amber-600" />
-        <span className="text-sm font-medium text-amber-800 max-w-[140px] truncate">{activeWedding.couple_names}</span>
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-champagne border border-taupe/40 rounded-lg">
+        <Heart className="w-4 h-4 text-rose-deep" />
+        <span className="text-sm font-medium text-rose-deep max-w-[140px] truncate">{activeWedding.couple_names}</span>
       </div>
     );
   }
@@ -32,30 +32,30 @@ export default function WeddingSelector() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 bg-champagne border border-taupe/40 rounded-lg hover:bg-accent transition-colors"
       >
-        <Heart className="w-4 h-4 text-amber-600" />
-        <span className="text-sm font-medium text-amber-800 max-w-[140px] truncate">
+        <Heart className="w-4 h-4 text-rose-deep" />
+        <span className="text-sm font-medium text-rose-deep max-w-[140px] truncate">
           {activeWedding?.couple_names || 'בחר חתונה'}
         </span>
-        <ChevronDown className={`w-3.5 h-3.5 text-amber-600 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-rose-deep transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute top-full mt-1 left-0 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[220px] z-50 max-h-64 overflow-y-auto">
+        <div className="absolute top-full mt-1 left-0 bg-card border border-border rounded-xl shadow-lg py-1 min-w-[220px] z-50 max-h-64 overflow-y-auto">
           {weddings.map(w => (
             <button
               key={w.id}
               onClick={() => { selectWedding(w.id); setOpen(false); }}
               className={`w-full text-right px-4 py-2.5 text-sm font-medium transition-all ${
-                w.id === activeWeddingId ? 'text-amber-700 bg-amber-50' : 'text-gray-700 hover:bg-gray-50'
+                w.id === activeWeddingId ? 'text-rose-deep bg-champagne' : 'text-foreground hover:bg-muted'
               }`}
             >
               <div className="flex items-center justify-between">
                 <span className="truncate">{w.couple_names}</span>
-                {w.status === 'archived' && <span className="text-xs text-gray-400">מוקפא</span>}
+                {w.status === 'archived' && <span className="text-xs text-muted-foreground">מוקפא</span>}
               </div>
               {w.wedding_date && (
-                <span className="text-xs text-gray-400">{new Date(w.wedding_date).toLocaleDateString('he-IL')}</span>
+                <span className="text-xs text-muted-foreground">{new Date(w.wedding_date).toLocaleDateString('he-IL')}</span>
               )}
             </button>
           ))}

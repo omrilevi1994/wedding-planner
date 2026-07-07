@@ -62,8 +62,8 @@ export default function Calculator() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">מחשבון אולם</h1>
-        <p className="text-gray-600">חשב עלות חתונה לפי מחיר האולם</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">מחשבון אולם</h1>
+        <p className="text-muted-foreground">חשב עלות חתונה לפי מחיר האולם</p>
       </div>
       <VenueCalculator
         totalExpenses={totalExpected}

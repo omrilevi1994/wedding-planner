@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { wedflow } from '@/api/wedflowClient';
-import { Heart } from 'lucide-react';
 
 // Sign-in screen shown when no authenticated Supabase session exists.
 // Email/password works locally; Google is enabled once OAuth is configured (Phase 2).
@@ -41,23 +40,21 @@ export default function Login() {
   return (
     <div
       dir="rtl"
-      className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-amber-50 via-white to-pink-50 p-4"
+      className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-background via-secondary to-rose-light/20 p-4"
     >
       <div className="w-full max-w-sm">
         {/* Brand */}
         <div className="text-center mb-8">
-          <div className="bg-gradient-to-br from-amber-100 to-amber-200 p-5 rounded-full inline-block mb-4 shadow-sm">
-            <Heart className="w-12 h-12 text-[#D4AF37]" fill="currentColor" />
-          </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-l from-[#D4AF37] to-amber-600 bg-clip-text text-transparent mb-1">
+          <img src="/monogram.png" alt="" className="w-24 mx-auto mb-2" />
+          <h1 className="text-3xl font-bold bg-gradient-to-l from-rose-light via-rose to-rose-deep bg-clip-text text-transparent mb-1">
             WedFlow
           </h1>
-          <p className="text-sm text-gray-500">מטה החתונה שלכם</p>
+          <p className="text-sm text-muted-foreground">מטה החתונה שלכם</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white/80 backdrop-blur rounded-2xl shadow-lg shadow-amber-100/50 border border-amber-100 p-8">
-          <h2 className="text-lg font-semibold text-slate-800 text-center mb-6">
+        <div className="bg-card/90 backdrop-blur rounded-2xl shadow-lg shadow-rose-light/20 border border-border p-8">
+          <h2 className="text-lg font-semibold text-foreground text-center mb-6">
             {mode === 'signup' ? 'הרשמה למערכת' : 'כניסה למערכת'}
           </h2>
 
@@ -66,43 +63,43 @@ export default function Login() {
               <input
                 required value={fullName} onChange={(e) => setFullName(e.target.value)}
                 placeholder="שם מלא"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition"
+                className="w-full px-4 py-2.5 border border-input rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
               />
             )}
             <input
               type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder="אימייל"
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition"
+              className="w-full px-4 py-2.5 border border-input rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
             />
             <input
               type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
               placeholder="סיסמה"
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition"
+              className="w-full px-4 py-2.5 border border-input rounded-xl text-right focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
             />
-            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+            {error && <p className="text-sm text-destructive text-center">{error}</p>}
             <button
               type="submit" disabled={busy}
-              className="w-full py-2.5 bg-gradient-to-l from-[#D4AF37] to-amber-600 text-white rounded-xl font-medium shadow-sm hover:opacity-90 disabled:opacity-50 transition"
+              className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-medium shadow-sm hover:bg-primary-hover disabled:opacity-50 transition"
             >
               {busy ? (mode === 'signup' ? 'נרשם…' : 'מתחבר…') : (mode === 'signup' ? 'הרשמה' : 'התחברות')}
             </button>
           </form>
 
           <div className="flex items-center gap-2 my-5">
-            <div className="flex-1 h-px bg-slate-100" />
-            <span className="text-xs text-slate-400">או</span>
-            <div className="flex-1 h-px bg-slate-100" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground">או</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           <button
             onClick={google}
-            className="w-full py-2.5 border border-slate-200 rounded-xl font-medium text-slate-700 hover:bg-slate-50 transition"
+            className="w-full py-2.5 border border-input rounded-xl font-medium text-foreground hover:bg-secondary transition"
           >
             התחברות עם Google
           </button>
 
           <button type="button" onClick={() => setMode(mode === 'signup' ? 'signin' : 'signup')}
-            className="w-full text-sm text-slate-500 mt-3">
+            className="w-full text-sm text-muted-foreground mt-3">
             {mode === 'signup' ? 'כבר יש לי חשבון' : 'אין לי חשבון — הרשמה'}
           </button>
         </div>

@@ -131,15 +131,15 @@ export default function Dashboard() {
     <div className="space-y-8">
       {/* Greeting */}
       {greetingMessage && (
-        <div className="bg-gradient-to-l from-amber-100 to-amber-50 border border-amber-200 rounded-xl p-6 text-center shadow-sm">
-          <h2 className="text-2xl font-bold text-amber-900">{greetingMessage}</h2>
+        <div className="bg-gradient-to-l from-rose-light/40 to-champagne/40 border border-rose/30 rounded-xl p-6 text-center shadow-sm">
+          <h2 className="text-2xl font-bold text-rose-deep">{greetingMessage}</h2>
         </div>
       )}
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">דשבורד</h1>
-        <p className="text-gray-600">סקירה כללית של החתונה שלכם</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">דשבורד</h1>
+        <p className="text-muted-foreground">סקירה כללית של החתונה שלכם</p>
       </div>
 
       {/* KPI Cards Grid */}
@@ -149,28 +149,28 @@ export default function Dashboard() {
           value={`₪${budgetTarget.toLocaleString('he-IL')}`}
           subtitle="יעד שהוגדר"
           icon={Wallet}
-          colorClass="from-blue-100 to-blue-50"
+          colorClass="from-taupe/30 to-taupe/10"
         />
         <KPICard
           title="סה״כ שולם בפועל"
           value={`₪${totalPaid.toLocaleString('he-IL')}`}
           subtitle="תשלומים שבוצעו"
           icon={TrendingDown}
-          colorClass="from-red-100 to-red-50"
+          colorClass="from-rose-light/60 to-rose-light/20"
         />
         <KPICard
           title="סה״כ מתוכנן לעתיד"
           value={`₪${totalPlanned.toLocaleString('he-IL')}`}
           subtitle="תשלומים עתידיים"
           icon={TrendingUp}
-          colorClass="from-purple-100 to-purple-50"
+          colorClass="from-taupe/30 to-taupe/10"
         />
         <KPICard
           title="יתרה לתשלום"
           value={`₪${remaining.toLocaleString('he-IL')}`}
           subtitle={remaining >= 0 ? 'נשאר בתקציב' : 'חריגה מהתקציב'}
           icon={DollarSign}
-          colorClass={remaining >= 0 ? 'from-green-100 to-green-50' : 'from-red-100 to-red-50'}
+          colorClass={remaining >= 0 ? 'from-sage/30 to-sage/10' : 'from-destructive/30 to-destructive/10'}
         />
       </div>
 
@@ -181,14 +181,14 @@ export default function Dashboard() {
           value={`₪${totalGifts.toLocaleString('he-IL')}`}
           subtitle="סכום כל המתנות שהוזנו"
           icon={Gift}
-          colorClass="from-pink-100 to-pink-50"
+          colorClass="from-rose-light/60 to-rose-light/20"
         />
         <KPICard
           title={netAfterGifts >= 0 ? 'רווח נקי מהחתונה' : 'עלות נטו של החתונה'}
           value={`₪${Math.abs(netAfterGifts).toLocaleString('he-IL')}`}
           subtitle={netAfterGifts >= 0 ? 'מתנות פחות עלות האירוע' : 'עלות האירוע פחות מתנות'}
           icon={DollarSign}
-          colorClass={netAfterGifts >= 0 ? 'from-green-100 to-green-50' : 'from-orange-100 to-orange-50'}
+          colorClass={netAfterGifts >= 0 ? 'from-sage/30 to-sage/10' : 'from-champagne to-champagne/40'}
         />
       </div>
 
@@ -199,7 +199,7 @@ export default function Dashboard() {
           value={`${totalInvited}`}
           subtitle={`${totalConfirmed} אישרו | ${totalAttended} הגיעו`}
           icon={Users}
-          colorClass="from-amber-100 to-amber-50"
+          colorClass="from-rose-light/60 to-rose-light/20"
         />
         {expectedGuestsCount > 0 ? (
           <KPICard
@@ -207,7 +207,7 @@ export default function Dashboard() {
             value={`₪${Math.round(costPerExpectedGuest).toLocaleString('he-IL')}`}
             subtitle={`מחושב לפי צפי של ${expectedGuestsCount} מוזמנים`}
             icon={UserCheck}
-            colorClass="from-yellow-100 to-yellow-50"
+            colorClass="from-champagne to-champagne/40"
           />
         ) : (
           <KPICard
@@ -215,7 +215,7 @@ export default function Dashboard() {
             value={`₪${Math.round(costPerGuest).toLocaleString('he-IL')}`}
             subtitle={`מחושב לפי ${calcMode === 'confirmed' ? 'מאושרים' : 'מוזמנים'}`}
             icon={UserCheck}
-            colorClass="from-yellow-100 to-yellow-50"
+            colorClass="from-champagne to-champagne/40"
           />
         )}
         <KPICard
@@ -223,7 +223,7 @@ export default function Dashboard() {
           value={`₪${totalPaid.toLocaleString('he-IL')}`}
           subtitle={`₪${Math.round(actualCostPerGuest).toLocaleString('he-IL')} למוזמן מאושר`}
           icon={DollarSign}
-          colorClass="from-orange-100 to-orange-50"
+          colorClass="from-rose to-rose-light/40"
         />
       </div>
 
