@@ -11,7 +11,7 @@
 create table if not exists wedding_invite_links (
   id text primary key default gen_random_uuid()::text,
   wedding_id text not null references weddings(id) on delete cascade,
-  token text not null unique default encode(gen_random_bytes(32), 'hex'),
+  token text not null unique default (replace(gen_random_uuid()::text, '-', '') || replace(gen_random_uuid()::text, '-', '')),
   role text not null,
   expires_at timestamptz not null,
   created_date timestamptz default now(),
