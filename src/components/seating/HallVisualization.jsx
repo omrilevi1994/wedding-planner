@@ -135,7 +135,7 @@ function getDefaultPosition(index) {
   return { x: COLUMN_X[col] ?? 10, y: ROW_Y[row] ?? 10 };
 }
 
-export default function HallVisualization({ tables, guests, selectedTableId, onSelectTable }) {
+export default function HallVisualization({ tables, guests, selectedTableId, onSelectTable, isEditMode = false }) {
   const containerRef = useRef(null);
   const nodeRefs = useRef({});
   const dragRef = useRef(null);
@@ -217,6 +217,7 @@ export default function HallVisualization({ tables, guests, selectedTableId, onS
   }, [handlePointerMove, endDrag]);
 
   const handlePointerDown = useCallback((e, table) => {
+    if (!isEditMode) return; // locked/view mode: clicks are handled separately, no dragging
     if (e.button !== undefined && e.button !== 0) return; // left-click / primary touch only
     e.preventDefault();
     e.stopPropagation();
@@ -236,7 +237,12 @@ export default function HallVisualization({ tables, guests, selectedTableId, onS
     };
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', endDrag);
-  }, [getPos, handlePointerMove, endDrag]);
+  }, [isEditMode, getPos, handlePointerMove, endDrag]);
+
+  const handleClick = useCallback((table) => {
+    if (isEditMode) return; // in edit mode, selection happens via the drag-threshold logic on pointerup
+    onSelectTable && onSelectTable(table.id);
+  }, [isEditMode, onSelectTable]);
 
   return (
     <div
@@ -254,6 +260,8 @@ export default function HallVisualization({ tables, guests, selectedTableId, onS
         boxShadow: '0 20px 45px rgba(59,53,49,0.12)',
         overflow: 'hidden',
         cursor: draggingId ? 'grabbing' : 'default',
+        outline: isEditMode ? '2px dashed rgba(198,138,112,0.55)' : 'none',
+        outlineOffset: isEditMode ? -2 : 0,
       }}
     >
       {/* Entrance */}
@@ -290,10 +298,11 @@ export default function HallVisualization({ tables, guests, selectedTableId, onS
               transform: `translate(-50%, -50%) scale(${isDragging ? 1.06 : 1})`,
               transition: isDragging ? 'none' : 'transform 0.15s ease',
               zIndex: isDragging ? 20 : (selectedTableId === table.id ? 5 : 2),
-              cursor: isDragging ? 'grabbing' : 'grab',
+              cursor: isEditMode ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
               touchAction: 'none',
             }}
             onPointerDown={(e) => handlePointerDown(e, table)}
+            onClick={() => handleClick(table)}
             onMouseEnter={() => !dragRef.current && setHoveredTableId(table.id)}
             onMouseLeave={() => setHoveredTableId(null)}
           >
@@ -334,7 +343,9 @@ export default function HallVisualization({ tables, guests, selectedTableId, onS
           </div>
         ))}
         <div style={{ marginTop: 4, borderTop: '1px solid rgba(191,168,154,0.4)', paddingTop: 4 }}>
-          <span style={{ color: '#7A7066', fontSize: 9 }}>גררו כדי לסדר, לחצו לבחירה</span>
+          <span style={{ color: '#7A7066', fontSize: 9 }}>
+            {isEditMode ? 'גררו כדי לסדר, לחצו לבחירה' : 'לחצו לבחירה (הפעילו מצב עריכה כדי לגרור)'}
+          </span>
         </div>
       </div>
     </div>

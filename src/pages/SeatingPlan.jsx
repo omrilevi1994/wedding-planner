@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { wedflow } from '@/api/wedflowClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2, RefreshCw, Download, X } from 'lucide-react';
+import { Plus, Trash2, Download, X, Lock, Unlock } from 'lucide-react';
 import HallVisualization from '../components/seating/HallVisualization';
 import TablePanel from '../components/seating/TablePanel';
 import { useWedding } from '@/lib/WeddingContext';
+import { ensureDefaultVenueElements } from '@/lib/defaultVenueElements';
 
 const isGuestTable = (t) => !t.element_type || t.element_type === 'table';
 
@@ -23,16 +24,28 @@ export default function SeatingPlan() {
   const [editingTable, setEditingTable] = useState(null);
   const [selectedTableId, setSelectedTableId] = useState(null);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [selectedExportTables, setSelectedExportTables] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const backfillAttempted = useRef(null);
 
-  const { data: tables = [] } = useQuery({
+  const { data: tables = [], isSuccess: tablesLoaded } = useQuery({
     queryKey: ['tables', activeWeddingId],
     queryFn: () => wedflow.entities.Table.filter({ wedding_id: activeWeddingId }, '-created_date'),
     enabled: !!activeWeddingId
   });
+
+  // Backfill: weddings created before the stage/bar defaults existed won't
+  // have them. Once the real table list has loaded (not the query's default
+  // empty array), create whichever of stage/bar is missing so every wedding
+  // ends up with both, without a manual migration.
+  useEffect(() => {
+    if (!activeWeddingId || !tablesLoaded || backfillAttempted.current === activeWeddingId) return;
+    backfillAttempted.current = activeWeddingId;
+    ensureDefaultVenueElements(activeWeddingId, tables).then((created) => {
+      if (created) queryClient.invalidateQueries(['tables', activeWeddingId]);
+    });
+  }, [activeWeddingId, tables, tablesLoaded, queryClient]);
 
   const { data: guests = [] } = useQuery({
     queryKey: ['guests', activeWeddingId],
@@ -137,31 +150,9 @@ export default function SeatingPlan() {
     setShowDeleteAllConfirm(false);
   };
 
-  const handleAddVenueElement = (elementType) => {
-    const name = elementType === 'stage' ? 'במה' : 'בר';
-    const defaultPos = elementType === 'stage' ? { location_x: 50, location_y: 8 } : { location_x: 50, location_y: 50 };
-    wedflow.entities.Table.create({
-      wedding_id: activeWeddingId,
-      name,
-      capacity: 0,
-      element_type: elementType,
-      ...defaultPos,
-    }).then(() => queryClient.invalidateQueries(['tables']));
-  };
-
   const handleRenameElement = (table, name) => {
     if (!name || name === table.name) return;
     updateTableMutation.mutate({ id: table.id, data: { name } });
-  };
-
-  const handleResetAndCreate = async () => {
-    setIsResetting(true);
-    await wedflow.functions.invoke('resetSeatingPlan', { wedding_id: activeWeddingId });
-    queryClient.invalidateQueries(['tables']);
-    queryClient.invalidateQueries(['guests']);
-    setSelectedTableId(null);
-    setIsResetting(false);
-    setShowResetConfirm(false);
   };
 
   const handleEditTable = (table) => {
@@ -257,21 +248,19 @@ export default function SeatingPlan() {
           </div>
         </div>
         <div className="flex gap-2 flex-wrap justify-end">
-          <Button variant="outline" onClick={() => handleAddVenueElement('stage')} className="border-rose-deep/30 text-rose-deep hover:bg-rose/15 text-sm">
-            <Plus className="w-4 h-4 ml-1" />
-            הוסף במה
-          </Button>
-          <Button variant="outline" onClick={() => handleAddVenueElement('bar')} className="border-taupe/30 text-taupe hover:bg-taupe/15 text-sm">
-            <Plus className="w-4 h-4 ml-1" />
-            הוסף בר
+          <Button
+            variant="outline"
+            onClick={() => setIsEditMode(v => !v)}
+            className={isEditMode
+              ? 'border-rose-deep/40 bg-rose-deep/10 text-rose-deep hover:bg-rose-deep/15 text-sm font-semibold'
+              : 'border-taupe/30 text-taupe hover:bg-taupe/15 text-sm'}
+          >
+            {isEditMode ? <Unlock className="w-4 h-4 ml-1" /> : <Lock className="w-4 h-4 ml-1" />}
+            {isEditMode ? 'סיום עריכת פריסה' : 'ערוך פריסה'}
           </Button>
           <Button variant="outline" onClick={() => { setSelectedExportTables([]); setShowExportDialog(true); }} className="border-sage/30 text-sage-deep hover:bg-sage/15 text-sm">
             <Download className="w-4 h-4 ml-1" />
             ייצא שולחנות לCSV
-          </Button>
-          <Button variant="outline" onClick={() => setShowResetConfirm(true)} className="border-taupe/30 text-taupe hover:bg-taupe/15 text-sm">
-            <RefreshCw className="w-4 h-4 ml-1" />
-            אפס וצור שולחנות 1-25
           </Button>
           {guestTables.length > 0 && (
             <Button variant="outline" onClick={() => setShowDeleteAllConfirm(true)} className="border-destructive/30 text-destructive hover:bg-destructive/10 text-sm">
@@ -291,8 +280,17 @@ export default function SeatingPlan() {
         <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-rose-deep" /> פנוי</div>
         <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-sage-deep" /> מלא</div>
         <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-destructive" /> עומס יתר</div>
-        <span className="mr-2 text-rose-deep font-medium">גררו כדי לסדר, לחצו לבחירה</span>
+        <span className="mr-2 text-rose-deep font-medium">
+          {isEditMode ? 'גררו כדי לסדר, לחצו לבחירה' : 'לחצו על שולחן כדי לבחור בו'}
+        </span>
       </div>
+
+      {isEditMode && (
+        <div className="flex items-center gap-2 bg-rose-deep/10 border border-rose-deep/30 text-rose-deep text-sm font-semibold rounded-lg px-4 py-2">
+          <Unlock className="w-4 h-4" />
+          מצב עריכת פריסה פעיל — ניתן לגרור שולחנות, במה ובר. לחצו על "סיום עריכת פריסה" כדי לנעול את המפה.
+        </div>
+      )}
 
       <div className="flex gap-4">
         <div className={selectedTable ? 'flex-1' : 'w-full'}>
@@ -307,6 +305,7 @@ export default function SeatingPlan() {
               guests={guests}
               selectedTableId={selectedTableId}
               onSelectTable={setSelectedTableId}
+              isEditMode={isEditMode}
             />
           )}
         </div>
@@ -344,7 +343,11 @@ export default function SeatingPlan() {
                 onBlur={(e) => handleRenameElement(selectedTable, e.target.value)}
               />
             </div>
-            <p className="text-xs text-muted-foreground">ניתן לגרור את האלמנט על מפת האולם כדי למקם אותו מחדש.</p>
+            <p className="text-xs text-muted-foreground">
+              {isEditMode
+                ? 'ניתן לגרור את האלמנט על מפת האולם כדי למקם אותו מחדש.'
+                : 'כדי להזיז את האלמנט, הפעילו קודם את מצב עריכת הפריסה.'}
+            </p>
             <Button
               variant="outline"
               onClick={() => handleDeleteTable(selectedTable.id)}
@@ -387,21 +390,6 @@ export default function SeatingPlan() {
             <Button variant="outline" onClick={() => setShowNewTableDialog(false)}>ביטול</Button>
             <Button onClick={handleSaveTable} className="bg-primary hover:bg-primary-hover">
               {editingTable ? 'שמור' : 'הוסף'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
-        <DialogContent dir="rtl">
-          <DialogHeader>
-            <DialogTitle>אפס ויצור שולחנות 1-25</DialogTitle>
-          </DialogHeader>
-          <p className="text-muted-foreground">פעולה זו תמחק את כל השולחנות הקיימים, תנקה שיבוץ שולחן מכל המוזמנים, ותיצור שולחנות 1-25 מחדש (שולחן 13 ו-16 עם 24 מקומות, השאר 12).</p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowResetConfirm(false)} disabled={isResetting}>ביטול</Button>
-            <Button onClick={handleResetAndCreate} className="bg-taupe hover:bg-taupe/90" disabled={isResetting}>
-              {isResetting ? 'מעבד...' : 'אפס ויצור'}
             </Button>
           </DialogFooter>
         </DialogContent>

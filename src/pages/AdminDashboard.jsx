@@ -14,6 +14,7 @@ import { Plus, Heart, Calendar, MapPin, Users, Trash2, Settings, UserCog, Search
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { seedDefaultChecklist } from '@/lib/defaultChecklist';
+import { seedDefaultVenueElements } from '@/lib/defaultVenueElements';
 
 export default function AdminDashboard() {
   const { weddings, refreshWeddings, selectWedding, activeWeddingId, isPlatformAdmin } = useWedding();
@@ -54,6 +55,7 @@ export default function AdminDashboard() {
         cost_calc_mode: data.cost_calc_mode || 'confirmed'
       });
       await seedDefaultChecklist(wedding.id);
+      await seedDefaultVenueElements(wedding.id);
       return wedding;
     },
     onSuccess: async () => {

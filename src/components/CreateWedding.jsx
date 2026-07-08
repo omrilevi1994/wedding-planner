@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import { useWedding } from '@/lib/WeddingContext';
 import { seedDefaultChecklist } from '@/lib/defaultChecklist';
+import { seedDefaultVenueElements } from '@/lib/defaultVenueElements';
 
 export default function CreateWedding() {
   const { user } = useAuth();
@@ -27,6 +28,7 @@ export default function CreateWedding() {
         .insert({ wedding_id: wedding.id, user_id: user.id, role: 'owner' });
       if (mErr) throw mErr;
       await seedDefaultChecklist(wedding.id);
+      await seedDefaultVenueElements(wedding.id);
       await refreshWeddings();
       selectWedding(wedding.id);
     } catch (err) {
