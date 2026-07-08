@@ -1,120 +1,72 @@
 import React from 'react';
-import { Card } from '@/components/ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import DonutChart from './DonutChart';
+
+const SIDE_COLORS = ['hsl(var(--primary))', 'hsl(var(--sage))', 'hsl(var(--taupe))'];
+const RELATIONSHIP_COLORS = [
+  'hsl(var(--primary))',
+  'hsl(var(--sage))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--rose-deep))',
+  'hsl(var(--sage-deep))',
+  'hsl(var(--taupe))',
+];
+
+function groupByPeople(guests, keyFn) {
+  const totals = {};
+  guests.forEach((g) => {
+    const key = keyFn(g) || 'אחר';
+    totals[key] = (totals[key] || 0) + (g.total_people || 1);
+  });
+  return totals;
+}
+
+function toChartData(totals, palette) {
+  return Object.entries(totals)
+    .map(([name, value], i) => ({ name, value, color: palette[i % palette.length] }))
+    .filter((item) => item.value > 0)
+    .sort((a, b) => b.value - a.value);
+}
+
+const peopleFormatter = (v) => `${v.toLocaleString('he-IL')}`;
 
 export default function GuestsPieCharts({ guests }) {
-  // By Side
-  const sideData = {};
-  guests.forEach(g => {
-    const side = g.side || 'אחר';
-    sideData[side] = (sideData[side] || 0) + (g.total_people || 1);
-  });
-  const sideChartData = Object.entries(sideData).map(([name, value]) => ({ name, value }));
+  const sideData = toChartData(groupByPeople(guests, (g) => g.side), SIDE_COLORS);
+  const relationshipData = toChartData(groupByPeople(guests, (g) => g.relationship), RELATIONSHIP_COLORS);
 
-  // By Relationship
-  const relationshipData = {};
-  guests.forEach(g => {
-    const relationship = g.relationship || 'אחר';
-    relationshipData[relationship] = (relationshipData[relationship] || 0) + (g.total_people || 1);
-  });
-  const relationshipChartData = Object.entries(relationshipData).map(([name, value]) => ({ name, value }));
-
-  const sideColors = ['#3b82f6', '#ec4899', '#8b5cf6'];
-  const relationshipColors = ['#8b5cf6', '#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#6b7280'];
-
-  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
-    const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
-
-    if (percent < 0.05) return null;
-
-    return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
-        dominantBaseline="central"
-        className="font-semibold text-sm"
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
+  const totalSide = sideData.reduce((sum, d) => sum + d.value, 0);
+  const totalRelationship = relationshipData.reduce((sum, d) => sum + d.value, 0);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* By Side */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">פילוח מוזמנים לפי צד</h3>
-        {sideChartData.length === 0 ? (
-          <p className="text-muted-foreground text-center py-8">אין עדיין נתונים</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={sideChartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderCustomLabel}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {sideChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={sideColors[index % sideColors.length]} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value) => [`${value} אנשים`, '']}
-                contentStyle={{ direction: 'rtl' }}
-              />
-              <Legend 
-                verticalAlign="bottom" 
-                height={36}
-                formatter={(value) => value}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        )}
+      <Card className="shadow-md h-full">
+        <CardHeader>
+          <CardTitle className="text-lg">פילוח מוזמנים לפי צד</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DonutChart
+            data={sideData}
+            centerValue={totalSide.toLocaleString('he-IL')}
+            centerLabel="סה״כ מוזמנים"
+            legendValueFormatter={peopleFormatter}
+            tooltipFormatter={(value) => `${peopleFormatter(value)} אנשים`}
+          />
+        </CardContent>
       </Card>
 
-      {/* By Relationship */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">פילוח מוזמנים לפי קרבה</h3>
-        {relationshipChartData.length === 0 ? (
-          <p className="text-muted-foreground text-center py-8">אין עדיין נתונים</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={relationshipChartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderCustomLabel}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {relationshipChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={relationshipColors[index % relationshipColors.length]} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value) => [`${value} אנשים`, '']}
-                contentStyle={{ direction: 'rtl' }}
-              />
-              <Legend 
-                verticalAlign="bottom" 
-                height={36}
-                formatter={(value) => value}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        )}
+      <Card className="shadow-md h-full">
+        <CardHeader>
+          <CardTitle className="text-lg">פילוח מוזמנים לפי קרבה</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DonutChart
+            data={relationshipData}
+            centerValue={totalRelationship.toLocaleString('he-IL')}
+            centerLabel="סה״כ מוזמנים"
+            legendValueFormatter={peopleFormatter}
+            tooltipFormatter={(value) => `${peopleFormatter(value)} אנשים`}
+          />
+        </CardContent>
       </Card>
     </div>
   );

@@ -1,76 +1,91 @@
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import DonutChart from './DonutChart';
+import { formatILS } from './ChartTooltip';
 
-const COLORS = [
-  '#D4AF37', '#F4E4C1', '#B8962E', '#E8C368', '#A67C52',
-  '#FFD700', '#DAA520', '#B8860B', '#CD853F', '#DEB887',
-  '#F5DEB3', '#FFE4B5', '#FFDAB9'
+// Rotates through the brand palette; wedding expense categories rarely
+// exceed ~8 in practice so repeats are uncommon, and the legend text always
+// disambiguates regardless.
+const CATEGORY_COLORS = [
+  'hsl(var(--primary))',
+  'hsl(var(--sage))',
+  'hsl(var(--taupe))',
+  'hsl(var(--rose-deep))',
+  'hsl(var(--sage-deep))',
+  'hsl(var(--rose-light))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--destructive))',
 ];
 
 export default function ExpensesPieChart({ expenses }) {
-  // Group by category and sum amounts (exclude "אחר" paid_by_party)
-  const categoryData = expenses.filter(e => e.paid_by_party !== 'אחר' && e.paid_by_party !== 'הורים').reduce((acc, expense) => {
-    const category = expense.category || 'אחר';
-    if (!acc[category]) {
-      acc[category] = 0;
+  // Group by category using the *same* paid/planned split as the dashboard's
+  // KPI cards (deposit-aware, probability-weighted). Previously this chart
+  // summed the full expense amount for any "planned" expense — even when a
+  // deposit on that expense was already paid in full — which double-counted
+  // the deposit portion once here and once in the KPI totals, and made the
+  // slices not add up to the "total expected" figure shown above the chart
+  // whenever an expense had a deposit and probability < 100%.
+  const billable = expenses.filter((e) => e.paid_by_party !== 'אחר' && e.paid_by_party !== 'הורים');
+
+  const categoryTotals = billable.reduce((acc, e) => {
+    const category = e.category || 'אחר';
+    const prob = (e.probability || 100) / 100;
+    let paid = 0;
+    let planned = 0;
+
+    if (e.has_deposit && e.deposit_amount) {
+      const remainder = (e.amount || 0) - e.deposit_amount;
+      if (e.deposit_status === 'שולם') paid += e.deposit_amount;
+      else planned += e.deposit_amount * prob;
+      if (e.status === 'שולם') paid += remainder;
+      else planned += remainder * prob;
+    } else {
+      if (e.status === 'שולם') paid += e.amount || 0;
+      else planned += (e.amount || 0) * prob;
     }
-    // Only count paid expenses or planned with probability
-    if (expense.status === 'שולם') {
-      acc[category] += expense.amount || 0;
-    } else if (expense.status === 'מתוכנן') {
-      acc[category] += (expense.amount || 0) * ((expense.probability || 100) / 100);
-    }
+
+    if (!acc[category]) acc[category] = { paid: 0, planned: 0 };
+    acc[category].paid += paid;
+    acc[category].planned += planned;
     return acc;
   }, {});
 
-  const data = Object.entries(categoryData)
-    .map(([name, value]) => ({ name, value }))
-    .filter(item => item.value > 0)
+  const data = Object.entries(categoryTotals)
+    .map(([name, { paid, planned }], i) => ({
+      name,
+      value: paid + planned,
+      paid,
+      planned,
+      color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
+    }))
+    .filter((item) => item.value > 0.5)
     .sort((a, b) => b.value - a.value);
 
-  if (data.length === 0) {
-    return (
-      <Card className="shadow-md">
-        <CardHeader>
-          <CardTitle className="text-lg">התפלגות הוצאות לפי קטגוריות</CardTitle>
-        </CardHeader>
-        <CardContent className="h-64 flex items-center justify-center">
-          <p className="text-muted-foreground text-sm">אין עדיין הוצאות להצגה</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const total = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
-    <Card className="shadow-md">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle className="text-lg">התפלגות הוצאות לפי קטגוריות</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value) => `₪${value.toLocaleString('he-IL')}`}
-              contentStyle={{ direction: 'rtl' }}
-            />
-            <Legend wrapperStyle={{ direction: 'rtl' }} />
-          </PieChart>
-        </ResponsiveContainer>
+        <DonutChart
+          data={data}
+          centerValue={formatILS(total)}
+          centerLabel="סה״כ צפי"
+          legendValueFormatter={formatILS}
+          tooltipFormatter={(value, entry) => (
+            <span className="flex flex-col items-end">
+              <span>{formatILS(value)}</span>
+              {entry?.payload?.paid > 0 && entry?.payload?.planned > 0 && (
+                <span className="text-xs text-muted-foreground font-normal">
+                  {formatILS(entry.payload.paid)} שולם · {formatILS(entry.payload.planned)} מתוכנן
+                </span>
+              )}
+            </span>
+          )}
+          emptyMessage="אין עדיין הוצאות להצגה"
+        />
       </CardContent>
     </Card>
   );

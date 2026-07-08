@@ -79,7 +79,7 @@ export default function Dashboard() {
     let paid = 0;
     if (e.has_deposit && e.deposit_amount) {
       if (e.deposit_status === 'שולם') paid += e.deposit_amount;
-      if (e.status === 'שולם') paid += (e.amount - e.deposit_amount);
+      if (e.status === 'שולם') paid += ((e.amount || 0) - e.deposit_amount);
     } else {
       if (e.status === 'שולם') paid += (e.amount || 0);
     }
@@ -91,7 +91,7 @@ export default function Dashboard() {
     let planned = 0;
     if (e.has_deposit && e.deposit_amount) {
       if (e.deposit_status !== 'שולם') planned += e.deposit_amount * prob;
-      if (e.status !== 'שולם') planned += (e.amount - e.deposit_amount) * prob;
+      if (e.status !== 'שולם') planned += ((e.amount || 0) - e.deposit_amount) * prob;
     } else {
       if (e.status !== 'שולם') planned += (e.amount || 0) * prob;
     }
@@ -123,6 +123,14 @@ export default function Dashboard() {
   const expectedGuestsCount = settings?.expected_guests;
   const costPerExpectedGuest = expectedGuestsCount > 0 ? totalExpected / expectedGuestsCount : 0;
 
+  // Every Expense record automatically has one or two mirrored Payment
+  // records (see Expenses.jsx's syncPayments), so filter payments down to
+  // the same "billable" expenses used for the KPI totals above — otherwise
+  // the monthly timeline would include costs paid by parents / "other" that
+  // the rest of the dashboard deliberately excludes.
+  const billableExpenseIds = new Set(billableExpenses.map((e) => e.id));
+  const billablePayments = payments.filter((p) => billableExpenseIds.has(p.expense_id));
+
   if (isCheckingAuth) {
     return null;
   }
@@ -143,6 +151,8 @@ export default function Dashboard() {
       </div>
 
       {/* KPI Cards Grid */}
+      <div>
+      <p className="text-xs font-semibold tracking-wide text-rose-deep/80 mb-3">תקציב</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title="תקציב כולל"
@@ -173,8 +183,11 @@ export default function Dashboard() {
           colorClass={remaining >= 0 ? 'from-sage/30 to-sage/10' : 'from-destructive/30 to-destructive/10'}
         />
       </div>
+      </div>
 
       {/* Gifts Section */}
+      <div>
+      <p className="text-xs font-semibold tracking-wide text-rose-deep/80 mb-3">מתנות</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <KPICard
           title="סה״כ מתנות שהתקבלו"
@@ -191,8 +204,11 @@ export default function Dashboard() {
           colorClass={netAfterGifts >= 0 ? 'from-sage/30 to-sage/10' : 'from-champagne to-champagne/40'}
         />
       </div>
+      </div>
 
       {/* Guest & Cost Stats */}
+      <div>
+      <p className="text-xs font-semibold tracking-wide text-rose-deep/80 mb-3">אורחים ועלויות</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <KPICard
           title="מספר מוזמנים"
@@ -226,8 +242,11 @@ export default function Dashboard() {
           colorClass="from-rose to-rose-light/40"
         />
       </div>
+      </div>
 
       {/* Charts & Actions */}
+      <div>
+      <p className="text-xs font-semibold tracking-wide text-rose-deep/80 mb-3">פילוח וניתוח</p>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <ExpensesPieChart expenses={billableExpenses} />
@@ -240,10 +259,15 @@ export default function Dashboard() {
       </div>
 
       {/* Guest Analytics */}
-      <GuestsPieCharts guests={guests} />
+      <div className="mt-6">
+        <GuestsPieCharts guests={guests} />
+      </div>
 
       {/* Timeline */}
-      <MonthlyTimeline expenses={billableExpenses} payments={payments} />
+      <div className="mt-6">
+        <MonthlyTimeline payments={billablePayments} />
+      </div>
+      </div>
     </div>
   );
 }
