@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Plus, Heart, Calendar, MapPin, Users, Trash2, Settings, UserCog, Search, CalendarCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import { seedDefaultChecklist } from '@/lib/defaultChecklist';
 
 export default function AdminDashboard() {
   const { weddings, refreshWeddings, selectWedding, activeWeddingId, isPlatformAdmin } = useWedding();
@@ -52,6 +53,7 @@ export default function AdminDashboard() {
         currency: data.currency || '₪',
         cost_calc_mode: data.cost_calc_mode || 'confirmed'
       });
+      await seedDefaultChecklist(wedding.id);
       return wedding;
     },
     onSuccess: async () => {
