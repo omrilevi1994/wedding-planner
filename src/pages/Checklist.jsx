@@ -155,8 +155,14 @@ export default function Checklist() {
     });
   };
 
-  const completedCount = items.filter(i => i.completed).length;
-  const totalCount = items.length;
+  // Only count items that belong to a group actually rendered on this page.
+  // Orphan items (group is null, or points to a group that no longer exists —
+  // e.g. leftover rows from the base44 import) are invisible in the UI below,
+  // so they must not be counted toward totals or the progress bar.
+  const groupIds = new Set(groups.map(g => g.id));
+  const visibleItems = items.filter(i => groupIds.has(i.group));
+  const completedCount = visibleItems.filter(i => i.completed).length;
+  const totalCount = visibleItems.length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const isLoading = loadingGroups || loadingItems;
