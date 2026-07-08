@@ -169,8 +169,8 @@ async function unwrapFunctionError(error) {
 const weddingInviteLinks = {
   // Shareable, multi-use, 2-day link that lets anyone holding it join as a collaborator
   // (never as owner) — distinct from inviteUserToWedding's per-email flow.
-  async create({ wedding_id, role = 'coplanner' }) {
-    const { data, error } = await supabase.functions.invoke('createWeddingInviteLink', { body: { wedding_id, role } });
+  async create({ wedding_id, role = 'coplanner', wedding_sides = [], max_guests = null }) {
+    const { data, error } = await supabase.functions.invoke('createWeddingInviteLink', { body: { wedding_id, role, wedding_sides, max_guests } });
     if (error) throw await unwrapFunctionError(error);
     return data;
   },

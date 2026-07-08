@@ -57,6 +57,8 @@ export default function UserManagement() {
   // Invite-link dialog state
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [linkRole, setLinkRole] = useState('coplanner');
+  const [linkSides, setLinkSides] = useState([]);
+  const [linkMaxGuests, setLinkMaxGuests] = useState('');
   const [isCreatingLink, setIsCreatingLink] = useState(false);
   const [generatedLink, setGeneratedLink] = useState(null); // { url, expires_at }
   const [linkCopied, setLinkCopied] = useState(false);
@@ -126,7 +128,12 @@ export default function UserManagement() {
     if (!activeWeddingId) return;
     setIsCreatingLink(true);
     try {
-      const result = await wedflow.weddingInviteLinks.create({ wedding_id: activeWeddingId, role: linkRole });
+      const result = await wedflow.weddingInviteLinks.create({
+        wedding_id: activeWeddingId,
+        role: linkRole,
+        wedding_sides: linkRole === 'family' ? linkSides : [],
+        max_guests: linkRole === 'family' && linkMaxGuests ? parseInt(linkMaxGuests) : null
+      });
       setGeneratedLink(result);
       setLinkCopied(false);
     } catch (error) {
@@ -202,7 +209,7 @@ export default function UserManagement() {
         </div>
         {canManage && (
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => { setGeneratedLink(null); setLinkRole('coplanner'); setShowLinkDialog(true); }}>
+            <Button variant="outline" onClick={() => { setGeneratedLink(null); setLinkRole('coplanner'); setLinkSides([]); setLinkMaxGuests(''); setShowLinkDialog(true); }}>
               <Link2 className="w-4 h-4 ml-2" />
               צור קישור הזמנה
             </Button>
@@ -408,6 +415,26 @@ export default function UserManagement() {
                     </SelectContent>
                   </Select>
                 </div>
+                {linkRole === 'family' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>צדדים בחתונה</Label>
+                      <p className="text-sm text-muted-foreground mb-2">אם לא תבחר צדדים, כל מי שיצטרף דרך הקישור יקבל גישה מלאה לכל המוזמנים</p>
+                      <div className="space-y-2 border rounded-lg p-3">
+                        {allSides.map(side => (
+                          <div key={side} className="flex items-center gap-2">
+                            <Checkbox id={`link-${side}`} checked={linkSides.includes(side)} onCheckedChange={() => toggleSide(side, setLinkSides)} />
+                            <label htmlFor={`link-${side}`} className="text-sm cursor-pointer">{side}</label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>מכסת מוזמנים (אופציונלי)</Label>
+                      <Input type="number" min="0" value={linkMaxGuests} onChange={e => setLinkMaxGuests(e.target.value)} placeholder="למשל: 50" />
+                    </div>
+                  </>
+                )}
                 <div className="flex gap-3 pt-2">
                   <Button onClick={handleCreateLink} disabled={isCreatingLink} className="flex-1 bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">
                     {isCreatingLink ? 'יוצר קישור…' : 'צור קישור'}

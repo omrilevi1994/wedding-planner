@@ -23,13 +23,17 @@ Deno.serve(async (req) => {
     }
 
     // --- Parse + validate body ---
-    const { wedding_id, role = 'coplanner' } = await req.json();
+    const { wedding_id, role = 'coplanner', wedding_sides = [], max_guests = null } = await req.json();
     if (!wedding_id) {
       return Response.json({ error: 'wedding_id is required' }, { status: 400, headers: corsHeaders });
     }
     if (!LINKABLE_ROLES.includes(role)) {
       return Response.json({ error: `role must be one of: ${LINKABLE_ROLES.join(', ')}` }, { status: 400, headers: corsHeaders });
     }
+    // Sides/guest-quota only apply to (and are only ever stored for) the 'family' role —
+    // matches inviteUserToWedding, where non-family roles always get unrestricted access.
+    const linkWeddingSides = role === 'family' ? wedding_sides : [];
+    const linkMaxGuests = role === 'family' ? max_guests : null;
 
     // --- Authorize: wedding owner or platform admin (via service client) ---
     const service = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
@@ -52,6 +56,8 @@ Deno.serve(async (req) => {
       wedding_id,
       token,
       role,
+      wedding_sides: linkWeddingSides,
+      max_guests: linkMaxGuests,
       expires_at: expiresAt,
       created_by: user.email,
       created_by_id: user.id,
