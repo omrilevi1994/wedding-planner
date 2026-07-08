@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Pencil, Trash2, Download, Upload, Check, LayoutGrid, RefreshCw, ArrowRight, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import GuestForm from '../components/guests/GuestForm';
 import IplanImportDialog from '../components/guests/IplanImportDialog';
@@ -56,6 +57,7 @@ export default function Guests() {
   const [unmatchedLinks, setUnmatchedLinks] = useState({}); // wiwiPhone → guestId
   const [showWiwiDialog, setShowWiwiDialog] = useState(false);
   const [showSyncWizard, setShowSyncWizard] = useState(false);
+  const [guestToDelete, setGuestToDelete] = useState(null);
 
   const { data: guests = [], isLoading } = useQuery({
     queryKey: ['guests', activeWeddingId],
@@ -169,8 +171,13 @@ export default function Guests() {
       alert('אתה יכול למחוק רק מוזמנים שהוספת בעצמך');
       return;
     }
-    if (window.confirm(`האם למחוק את ${guest.first_name} ${guest.last_name}?`)) {
-      deleteMutation.mutate(guest.id);
+    setGuestToDelete(guest);
+  };
+
+  const handleConfirmDelete = () => {
+    if (guestToDelete) {
+      deleteMutation.mutate(guestToDelete.id);
+      setGuestToDelete(null);
     }
   };
 
@@ -942,6 +949,22 @@ export default function Guests() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Guest Confirmation Dialog */}
+      <AlertDialog open={!!guestToDelete} onOpenChange={(open) => !open && setGuestToDelete(null)}>
+        <AlertDialogContent dir="rtl" className="max-w-sm">
+          <AlertDialogTitle className="text-right">למחוק מוזמן?</AlertDialogTitle>
+          <AlertDialogDescription className="text-right">
+            האם למחוק את <strong>{guestToDelete?.first_name} {guestToDelete?.last_name}</strong>? לא ניתן לבטל פעולה זו.
+          </AlertDialogDescription>
+          <div className="flex gap-2 justify-end">
+            <AlertDialogCancel>ביטול</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700">
+              מחק
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
