@@ -53,22 +53,27 @@ describe('landing page (index.html)', () => {
     expect(html).not.toMatch(/href="\/(Dashboard|Guests|SeatingPlan)/);
   });
 
-  it('every image is sized and has Hebrew alt text', () => {
+  it('every image is sized; content images have Hebrew alt, decorative ones empty alt', () => {
     const imgs = html.match(/<img[\s\S]*?\/>/g) ?? [];
     expect(imgs.length).toBeGreaterThan(0);
     for (const img of imgs) {
-      expect(img).toMatch(/alt="[^"]*[֐-׿][^"]*"/); // descriptive Hebrew alt
       expect(img).toMatch(/width="\d+"/); // explicit dims prevent layout shift (CLS)
       expect(img).toMatch(/height="\d+"/);
+      if (img.includes('aria-hidden="true"')) {
+        expect(img).toMatch(/alt=""/); // decorative: empty alt so screen readers skip it
+      } else {
+        expect(img).toMatch(/alt="[^"]*[֐-׿][^"]*"/); // descriptive Hebrew alt
+      }
     }
   });
 
-  it('below-the-fold images lazy-load; the LCP hero image loads eagerly', () => {
+  it('below-the-fold images lazy-load; above-the-fold images load eagerly', () => {
     const imgs = html.match(/<img[\s\S]*?\/>/g) ?? [];
     for (const img of imgs) {
       const isHero = img.includes('fetchpriority="high"');
-      if (isHero) {
-        expect(img).not.toContain('loading="lazy"'); // never lazy-load the LCP image
+      const isHeaderLogo = img.includes('aria-hidden="true"'); // sticky-header logo, always visible
+      if (isHero || isHeaderLogo) {
+        expect(img).not.toContain('loading="lazy"'); // never lazy-load above-the-fold images
       } else {
         expect(img).toContain('loading="lazy"');
       }
