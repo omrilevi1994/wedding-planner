@@ -4,10 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CreatableSelect } from '@/components/ui/creatable-select';
 import { Textarea } from '@/components/ui/textarea';
 import { useWedding } from '@/lib/WeddingContext';
+import { getSideOptions, getRelationshipOptions } from '@/lib/guestOptions';
 
-export default function GuestForm({ open, onClose, guest, onSave }) {
+export default function GuestForm({ open, onClose, guest, onSave, guests = [] }) {
   const { user } = useWedding();
   const [formData, setFormData] = useState({
     first_name: '',
@@ -21,16 +23,13 @@ export default function GuestForm({ open, onClose, guest, onSave }) {
     notes: ''
   });
 
-  // Determine available sides based on user permissions
-  const availableSides = React.useMemo(() => {
-    if (!user?.wedding_sides || user.wedding_sides.length === 0) {
-      // Full access - all sides including "משותף"
-      return ['חתן', 'חתן - אבא', 'חתן - אמא', 'כלה', 'כלה - אבא', 'כלה - אמא', 'משותף'];
-    }
+  // Available "side" options: user's permitted sides (or the full default list),
+  // plus any custom side values already used on this wedding's guests.
+  const availableSides = React.useMemo(() => getSideOptions(guests, user), [guests, user]);
 
-    // Show only exact sides the user has permission for
-    return user.wedding_sides;
-  }, [user]);
+  // Available "relationship" (closeness) options: defaults plus any custom values
+  // already used on this wedding's guests.
+  const availableRelationships = React.useMemo(() => getRelationshipOptions(guests), [guests]);
 
   useEffect(() => {
     if (guest) {
@@ -120,33 +119,22 @@ export default function GuestForm({ open, onClose, guest, onSave }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="side">צד *</Label>
-              <Select value={formData.side} onValueChange={(value) => setFormData({ ...formData, side: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableSides.map(side => (
-                    <SelectItem key={side} value={side}>{side}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <CreatableSelect
+                value={formData.side}
+                onChange={(value) => setFormData({ ...formData, side: value })}
+                options={availableSides}
+                placeholder="בחר צד..."
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="relationship">קרבה</Label>
-              <Select value={formData.relationship} onValueChange={(value) => setFormData({ ...formData, relationship: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="משפחה">משפחה</SelectItem>
-                  <SelectItem value="חברים">חברים</SelectItem>
-                  <SelectItem value="עבודה">עבודה</SelectItem>
-                  <SelectItem value="לימודים">לימודים</SelectItem>
-                  <SelectItem value="שכנים">שכנים</SelectItem>
-                  <SelectItem value="אחר">אחר</SelectItem>
-                </SelectContent>
-              </Select>
+              <CreatableSelect
+                value={formData.relationship}
+                onChange={(value) => setFormData({ ...formData, relationship: value })}
+                options={availableRelationships}
+                placeholder="בחר קרבה..."
+              />
             </div>
           </div>
 

@@ -794,6 +794,7 @@ export default function Guests() {
         onClose={handleCloseForm}
         guest={editingGuest}
         onSave={handleSave}
+        guests={guests}
       />
 
       <IplanImportDialog

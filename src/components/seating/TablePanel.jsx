@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Trash2, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getSideOptions, getRelationshipOptions } from '@/lib/guestOptions';
 
-const SIDES = ['הכל', 'חתן', 'חתן - אבא', 'חתן - אמא', 'כלה', 'כלה - אבא', 'כלה - אמא', 'משותף'];
-const RELATIONSHIPS = ['הכל', 'משפחה', 'חברים', 'עבודה', 'לימודים', 'שכנים', 'אחר'];
 const STATUSES = ['הכל', 'אישר', 'הוזמן', 'אולי', 'לא מגיע', 'הגיע'];
 
 export default function TablePanel({ table, guests, allGuests, onClose, onAddGuest, onRemoveGuest, onDeleteTable, onEditTable }) {
@@ -12,6 +11,12 @@ export default function TablePanel({ table, guests, allGuests, onClose, onAddGue
   const [filterSide, setFilterSide] = useState('הכל');
   const [filterRelationship, setFilterRelationship] = useState('הכל');
   const [filterStatus, setFilterStatus] = useState('הכל');
+
+  // Side/relationship filter options are derived dynamically (defaults + any
+  // custom values already used on this wedding's guests), so custom values
+  // created from the guest form show up here too.
+  const SIDES = useMemo(() => ['הכל', ...getSideOptions(allGuests)], [allGuests]);
+  const RELATIONSHIPS = useMemo(() => ['הכל', ...getRelationshipOptions(allGuests)], [allGuests]);
 
   const seatedGuests = guests.filter(g => g.table_id === table.id);
   const seatedCount = seatedGuests.reduce((sum, g) => sum + (g.confirmed_people != null ? g.confirmed_people : (g.total_people || 1)), 0);
