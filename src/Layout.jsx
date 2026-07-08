@@ -123,81 +123,66 @@ export default function Layout({ children, currentPageName }) {
   const allNavGroups = [
     { label: 'דשבורד', single: { name: 'Dashboard', label: 'דשבורד' } },
     {
-      label: 'לוגיסטיקה',
+      label: 'מוזמנים',
+      items: [
+        { name: 'Guests', label: 'רשימת מוזמנים' },
+        { name: 'SeatingPlan', label: 'סידור ישיבה' },
+      ]
+    },
+    {
+      label: 'תקציב ותשלומים',
       items: [
         { name: 'Expenses', label: 'הוצאות' },
         { name: 'Payments', label: 'תשלומים' },
-        { name: 'Vendors', label: 'ספקים' },
-      ]
-    },
-    { label: 'מוזמנים', single: { name: 'Guests', label: 'מוזמנים' } },
-    {
-      label: 'שונות',
-      items: [
-        { name: 'SeatingPlan', label: 'סידור ישיבה' },
-        { name: 'Checklist', label: 'צ\'ק ליסט' },
         { name: 'Gifts', label: 'מתנות' },
-        { name: 'Calculator', label: 'מחשבון אולם' },
       ]
     },
     {
+      label: 'תכנון',
+      items: [
+        { name: 'Vendors', label: 'רשימת ספקים' },
+        { name: 'Checklist', label: 'צ\'ק ליסט' },
+        { name: 'Calculator', label: 'מחשבון חתונה' },
+      ]
+    },
+    {
+      // Kept as a dropdown (rather than a plain link) so the existing
+      // ActivityLog / UserManagement pages remain reachable from the nav.
       label: 'הגדרות',
       items: [
-        { name: 'ActivityLog', label: 'לוג פעילות' },
         { name: 'Settings', label: 'הגדרות' },
+        { name: 'ActivityLog', label: 'לוג פעילות' },
         { name: 'UserManagement', label: 'ניהול משתמשים' },
       ]
     },
-    { label: '💍 מוד חתונה', single: { name: 'WeddingMode', label: '💍 מוד חתונה' } },
+    { label: '💍 עמוד החתונה', single: { name: 'WeddingMode', label: '💍 עמוד החתונה' } },
   ];
 
   const isGuestOnly = !isEventManager && !isAdmin && user?.wedding_sides && user.wedding_sides.length > 0;
   const adminNav = { label: 'ניהול חתונות', single: { name: 'AdminDashboard', label: 'ניהול חתונות' } };
   const navGroups = isEventManager
-    ? [{ label: '💍 מוד חתונה', single: { name: 'WeddingMode', label: '💍 מוד חתונה' } }]
+    ? [{ label: '💍 עמוד החתונה', single: { name: 'WeddingMode', label: '💍 עמוד החתונה' } }]
     : isGuestOnly
     ? [{ label: 'מוזמנים', single: { name: 'Guests', label: 'מוזמנים' } }]
     : isPlatformAdmin
-    ? [adminNav, ...allNavGroups]
+    ? [...allNavGroups, adminNav]
     : allNavGroups;
 
-  // For mobile flat list
+  // For mobile: same grouping as desktop, but flattened into a single list
+  // with subtle section labels ahead of each dropdown group's items.
   const allNavItems = isEventManager
-    ? [{ name: 'WeddingMode', label: '💍 מוד חתונה' }]
+    ? [{ name: 'WeddingMode', label: '💍 עמוד החתונה' }]
     : isGuestOnly
     ? [{ name: 'Guests', label: 'מוזמנים' }]
-    : isPlatformAdmin
-    ? [
-        { name: 'AdminDashboard', label: 'ניהול חתונות' },
-        { name: 'Dashboard', label: 'דשבורד' },
-        { name: 'Expenses', label: 'הוצאות' },
-        { name: 'Payments', label: 'תשלומים' },
-        { name: 'Vendors', label: 'ספקים' },
-        { name: 'Guests', label: 'מוזמנים' },
-        { name: 'SeatingPlan', label: 'סידור ישיבה' },
-        { name: 'Checklist', label: 'צ\'ק ליסט' },
-        { name: 'Gifts', label: 'מתנות' },
-        { name: 'Calculator', label: 'מחשבון אולם' },
-        { name: 'ActivityLog', label: 'לוג פעילות' },
-        { name: 'Settings', label: 'הגדרות' },
-        { name: 'UserManagement', label: 'ניהול משתמשים' },
-        { name: 'WeddingMode', label: '💍 מוד חתונה' },
-      ]
-    : [
-        { name: 'Dashboard', label: 'דשבורד' },
-        { name: 'Expenses', label: 'הוצאות' },
-        { name: 'Payments', label: 'תשלומים' },
-        { name: 'Vendors', label: 'ספקים' },
-        { name: 'Guests', label: 'מוזמנים' },
-        { name: 'SeatingPlan', label: 'סידור ישיבה' },
-        { name: 'Checklist', label: 'צ\'ק ליסט' },
-        { name: 'Gifts', label: 'מתנות' },
-        { name: 'Calculator', label: 'מחשבון אולם' },
-        { name: 'ActivityLog', label: 'לוג פעילות' },
-        { name: 'Settings', label: 'הגדרות' },
-        { name: 'UserManagement', label: 'ניהול משתמשים' },
-        { name: 'WeddingMode', label: '💍 מוד חתונה' },
-      ];
+    : (isPlatformAdmin ? [...allNavGroups, adminNav] : allNavGroups).reduce((acc, group) => {
+        if (group.single) {
+          acc.push({ name: group.single.name, label: group.single.label });
+        } else {
+          acc.push({ sectionLabel: group.label });
+          group.items.forEach(item => acc.push(item));
+        }
+        return acc;
+      }, []);
 
   const handleLogout = async () => {
     // Log logout activity
@@ -325,19 +310,28 @@ export default function Layout({ children, currentPageName }) {
               <div className="px-4 mb-3">
                 <WeddingSelector />
               </div>
-              {allNavItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={createPageUrl(item.name)}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all mb-1 ${
-                    currentPageName === item.name
-                      ? 'bg-gradient-to-l from-rose to-rose-light text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-muted'
-                  }`}
-                >
-                  {item.label}
-                </Link>
+              {allNavItems.map((item, idx) => (
+                item.sectionLabel ? (
+                  <div
+                    key={`section-${item.sectionLabel}-${idx}`}
+                    className="px-4 pt-3 pb-1 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wide"
+                  >
+                    {item.sectionLabel}
+                  </div>
+                ) : (
+                  <Link
+                    key={item.name}
+                    to={createPageUrl(item.name)}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all mb-1 ${
+                      currentPageName === item.name
+                        ? 'bg-gradient-to-l from-rose to-rose-light text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )
               ))}
               <div className="px-4 pt-2 flex items-center justify-between">
                 <ThemeToggle />
