@@ -15,6 +15,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Login from '@/components/Login';
 import CreateWedding from '@/components/CreateWedding';
 import AcceptInvite from '@/pages/AcceptInvite';
+import JoinWedding from '@/pages/JoinWedding';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -112,6 +113,9 @@ function App() {
                 {/* Public: must be reachable without an existing session, and must not
                     auto-consume the invite token — see AcceptInvite.jsx. */}
                 <Route path="/accept-invite" element={<AcceptInvite />} />
+                {/* Shareable "open invite link" landing page — also public so its ?token=
+                    query param survives an in-place sign-in/sign-up (see JoinWedding.jsx). */}
+                <Route path="/join-wedding" element={<JoinWedding />} />
                 <Route path="/*" element={<AuthenticatedApp />} />
               </Routes>
             </Router>

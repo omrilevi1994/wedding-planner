@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2, Heart } from 'lucide-react';
+import { Plus, Pencil, Trash2, Heart, Link2, Copy, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -53,6 +53,13 @@ export default function UserManagement() {
   const [editRole, setEditRole] = useState('family');
   const [editSides, setEditSides] = useState([]);
   const [editMaxGuests, setEditMaxGuests] = useState('');
+
+  // Invite-link dialog state
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [linkRole, setLinkRole] = useState('coplanner');
+  const [isCreatingLink, setIsCreatingLink] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState(null); // { url, expires_at }
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const canManage = activeMembership?.role === 'owner' || isPlatformAdmin;
 
@@ -115,6 +122,31 @@ export default function UserManagement() {
     }
   };
 
+  const handleCreateLink = async () => {
+    if (!activeWeddingId) return;
+    setIsCreatingLink(true);
+    try {
+      const result = await wedflow.weddingInviteLinks.create({ wedding_id: activeWeddingId, role: linkRole });
+      setGeneratedLink(result);
+      setLinkCopied(false);
+    } catch (error) {
+      alert('שגיאה ביצירת קישור הזמנה: ' + error.message);
+    } finally {
+      setIsCreatingLink(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!generatedLink?.url) return;
+    try {
+      await navigator.clipboard.writeText(generatedLink.url);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable (e.g. insecure context) — the link is still shown/selectable.
+    }
+  };
+
   const handleOpenEdit = (member) => {
     setEditingMember(member);
     setEditRole(member.role || 'family');
@@ -169,10 +201,16 @@ export default function UserManagement() {
           </p>
         </div>
         {canManage && (
-          <Button onClick={() => setShowInviteDialog(true)} className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">
-            <Plus className="w-4 h-4 ml-2" />
-            הזמן משתמש
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => { setGeneratedLink(null); setLinkRole('coplanner'); setShowLinkDialog(true); }}>
+              <Link2 className="w-4 h-4 ml-2" />
+              צור קישור הזמנה
+            </Button>
+            <Button onClick={() => setShowInviteDialog(true)} className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">
+              <Plus className="w-4 h-4 ml-2" />
+              הזמן משתמש
+            </Button>
+          </div>
         )}
       </div>
 
@@ -341,6 +379,62 @@ export default function UserManagement() {
               <Button onClick={handleSaveEdit} className="flex-1 bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">שמור שינויים</Button>
               <Button variant="outline" onClick={() => { setShowEditDialog(false); setEditingMember(null); }}>ביטול</Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invite Link Dialog */}
+      <Dialog open={showLinkDialog} onOpenChange={(open) => { setShowLinkDialog(open); if (!open) setGeneratedLink(null); }}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>קישור הזמנה משותף לחתונה של {activeWedding?.couple_names || ''}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              כל מי שמקבל את הקישור יכול להצטרף לחתונה בעצמו, ללא צורך בהזמנה אישית. הקישור תקף ל-48 שעות ואפשר להשתמש בו כמה פעמים.
+            </p>
+            {!generatedLink ? (
+              <>
+                <div className="space-y-2">
+                  <Label>תפקיד למצטרפים</Label>
+                  <Select value={linkRole} onValueChange={setLinkRole}>
+                    <SelectTrigger dir="rtl">
+                      <SelectValue placeholder="בחר תפקיד" />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl">
+                      {INVITABLE_ROLES.map(role => (
+                        <SelectItem key={role} value={role}>{ROLE_LABELS[role]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <Button onClick={handleCreateLink} disabled={isCreatingLink} className="flex-1 bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">
+                    {isCreatingLink ? 'יוצר קישור…' : 'צור קישור'}
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowLinkDialog(false)}>ביטול</Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label>הקישור להעברה</Label>
+                  <div className="flex gap-2">
+                    <Input readOnly value={generatedLink.url} className="text-left" dir="ltr" onFocus={(e) => e.target.select()} />
+                    <Button type="button" variant="outline" onClick={handleCopyLink} title="העתקה">
+                      {linkCopied ? <Check className="w-4 h-4 text-sage-deep" /> : <Copy className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    תפקיד: {ROLE_LABELS[generatedLink.role] || generatedLink.role} · פג תוקף ב-{new Date(generatedLink.expires_at).toLocaleString('he-IL')}
+                  </p>
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <Button variant="outline" onClick={() => setGeneratedLink(null)} className="flex-1">צור קישור נוסף</Button>
+                  <Button onClick={() => setShowLinkDialog(false)} className="flex-1 bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep">סגירה</Button>
+                </div>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>

@@ -155,5 +155,31 @@ const users = {
   },
 };
 
-export const wedflow = { entities, auth, integrations, functions, appLogs, users };
+// Reads the JSON error body an edge function returned alongside a non-2xx status (supabase-js
+// only puts a generic "non-2xx status code" string on error.message; the useful `error`/`message`
+// fields the function actually sent live on error.context, a Response, and must be parsed).
+async function unwrapFunctionError(error) {
+  try {
+    const body = await error?.context?.json?.();
+    if (body?.message || body?.error) return new Error(body.message || body.error);
+  } catch { /* body wasn't JSON / already consumed — fall through to the generic message */ }
+  return error;
+}
+
+const weddingInviteLinks = {
+  // Shareable, multi-use, 2-day link that lets anyone holding it join as a collaborator
+  // (never as owner) — distinct from inviteUserToWedding's per-email flow.
+  async create({ wedding_id, role = 'coplanner' }) {
+    const { data, error } = await supabase.functions.invoke('createWeddingInviteLink', { body: { wedding_id, role } });
+    if (error) throw await unwrapFunctionError(error);
+    return data;
+  },
+  async join({ token }) {
+    const { data, error } = await supabase.functions.invoke('joinWeddingViaLink', { body: { token } });
+    if (error) throw await unwrapFunctionError(error);
+    return data;
+  },
+};
+
+export const wedflow = { entities, auth, integrations, functions, appLogs, users, weddingInviteLinks };
 export default wedflow;
