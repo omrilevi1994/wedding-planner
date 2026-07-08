@@ -19,7 +19,6 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
     relationship: 'משפחה',
     status: '',
     total_people: 1,
-    gift_amount: '',
     notes: ''
   });
 
@@ -41,7 +40,6 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
         relationship: guest.relationship || 'משפחה',
         status: guest.status || '',
         total_people: guest.total_people || 1,
-        gift_amount: guest.gift_amount || '',
         notes: guest.notes || ''
       });
     } else {
@@ -53,7 +51,6 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
         relationship: 'משפחה',
         status: '',
         total_people: 1,
-        gift_amount: '',
         notes: ''
       });
     }
@@ -69,8 +66,7 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
     
     onSave({
       ...formData,
-      total_people: parseInt(formData.total_people) || 1,
-      gift_amount: formData.gift_amount !== '' ? parseFloat(formData.gift_amount) : undefined
+      total_people: parseInt(formData.total_people) || 1
     });
   };
 
@@ -167,18 +163,6 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
                 onChange={(e) => setFormData({ ...formData, total_people: e.target.value })}
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="gift_amount">סכום מתנה (₪)</Label>
-            <Input
-              id="gift_amount"
-              type="number"
-              min="0"
-              value={formData.gift_amount}
-              onChange={(e) => setFormData({ ...formData, gift_amount: e.target.value })}
-              placeholder="0"
-            />
           </div>
 
           <div className="space-y-2">
