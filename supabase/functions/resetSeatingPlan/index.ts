@@ -12,10 +12,12 @@ Deno.serve(async (req) => {
 
   const { wedding_id } = await req.json();
   if (!wedding_id) return Response.json({ error: 'wedding_id required' }, { status: 400, headers: corsHeaders });
-  // Clear table assignments, then delete tables for this wedding
+  // Clear table assignments, then delete guest tables for this wedding.
+  // Venue elements (stage/bar) are left in place — resetting seating shouldn't
+  // force the couple to reposition the stage/bar again.
   const { error: e1 } = await supabase.from('guests').update({ table_id: null }).eq('wedding_id', wedding_id);
   if (e1) return Response.json({ error: e1.message }, { status: 400, headers: corsHeaders });
-  const { error: e2 } = await supabase.from('tables').delete().eq('wedding_id', wedding_id);
+  const { error: e2 } = await supabase.from('tables').delete().eq('wedding_id', wedding_id).eq('element_type', 'table');
   if (e2) return Response.json({ error: e2.message }, { status: 400, headers: corsHeaders });
 
   // Re-create tables 1-25 (tables 13 & 16 seat 24, the rest 12) — matches the UI promise

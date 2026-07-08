@@ -1,6 +1,18 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { wedflow } from '@/api/wedflowClient';
 import { useQueryClient } from '@tanstack/react-query';
+
+// Pixels the pointer must travel before a press becomes a drag. Below this,
+// the gesture is treated as a plain click/tap (select only, never nudges the
+// element's saved position).
+const DRAG_THRESHOLD_PX = 5;
+const MIN_PCT = 3;
+const MAX_PCT = 97;
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+function isGuestTable(t) {
+  return !t.element_type || t.element_type === 'table';
+}
 
 function getTableShape(table) {
   if (table.shape) return table.shape;
@@ -8,7 +20,50 @@ function getTableShape(table) {
   return 'circle';
 }
 
-function TableShape({ table, guests, isSelected }) {
+function VenueElementShape({ table, guests, isSelected, isDragging }) {
+  const shadow = isSelected
+    ? '0 0 0 3px rgba(198,138,112,0.55), 0 10px 22px rgba(59,53,49,0.28)'
+    : isDragging
+    ? '0 14px 26px rgba(59,53,49,0.32)'
+    : '0 2px 8px rgba(59,53,49,0.18)';
+
+  if (table.element_type === 'stage') {
+    return (
+      <div
+        title={table.name}
+        style={{
+          width: 128, height: 40, borderRadius: 10,
+          background: 'linear-gradient(135deg, #A5674E, #C68A70)',
+          border: `2px solid ${isSelected ? '#7F876C' : 'rgba(255,255,255,0.35)'}`,
+          color: '#FFFDF9', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: 6, fontSize: 13, fontWeight: 700, boxShadow: shadow, userSelect: 'none',
+          letterSpacing: '0.02em',
+        }}
+      >
+        <span style={{ fontSize: 14 }} aria-hidden>🎤</span>
+        <span>{table.name || 'במה'}</span>
+      </div>
+    );
+  }
+
+  if (table.element_type === 'bar') {
+    return (
+      <div
+        title={table.name}
+        style={{
+          width: 68, height: 68, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #BFA89A, #7F876C)',
+          border: `2px solid ${isSelected ? '#A5674E' : 'rgba(255,255,255,0.35)'}`,
+          color: '#FFFDF9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          fontSize: 11, fontWeight: 700, boxShadow: shadow, userSelect: 'none',
+        }}
+      >
+        <span style={{ fontSize: 16 }} aria-hidden>🍸</span>
+        <span>{table.name || 'בר'}</span>
+      </div>
+    );
+  }
+
   const seatedCount = guests
     .filter(g => g.table_id === table.id)
     .reduce((sum, g) => sum + (g.confirmed_people != null ? g.confirmed_people : (g.total_people || 1)), 0);
@@ -17,174 +72,171 @@ function TableShape({ table, guests, isSelected }) {
   const isFull = seatedCount === table.capacity;
   const shape = getTableShape(table);
 
-  let bgColor, borderColor;
+  // Palette mirrors the landing page's seating-chart mock: rose = has room,
+  // sage = full, terracotta (destructive) = overflow.
+  let bg, border, text;
   if (isOverflow) {
-    bgColor = '#ef4444'; borderColor = '#dc2626';
+    bg = '#F8E3DE'; border = '#C14C3C'; text = '#8A3626';
   } else if (isFull) {
-    bgColor = '#3b82f6'; borderColor = '#2563eb';
+    bg = '#EEF2E6'; border = '#7F876C'; text = '#5C6349';
   } else {
-    bgColor = '#d97706'; borderColor = '#b45309';
+    bg = '#F8EBE3'; border = '#C68A70'; text = '#8A5A42';
   }
-  if (isSelected) borderColor = '#fbbf24';
 
   const label = table.iplan_number || table.name?.replace('שולחן ', '') || '';
   const countLabel = `${seatedCount}/${table.capacity}`;
 
   const commonStyle = {
-    backgroundColor: bgColor,
-    border: `${isSelected ? 3 : 2}px solid ${borderColor}`,
-    color: 'white',
+    backgroundColor: '#FFFDF9',
+    backgroundImage: `linear-gradient(135deg, ${bg}, #FFFDF9)`,
+    border: `${isSelected ? 3 : 2}px solid ${isSelected ? '#A5674E' : border}`,
+    color: text,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '11px',
-    fontWeight: 'bold',
-    boxShadow: isSelected ? '0 0 0 3px #fbbf24, 0 2px 6px rgba(0,0,0,0.4)' : '0 1px 3px rgba(0,0,0,0.35)',
+    fontWeight: 700,
+    boxShadow: shadow,
     userSelect: 'none',
-    pointerEvents: 'none',
   };
 
   if (shape === 'long') {
     return (
-      <div style={{ ...commonStyle, width: 30, height: 80, borderRadius: 4 }} title={`${table.name}: ${countLabel}`}>
+      <div style={{ ...commonStyle, width: 32, height: 84, borderRadius: 8 }} title={`${table.name}: ${countLabel}`}>
         <div>{label}</div>
-        <div style={{ fontSize: 9, opacity: 0.9 }}>{countLabel}</div>
+        <div style={{ fontSize: 9, opacity: 0.85 }}>{countLabel}</div>
       </div>
     );
   }
   if (shape === 'square') {
     return (
-      <div style={{ ...commonStyle, width: 44, height: 44, borderRadius: 6 }} title={`${table.name}: ${countLabel}`}>
+      <div style={{ ...commonStyle, width: 46, height: 46, borderRadius: 10 }} title={`${table.name}: ${countLabel}`}>
         <div>{label}</div>
-        <div style={{ fontSize: 9, opacity: 0.9 }}>{countLabel}</div>
+        <div style={{ fontSize: 9, opacity: 0.85 }}>{countLabel}</div>
       </div>
     );
   }
-  // circle
   return (
-    <div style={{ ...commonStyle, width: 48, height: 48, borderRadius: '50%' }} title={`${table.name}: ${countLabel}`}>
+    <div style={{ ...commonStyle, width: 52, height: 52, borderRadius: '50%' }} title={`${table.name}: ${countLabel}`}>
       <div>{label}</div>
-      <div style={{ fontSize: 9, opacity: 0.9 }}>{countLabel}</div>
+      <div style={{ fontSize: 9, opacity: 0.85 }}>{countLabel}</div>
     </div>
   );
 }
 
-// Fixed default positions: columns of 4, right to left, each column bottom to top
-// Column 1 (rightmost): tables 1-4, x=88, y from 80 up
-// Column 2: tables 5-8, x=76
-// Column 3: tables 9-12, x=64
-// Column 4: tables 13-16, x=52 (skip bar center)
-// Column 5: tables 17-20, x=38
-// Column 6: tables 21-24, x=24
-// Column 7: table 25, x=12
+// Fixed default positions for guest tables only: columns of 4, right to left.
 const COLUMN_X = [88, 76, 64, 52, 38, 24, 12];
-const ROW_Y = [82, 62, 42, 22]; // bottom to top
+const ROW_Y = [82, 62, 42, 22];
 
 function getDefaultPosition(index) {
   const col = Math.floor(index / 4);
   const row = index % 4;
-  return {
-    x: COLUMN_X[col] ?? 10,
-    y: ROW_Y[row] ?? 10,
-  };
+  return { x: COLUMN_X[col] ?? 10, y: ROW_Y[row] ?? 10 };
 }
 
 export default function HallVisualization({ tables, guests, selectedTableId, onSelectTable }) {
   const containerRef = useRef(null);
+  const nodeRefs = useRef({});
+  const dragRef = useRef(null);
   const queryClient = useQueryClient();
 
-  // Local drag state (not persisted until drop)
-  const [dragging, setDragging] = useState(null); // { tableId, startX, startY, origX, origY }
-  const [localPositions, setLocalPositions] = useState({}); // override during drag
+  const [draggingId, setDraggingId] = useState(null);
+  const [localPositions, setLocalPositions] = useState({});
   const [hoveredTableId, setHoveredTableId] = useState(null);
 
-  const getPos = useCallback((table, index) => {
+  const guestTables = tables.filter(isGuestTable);
+
+  const getPos = useCallback((table) => {
     if (localPositions[table.id]) return localPositions[table.id];
     if (table.location_x != null && table.location_y != null && (table.location_x !== 0 || table.location_y !== 0)) {
       return { x: table.location_x, y: table.location_y };
     }
-    return getDefaultPosition(index);
-  }, [localPositions, tables.length]);
+    if (table.element_type === 'stage') return { x: 50, y: 8 };
+    if (table.element_type === 'bar') return { x: 50, y: 50 };
+    return getDefaultPosition(guestTables.indexOf(table));
+  }, [localPositions, guestTables]);
 
-  const handleMouseDown = useCallback((e, table) => {
+  const persistPosition = useCallback(async (tableId, x, y) => {
+    await wedflow.entities.Table.update(tableId, { location_x: x, location_y: y });
+    queryClient.invalidateQueries(['tables']);
+  }, [queryClient]);
+
+  const handlePointerMove = useCallback((e) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const dxPx = e.clientX - d.startX;
+    const dyPx = e.clientY - d.startY;
+
+    if (!d.moved) {
+      if (Math.hypot(dxPx, dyPx) < DRAG_THRESHOLD_PX) return;
+      d.moved = true;
+      setHoveredTableId(null);
+      setDraggingId(d.tableId);
+      document.body.style.userSelect = 'none';
+    }
+
+    const newX = clamp(d.origX + (dxPx / d.rectWidth) * 100, MIN_PCT, MAX_PCT);
+    const newY = clamp(d.origY + (dyPx / d.rectHeight) * 100, MIN_PCT, MAX_PCT);
+    d.currentX = newX;
+    d.currentY = newY;
+
+    // Mutate the dragged node directly instead of going through React state on
+    // every pointermove — avoids re-rendering (and re-laying-out) every other
+    // table on the map for each frame of the drag.
+    const node = nodeRefs.current[d.tableId];
+    if (node) {
+      node.style.left = `${newX}%`;
+      node.style.top = `${newY}%`;
+    }
+  }, []);
+
+  const endDrag = useCallback((e) => {
+    const d = dragRef.current;
+    if (!d) return;
+    dragRef.current = null;
+    window.removeEventListener('pointermove', handlePointerMove);
+    window.removeEventListener('pointerup', endDrag);
+    document.body.style.userSelect = '';
+
+    if (d.moved) {
+      setLocalPositions(prev => ({ ...prev, [d.tableId]: { x: d.currentX, y: d.currentY } }));
+      setDraggingId(null);
+      persistPosition(d.tableId, d.currentX, d.currentY);
+    } else {
+      // No meaningful movement happened: this was a click/tap, not a drag —
+      // select the element and leave its saved position untouched.
+      onSelectTable && onSelectTable(d.tableId);
+    }
+  }, [handlePointerMove, onSelectTable, persistPosition]);
+
+  useEffect(() => () => {
+    window.removeEventListener('pointermove', handlePointerMove);
+    window.removeEventListener('pointerup', endDrag);
+    document.body.style.userSelect = '';
+  }, [handlePointerMove, endDrag]);
+
+  const handlePointerDown = useCallback((e, table) => {
+    if (e.button !== undefined && e.button !== 0) return; // left-click / primary touch only
     e.preventDefault();
+    e.stopPropagation();
     const rect = containerRef.current.getBoundingClientRect();
-    const pos = getPos(table, tables.indexOf(table));
-    setDragging({
+    const pos = getPos(table);
+    dragRef.current = {
       tableId: table.id,
       startX: e.clientX,
       startY: e.clientY,
       origX: pos.x,
       origY: pos.y,
-      containerW: rect.width,
-      containerH: rect.height,
-    });
-  }, [getPos, tables]);
-
-  const handleMouseMove = useCallback((e) => {
-    if (!dragging) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const dx = ((e.clientX - dragging.startX) / rect.width) * 100;
-    const dy = ((e.clientY - dragging.startY) / rect.height) * 100;
-    const newX = Math.min(97, Math.max(3, dragging.origX + dx));
-    const newY = Math.min(97, Math.max(3, dragging.origY + dy));
-    setLocalPositions(prev => ({ ...prev, [dragging.tableId]: { x: newX, y: newY } }));
-  }, [dragging]);
-
-  const handleMouseUp = useCallback(async (e) => {
-    if (!dragging) return;
-    const pos = localPositions[dragging.tableId];
-    if (pos) {
-      await wedflow.entities.Table.update(dragging.tableId, { location_x: pos.x, location_y: pos.y });
-      queryClient.invalidateQueries(['tables']);
-    }
-    setDragging(null);
-  }, [dragging, localPositions, queryClient]);
-
-  // Touch support
-  const handleTouchStart = useCallback((e, table) => {
-    const touch = e.touches[0];
-    const rect = containerRef.current.getBoundingClientRect();
-    const pos = getPos(table, tables.indexOf(table));
-    setDragging({
-      tableId: table.id,
-      startX: touch.clientX,
-      startY: touch.clientY,
-      origX: pos.x,
-      origY: pos.y,
-      containerW: rect.width,
-      containerH: rect.height,
-    });
-  }, [getPos, tables]);
-
-  const handleTouchMove = useCallback((e) => {
-    if (!dragging) return;
-    e.preventDefault();
-    const touch = e.touches[0];
-    const rect = containerRef.current.getBoundingClientRect();
-    const dx = ((touch.clientX - dragging.startX) / rect.width) * 100;
-    const dy = ((touch.clientY - dragging.startY) / rect.height) * 100;
-    const newX = Math.min(97, Math.max(3, dragging.origX + dx));
-    const newY = Math.min(97, Math.max(3, dragging.origY + dy));
-    setLocalPositions(prev => ({ ...prev, [dragging.tableId]: { x: newX, y: newY } }));
-  }, [dragging]);
-
-  const handleTouchEnd = useCallback(async (e) => {
-    if (!dragging) return;
-    const pos = localPositions[dragging.tableId];
-    if (pos) {
-      await wedflow.entities.Table.update(dragging.tableId, { location_x: pos.x, location_y: pos.y });
-      queryClient.invalidateQueries(['tables']);
-    }
-    setDragging(null);
-  }, [dragging, localPositions, queryClient]);
-
-  const handleTableClick = useCallback((tableId) => {
-    if (!dragging) {
-      onSelectTable && onSelectTable(tableId);
-    }
-  }, [dragging, onSelectTable]);
+      currentX: pos.x,
+      currentY: pos.y,
+      rectWidth: rect.width,
+      rectHeight: rect.height,
+      moved: false,
+    };
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', endDrag);
+  }, [getPos, handlePointerMove, endDrag]);
 
   return (
     <div
@@ -194,77 +246,69 @@ export default function HallVisualization({ tables, guests, selectedTableId, onS
         position: 'relative',
         width: '100%',
         paddingBottom: '65%',
-        backgroundColor: '#4a4a4a',
-        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(255,255,255,0.04) 30px), repeating-linear-gradient(90deg, transparent, transparent 29px, rgba(255,255,255,0.04) 30px)',
-        borderRadius: 12,
-        border: '2px solid #333',
+        background: 'linear-gradient(135deg, #F3EBDF 0%, #EFE6DA 55%, #E8DED0 100%)',
+        backgroundImage:
+          'linear-gradient(135deg, #F3EBDF 0%, #EFE6DA 55%, #E8DED0 100%), repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(191,168,154,0.16) 30px), repeating-linear-gradient(90deg, transparent, transparent 29px, rgba(191,168,154,0.16) 30px)',
+        borderRadius: 20,
+        border: '1px solid rgba(191,168,154,0.5)',
+        boxShadow: '0 20px 45px rgba(59,53,49,0.12)',
         overflow: 'hidden',
-        cursor: dragging ? 'grabbing' : 'default',
+        cursor: draggingId ? 'grabbing' : 'default',
       }}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
     >
-      {/* Entrance - top center */}
-      <div style={{ position: 'absolute', top: 0, left: '40%', right: '40%', height: 24, backgroundColor: '#6b5a3e', borderRadius: '0 0 4px 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-        <span style={{ color: '#d4af37', fontSize: 10, fontWeight: 'bold' }}>כניסה</span>
+      {/* Entrance */}
+      <div style={{
+        position: 'absolute', top: 0, left: '40%', right: '40%', height: 26,
+        backgroundColor: '#FFFDF9', border: '1px solid rgba(191,168,154,0.5)', borderTop: 'none',
+        borderRadius: '0 0 10px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 1, boxShadow: '0 4px 10px rgba(59,53,49,0.08)',
+      }}>
+        <span style={{ color: '#A5674E', fontSize: 10, fontWeight: 700 }}>כניסה</span>
       </div>
 
-      {/* DJ - bottom center */}
-      <div style={{ position: 'absolute', bottom: 0, left: '38%', right: '38%', height: 28, backgroundColor: '#1a1a2e', border: '2px solid #6c63ff', borderRadius: '6px 6px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-        <span style={{ color: '#a78bfa', fontSize: 10, fontWeight: 'bold' }}>🎵 דיג׳יי</span>
+      {/* DJ */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: '38%', right: '38%', height: 28,
+        backgroundColor: '#F8E8BE', border: '1px solid rgba(191,168,154,0.5)', borderBottom: 'none',
+        borderRadius: '10px 10px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1,
+      }}>
+        <span style={{ color: '#7F876C', fontSize: 10, fontWeight: 700 }}>🎵 דיג׳יי</span>
       </div>
 
-      {/* Bar - center of hall */}
-      <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: '10%', height: '8%', backgroundColor: '#6b3a1f', border: '2px solid #8B4513', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1 }}>
-        <span style={{ color: '#f5c842', fontSize: 11, fontWeight: 'bold' }}>🍸 בר</span>
-      </div>
-
-      {/* Tables */}
-      {tables.map((table, index) => {
-        const pos = getPos(table, index);
+      {/* Draggable elements: guest tables + stage/bar venue elements */}
+      {tables.map((table) => {
+        const pos = getPos(table);
+        const isDragging = draggingId === table.id;
         return (
           <div
             key={table.id}
+            ref={(el) => { nodeRefs.current[table.id] = el; }}
             style={{
               position: 'absolute',
               left: `${pos.x}%`,
               top: `${pos.y}%`,
-              transform: 'translate(-50%, -50%)',
-              zIndex: dragging?.tableId === table.id ? 10 : 2,
-              cursor: dragging?.tableId === table.id ? 'grabbing' : 'grab',
+              transform: `translate(-50%, -50%) scale(${isDragging ? 1.06 : 1})`,
+              transition: isDragging ? 'none' : 'transform 0.15s ease',
+              zIndex: isDragging ? 20 : (selectedTableId === table.id ? 5 : 2),
+              cursor: isDragging ? 'grabbing' : 'grab',
+              touchAction: 'none',
             }}
-            onMouseDown={(e) => handleMouseDown(e, table)}
-            onTouchStart={(e) => handleTouchStart(e, table)}
-            onClick={() => handleTableClick(table.id)}
-            onMouseEnter={() => setHoveredTableId(table.id)}
+            onPointerDown={(e) => handlePointerDown(e, table)}
+            onMouseEnter={() => !dragRef.current && setHoveredTableId(table.id)}
             onMouseLeave={() => setHoveredTableId(null)}
           >
-            <TableShape
+            <VenueElementShape
               table={table}
               guests={guests}
               isSelected={selectedTableId === table.id}
+              isDragging={isDragging}
             />
-            {hoveredTableId === table.id && !dragging && (
+            {hoveredTableId === table.id && !draggingId && (
               <div style={{
-                position: 'absolute',
-                bottom: '100%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                marginBottom: 4,
-                backgroundColor: '#1e293b',
-                color: 'white',
-                fontSize: 10,
-                fontWeight: 'bold',
-                padding: '3px 8px',
-                borderRadius: 6,
-                whiteSpace: 'nowrap',
-                pointerEvents: 'none',
-                zIndex: 30,
-                border: '1px solid rgba(255,255,255,0.25)',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)',
+                marginBottom: 4, backgroundColor: '#3B3531', color: '#FFFDF9', fontSize: 10, fontWeight: 700,
+                padding: '3px 8px', borderRadius: 6, whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 30,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
               }}>
                 {table.name}
               </div>
@@ -274,19 +318,23 @@ export default function HallVisualization({ tables, guests, selectedTableId, onS
       })}
 
       {/* Legend */}
-      <div style={{ position: 'absolute', top: 8, left: 8, display: 'flex', flexDirection: 'column', gap: 4, backgroundColor: 'rgba(0,0,0,0.5)', padding: '6px 8px', borderRadius: 6, zIndex: 5 }}>
+      <div style={{
+        position: 'absolute', top: 8, left: 8, display: 'flex', flexDirection: 'column', gap: 4,
+        backgroundColor: 'rgba(255,253,249,0.9)', padding: '6px 10px', borderRadius: 10, zIndex: 5,
+        boxShadow: '0 4px 12px rgba(59,53,49,0.1)',
+      }}>
         {[
-          { color: '#d97706', label: 'פנוי' },
-          { color: '#3b82f6', label: 'מלא' },
-          { color: '#ef4444', label: 'עומס' },
+          { color: '#C68A70', label: 'פנוי' },
+          { color: '#7F876C', label: 'מלא' },
+          { color: '#C14C3C', label: 'עומס' },
         ].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: color }} />
-            <span style={{ color: 'white', fontSize: 10 }}>{label}</span>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: color }} />
+            <span style={{ color: '#3B3531', fontSize: 10, fontWeight: 600 }}>{label}</span>
           </div>
         ))}
-        <div style={{ marginTop: 4, borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 4 }}>
-          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 9 }}>גרור שולחן לסידור</span>
+        <div style={{ marginTop: 4, borderTop: '1px solid rgba(191,168,154,0.4)', paddingTop: 4 }}>
+          <span style={{ color: '#7A7066', fontSize: 9 }}>גררו כדי לסדר, לחצו לבחירה</span>
         </div>
       </div>
     </div>

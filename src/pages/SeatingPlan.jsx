@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2, RefreshCw, Download } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, Download, X } from 'lucide-react';
 import HallVisualization from '../components/seating/HallVisualization';
 import TablePanel from '../components/seating/TablePanel';
 import { useWedding } from '@/lib/WeddingContext';
+
+const isGuestTable = (t) => !t.element_type || t.element_type === 'table';
 
 export default function SeatingPlan() {
   const queryClient = useQueryClient();
@@ -110,7 +112,11 @@ export default function SeatingPlan() {
   };
 
   const handleDeleteTable = (tableId) => {
-    if (window.confirm('האם למחוק את השולחן? המוזמנים שישבו בו לא יימחקו.')) {
+    const table = tables.find(t => t.id === tableId);
+    const confirmMsg = table && !isGuestTable(table)
+      ? `האם להסיר את ה${table.element_type === 'stage' ? 'במה' : 'בר'}?`
+      : 'האם למחוק את השולחן? המוזמנים שישבו בו לא יימחקו.';
+    if (window.confirm(confirmMsg)) {
       guests.forEach(guest => {
         if (guest.table_id === tableId)
           updateGuestMutation.mutate({ id: guest.id, data: { ...guest, table_id: null } });
@@ -121,13 +127,31 @@ export default function SeatingPlan() {
   };
 
   const handleDeleteAllTables = async () => {
+    const guestTables = tables.filter(isGuestTable);
     const assignedGuests = guests.filter(g => g.table_id);
     await Promise.all(assignedGuests.map(g => wedflow.entities.Guest.update(g.id, { ...g, table_id: null })));
-    await Promise.all(tables.map(t => wedflow.entities.Table.delete(t.id)));
+    await Promise.all(guestTables.map(t => wedflow.entities.Table.delete(t.id)));
     queryClient.invalidateQueries(['tables']);
     queryClient.invalidateQueries(['guests']);
     setSelectedTableId(null);
     setShowDeleteAllConfirm(false);
+  };
+
+  const handleAddVenueElement = (elementType) => {
+    const name = elementType === 'stage' ? 'במה' : 'בר';
+    const defaultPos = elementType === 'stage' ? { location_x: 50, location_y: 8 } : { location_x: 50, location_y: 50 };
+    wedflow.entities.Table.create({
+      wedding_id: activeWeddingId,
+      name,
+      capacity: 0,
+      element_type: elementType,
+      ...defaultPos,
+    }).then(() => queryClient.invalidateQueries(['tables']));
+  };
+
+  const handleRenameElement = (table, name) => {
+    if (!name || name === table.name) return;
+    updateTableMutation.mutate({ id: table.id, data: { name } });
   };
 
   const handleResetAndCreate = async () => {
@@ -211,12 +235,13 @@ export default function SeatingPlan() {
     URL.revokeObjectURL(url);
   };
 
+  const guestTables = tables.filter(isGuestTable);
   const seatedCount = guests.reduce((sum, g) => {
     if (g.table_id) return sum + (g.confirmed_people != null ? g.confirmed_people : (g.total_people || 1));
     return sum;
   }, 0);
-  const totalCapacity = tables.reduce((sum, t) => sum + t.capacity, 0);
-  const overflowTables = tables.filter(t => {
+  const totalCapacity = guestTables.reduce((sum, t) => sum + t.capacity, 0);
+  const overflowTables = guestTables.filter(t => {
     const c = guests.filter(g => g.table_id === t.id).reduce((s, g) => s + (g.confirmed_people != null ? g.confirmed_people : (g.total_people || 1)), 0);
     return c > t.capacity;
   }).length;
@@ -231,7 +256,15 @@ export default function SeatingPlan() {
             {overflowTables > 0 && <span className="text-destructive font-semibold">⚠️ {overflowTables} שולחנות בעומס</span>}
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap justify-end">
+          <Button variant="outline" onClick={() => handleAddVenueElement('stage')} className="border-rose-deep/30 text-rose-deep hover:bg-rose/15 text-sm">
+            <Plus className="w-4 h-4 ml-1" />
+            הוסף במה
+          </Button>
+          <Button variant="outline" onClick={() => handleAddVenueElement('bar')} className="border-taupe/30 text-taupe hover:bg-taupe/15 text-sm">
+            <Plus className="w-4 h-4 ml-1" />
+            הוסף בר
+          </Button>
           <Button variant="outline" onClick={() => { setSelectedExportTables([]); setShowExportDialog(true); }} className="border-sage/30 text-sage-deep hover:bg-sage/15 text-sm">
             <Download className="w-4 h-4 ml-1" />
             ייצא שולחנות לCSV
@@ -240,7 +273,7 @@ export default function SeatingPlan() {
             <RefreshCw className="w-4 h-4 ml-1" />
             אפס וצור שולחנות 1-25
           </Button>
-          {tables.length > 0 && (
+          {guestTables.length > 0 && (
             <Button variant="outline" onClick={() => setShowDeleteAllConfirm(true)} className="border-destructive/30 text-destructive hover:bg-destructive/10 text-sm">
               <Trash2 className="w-4 h-4 ml-1" />
               מחק הכל
@@ -256,9 +289,9 @@ export default function SeatingPlan() {
 
       <div className="flex gap-3 text-xs text-muted-foreground">
         <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-rose-deep" /> פנוי</div>
-        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-taupe" /> מלא</div>
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-sage-deep" /> מלא</div>
         <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-destructive" /> עומס יתר</div>
-        <span className="mr-2 text-rose-deep font-medium">לחץ על שולחן לפרטים</span>
+        <span className="mr-2 text-rose-deep font-medium">גררו כדי לסדר, לחצו לבחירה</span>
       </div>
 
       <div className="flex gap-4">
@@ -278,7 +311,7 @@ export default function SeatingPlan() {
           )}
         </div>
 
-        {selectedTable && (
+        {selectedTable && isGuestTable(selectedTable) && (
           <div className="w-80 shrink-0" style={{ minHeight: 400 }}>
             <TablePanel
               table={selectedTable}
@@ -290,6 +323,36 @@ export default function SeatingPlan() {
               onDeleteTable={handleDeleteTable}
               onEditTable={handleEditTable}
             />
+          </div>
+        )}
+
+        {selectedTable && !isGuestTable(selectedTable) && (
+          <div className="w-80 shrink-0 bg-card rounded-xl shadow-xl border border-border p-4 space-y-4" dir="rtl" style={{ minHeight: 160 }}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-foreground">
+                {selectedTable.element_type === 'stage' ? '🎤 במה' : '🍸 בר'}
+              </h3>
+              <button onClick={() => setSelectedTableId(null)} className="p-2 hover:bg-muted rounded-lg transition-colors">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="space-y-2">
+              <Label>שם</Label>
+              <Input
+                defaultValue={selectedTable.name}
+                key={selectedTable.id}
+                onBlur={(e) => handleRenameElement(selectedTable, e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">ניתן לגרור את האלמנט על מפת האולם כדי למקם אותו מחדש.</p>
+            <Button
+              variant="outline"
+              onClick={() => handleDeleteTable(selectedTable.id)}
+              className="w-full border-destructive/30 text-destructive hover:bg-destructive/10"
+            >
+              <Trash2 className="w-4 h-4 ml-1" />
+              הסר
+            </Button>
           </div>
         )}
       </div>
@@ -352,10 +415,10 @@ export default function SeatingPlan() {
           </DialogHeader>
           <div className="space-y-2 max-h-72 overflow-y-auto">
             <div className="flex justify-between text-xs text-muted-foreground mb-2">
-              <button onClick={() => setSelectedExportTables(tables.map(t => String(t.iplan_number || t.name)))} className="text-taupe hover:underline">בחר הכל</button>
+              <button onClick={() => setSelectedExportTables(guestTables.map(t => String(t.iplan_number || t.name)))} className="text-taupe hover:underline">בחר הכל</button>
               <button onClick={() => setSelectedExportTables([])} className="text-muted-foreground hover:underline">נקה הכל</button>
             </div>
-            {[...tables]
+            {[...guestTables]
               .sort((a, b) => Number(a.iplan_number) - Number(b.iplan_number))
               .map(table => {
                 const key = String(table.iplan_number || table.name);
