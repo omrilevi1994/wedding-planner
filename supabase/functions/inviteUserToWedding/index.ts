@@ -71,7 +71,18 @@ Deno.serve(async (req) => {
       }
       userId = linkData.user.id;
       existing = false;
-      actionUrl = linkData.properties?.action_link ?? appUrl;
+      // IMPORTANT: do NOT send Supabase's raw action_link (a GET request straight to
+      // /auth/v1/verify that consumes the one-time token). Corporate email security
+      // scanners / link-preview bots (Outlook Safe Links, Gmail, antivirus, etc.) often
+      // GET-request every link in an email before the recipient ever opens it, which
+      // burns the single-use invite token and makes it appear "expired" instantly for
+      // the real user. Instead, point to our own app page with the token as a plain
+      // query param; that page only calls supabase.auth.verifyOtp() after an explicit
+      // user click, so a passive prefetch can't consume it.
+      const hashedToken = linkData.properties?.hashed_token;
+      actionUrl = hashedToken
+        ? `${appUrl}/app/accept-invite?token_hash=${encodeURIComponent(hashedToken)}&type=invite`
+        : (linkData.properties?.action_link ?? appUrl);
     }
 
     // --- Upsert membership (manual, to avoid rewriting the text pk on conflict) ---

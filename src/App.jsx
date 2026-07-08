@@ -14,6 +14,7 @@ import { WeddingProvider, useWedding } from '@/lib/WeddingContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Login from '@/components/Login';
 import CreateWedding from '@/components/CreateWedding';
+import AcceptInvite from '@/pages/AcceptInvite';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -107,7 +108,12 @@ function App() {
           <WeddingProvider>
             <Router basename="/app">
               <NavigationTracker />
-              <AuthenticatedApp />
+              <Routes>
+                {/* Public: must be reachable without an existing session, and must not
+                    auto-consume the invite token — see AcceptInvite.jsx. */}
+                <Route path="/accept-invite" element={<AcceptInvite />} />
+                <Route path="/*" element={<AuthenticatedApp />} />
+              </Routes>
             </Router>
             <Toaster />
           </WeddingProvider>

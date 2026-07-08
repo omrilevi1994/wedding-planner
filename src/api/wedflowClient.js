@@ -103,6 +103,20 @@ const auth = {
   async logout() {
     await supabase.auth.signOut();
   },
+  // Consumes an invite's one-time token_hash. Must only be called from an explicit
+  // user action (button click) — never automatically on page load — so that email
+  // security scanners prefetching the invite link can't burn the token before the
+  // real recipient clicks it. See AcceptInvite.jsx.
+  async acceptInvite({ token_hash, type }) {
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash, type });
+    if (error) throw error;
+    return data;
+  },
+  async setPassword(password) {
+    const { data, error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+    return data;
+  },
   redirectToLogin() {
     // Unauthenticated visits to /app render the Login screen (see App.jsx).
     window.location.href = '/app';
