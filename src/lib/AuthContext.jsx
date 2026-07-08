@@ -31,10 +31,24 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     loadUser();
-    // React to sign-in / sign-out from anywhere (login form, OAuth redirect, logout)
-    const { data: sub } = wedflow.auth.onAuthStateChange((_event, session) => {
-      if (session) loadUser();
-      else {
+    // React to sign-in / sign-out from anywhere (login form, OAuth redirect, logout).
+    // Supabase also emits TOKEN_REFRESHED (and re-fires INITIAL_SESSION) whenever the
+    // tab regains focus/visibility and refreshes its access token. Those events still
+    // carry a valid session and must NOT be treated as a fresh sign-in: calling
+    // loadUser() for them flips isLoadingAuth back to true, which unmounts the whole
+    // authenticated app tree (see App.jsx) and wipes any in-progress form state, making
+    // it look like the page reloaded every time the user alt-tabs back to the browser.
+    const { data: sub } = wedflow.auth.onAuthStateChange((event, session) => {
+      if (event === 'TOKEN_REFRESHED') {
+        // Session was silently renewed in the background; nothing to re-render for.
+        return;
+      }
+      if (session) {
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+          loadUser();
+        }
+        // Other events with a session (e.g. USER_UPDATED) don't need a full reload.
+      } else {
         setUser(null);
         setIsAuthenticated(false);
         setAuthError({ type: 'auth_required', message: 'Authentication required' });
