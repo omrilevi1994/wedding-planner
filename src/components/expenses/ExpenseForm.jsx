@@ -109,6 +109,10 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
       ...formData,
       amount: parseFloat(formData.amount),
       deposit_amount: formData.has_deposit && formData.deposit_amount ? parseFloat(formData.deposit_amount) : undefined,
+      paid_date: formData.paid_date || null,
+      due_date: formData.due_date || null,
+      deposit_due_date: formData.deposit_due_date || null,
+      deposit_paid_date: formData.deposit_paid_date || null,
     });
   };
 
