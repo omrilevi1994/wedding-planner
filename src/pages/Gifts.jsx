@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Plus, Trash2, Edit2, Gift, Search, ChevronDown, ChevronUp, TrendingUp, TrendingDown, BarChart2, Download, X, AlertCircle } from 'lucide-react';
 import { useWedding } from '@/lib/WeddingContext';
+import { CreatableSelect } from '@/components/ui/creatable-select';
+import { getPaymentMethodOptions } from '@/lib/giftOptions';
 
 const EVENT_OPTIONS = ['חתונה', 'שבת חתן', 'מסיבת מקווה', 'אחר'];
 
@@ -31,6 +33,7 @@ export default function Gifts() {
   const [formEvent, setFormEvent] = useState('חתונה');
   const [formAmount, setFormAmount] = useState('');
   const [formNotes, setFormNotes] = useState('');
+  const [formPaymentMethod, setFormPaymentMethod] = useState('');
   const [guestSearch, setGuestSearch] = useState('');
   const [showGuestDropdown, setShowGuestDropdown] = useState(false);
 
@@ -74,6 +77,7 @@ export default function Gifts() {
     setFormEvent('חתונה');
     setFormAmount('');
     setFormNotes('');
+    setFormPaymentMethod('');
   };
 
   const openAdd = (guestId = '') => {
@@ -85,6 +89,7 @@ export default function Gifts() {
     setFormEvent('חתונה');
     setFormAmount('');
     setFormNotes('');
+    setFormPaymentMethod('');
     setShowDialog(true);
   };
 
@@ -97,6 +102,7 @@ export default function Gifts() {
     setFormEvent(gift.event || 'חתונה');
     setFormAmount(gift.amount != null ? String(gift.amount) : '');
     setFormNotes(gift.notes || '');
+    setFormPaymentMethod(gift.payment_method || '');
     setShowDialog(true);
   };
 
@@ -107,7 +113,8 @@ export default function Gifts() {
       description: formDescription.trim(),
       event: formEvent || '',
       amount: formAmount !== '' ? parseFloat(formAmount) : null,
-      notes: formNotes.trim() || null
+      notes: formNotes.trim() || null,
+      payment_method: formPaymentMethod || null
     };
     if (editingGift) {
       updateGiftMutation.mutate({ id: editingGift.id, data });
@@ -165,6 +172,8 @@ export default function Gifts() {
   const minGuest = guestTotals.find(g => g.total === minGift);
   const maxGuest = guestTotals.find(g => g.total === maxGift);
 
+  const paymentMethodOptions = getPaymentMethodOptions(gifts);
+
   const uniqueSides = [...new Set(guests.map(g => g.side).filter(Boolean))];
   const uniqueRelationships = [...new Set(guests.map(g => g.relationship).filter(Boolean))];
 
@@ -179,7 +188,7 @@ export default function Gifts() {
 
   const exportCSV = () => {
     const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const rows = [['שם', 'צד', 'קרבה', 'סוג מתנה', 'תיאור', 'אירוע', 'סכום ₪', 'סה"כ לאורח'].map(esc).join(',')];
+    const rows = [['שם', 'צד', 'קרבה', 'סוג מתנה', 'תיאור', 'אירוע', 'אמצעי תשלום', 'סכום ₪', 'סה"כ לאורח'].map(esc).join(',')];
     guestsWithGifts.forEach(guest => {
       const extraGifts = guestGiftsMap[guest.id] || [];
       const guestTotal = (guest.gift_amount || 0) + extraGifts.reduce((s, g) => s + (g.amount || 0), 0);
@@ -188,10 +197,10 @@ export default function Gifts() {
       const rel = guest.relationship || '';
 
       if (guest.gift_amount != null && guest.gift_amount > 0) {
-        rows.push([esc(name), esc(side), esc(rel), esc('מזומן / העברה'), esc(''), esc('חתונה'), esc(guest.gift_amount), esc(guestTotal)].join(','));
+        rows.push([esc(name), esc(side), esc(rel), esc('מזומן / העברה'), esc(''), esc('חתונה'), esc(''), esc(guest.gift_amount), esc(guestTotal)].join(','));
       }
       extraGifts.forEach((gift, i) => {
-        rows.push([esc(name), esc(side), esc(rel), esc('מתנה נוספת'), esc(gift.description), esc(gift.event || ''), esc(gift.amount ?? ''), i === 0 && !(guest.gift_amount > 0) ? esc(guestTotal) : esc('')].join(','));
+        rows.push([esc(name), esc(side), esc(rel), esc('מתנה נוספת'), esc(gift.description), esc(gift.event || ''), esc(gift.payment_method || ''), esc(gift.amount ?? ''), i === 0 && !(guest.gift_amount > 0) ? esc(guestTotal) : esc('')].join(','));
       });
     });
     const csv = rows.join('\n');
@@ -508,6 +517,11 @@ export default function Gifts() {
                               {gift.event}
                             </Badge>
                           )}
+                          {gift.payment_method && (
+                            <Badge variant="outline" className="text-xs bg-champagne border-taupe/30 text-rose-deep">
+                              {gift.payment_method}
+                            </Badge>
+                          )}
                           {gift.amount != null && (
                             <Badge variant="outline" className="text-xs bg-sage/15 border-sage/30 text-sage-deep">
                               ₪{gift.amount.toLocaleString()}
@@ -597,6 +611,15 @@ export default function Gifts() {
             <div className="space-y-2">
               <Label>שווי כספי (₪)</Label>
               <Input type="number" value={formAmount} onChange={e => setFormAmount(e.target.value)} placeholder="אופציונלי" min="0" />
+            </div>
+            <div className="space-y-2">
+              <Label>איך התקבלה</Label>
+              <CreatableSelect
+                value={formPaymentMethod}
+                onChange={setFormPaymentMethod}
+                options={paymentMethodOptions}
+                placeholder="בחר או הוסף אמצעי תשלום..."
+              />
             </div>
             <div className="space-y-2">
               <Label>הערות</Label>
