@@ -383,7 +383,7 @@ export default function Layout({ children, currentPageName }) {
       <footer className="mt-16 border-t border-border bg-card/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Daniel&Omri Wedding © 2026 | מאחלים לכם חתונה מושלמת ❤️
+            WedFlow © 2026 | מאחלים לכם חתונה מושלמת ❤️
           </p>
         </div>
       </footer>
