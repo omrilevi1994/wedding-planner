@@ -71,6 +71,7 @@ export default function AcceptInvite() {
     <Shell>
       {step === 'confirm' && (
         <div className="space-y-4 text-center">
+          <p className="text-lg font-semibold text-foreground">🎉 הוזמנתם!</p>
           <p className="text-sm text-muted-foreground">לחצו לאישור ההצטרפות לתכנון החתונה</p>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <button
