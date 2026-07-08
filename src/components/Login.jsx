@@ -11,9 +11,9 @@ function GoogleButton({ onClick, children = 'הרשמה מהירה עם Google' 
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-center gap-3 py-3 bg-primary text-primary-foreground rounded-xl font-medium shadow-sm shadow-rose-light/30 hover:bg-primary-hover transition"
+      className="w-full flex items-center justify-center gap-3 min-h-[3rem] px-4 py-3 bg-primary text-primary-foreground rounded-xl font-medium text-sm sm:text-base leading-snug text-center shadow-sm shadow-rose-light/30 hover:bg-primary-hover transition"
     >
-      <svg className="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true">
+      <svg className="w-5 h-5 shrink-0" viewBox="0 0 48 48" aria-hidden="true">
         <path fill="#FFC107" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z" />
         <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
         <path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.2 35 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z" />
@@ -31,18 +31,18 @@ function EmailForm({ mode, setMode, email, setEmail, password, setPassword, full
         <input
           required value={fullName} onChange={(e) => setFullName(e.target.value)}
           placeholder="שם מלא"
-          className="w-full px-4 py-2.5 border border-input rounded-xl text-right bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+          className="w-full px-4 py-2.5 text-base border border-input rounded-xl text-right bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
         />
       )}
       <input
         type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
         placeholder="אימייל"
-        className="w-full px-4 py-2.5 border border-input rounded-xl text-right bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+        className="w-full px-4 py-2.5 text-base border border-input rounded-xl text-right bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
       />
       <input
         type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
         placeholder="סיסמה"
-        className="w-full px-4 py-2.5 border border-input rounded-xl text-right bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+        className="w-full px-4 py-2.5 text-base border border-input rounded-xl text-right bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
       />
       {error && <p className="text-sm text-destructive text-center">{error}</p>}
       <button
@@ -52,7 +52,7 @@ function EmailForm({ mode, setMode, email, setEmail, password, setPassword, full
         {busy ? (mode === 'signup' ? 'נרשם…' : 'מתחבר…') : (mode === 'signup' ? 'הרשמה' : 'התחברות')}
       </button>
       <button type="button" onClick={() => setMode(mode === 'signup' ? 'signin' : 'signup')}
-        className="w-full text-sm text-muted-foreground pt-1">
+        className="w-full text-sm text-muted-foreground py-2 min-h-[2.75rem]">
         {mode === 'signup' ? 'כבר יש לי חשבון — התחברות' : 'אין לי חשבון — הרשמה'}
       </button>
     </form>
@@ -88,7 +88,7 @@ function Pillars() {
           <div className="shrink-0 w-11 h-11 rounded-full bg-accent/60 flex items-center justify-center">
             <Icon className="w-5 h-5 text-rose-deep" strokeWidth={1.75} />
           </div>
-          <div>
+          <div className="min-w-0">
             <h3 className="font-semibold text-foreground leading-snug">{title}</h3>
             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{body}</p>
           </div>
@@ -155,10 +155,10 @@ export default function Login() {
         <header className="text-center">
           <img src="/monogram.png" alt="" className="w-20 mx-auto mb-3" />
           <p className="text-xs tracking-[0.3em] text-muted-foreground uppercase mb-6">WedFlow</p>
-          <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight text-balance break-words">
             אומרים שלום לאקסלים.
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground leading-relaxed max-w-md mx-auto">
+          <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-md mx-auto">
             הדרך החכמה, האסתטית והרגועה ביותר לתכנן את החתונה שלכם.
           </p>
 
@@ -172,7 +172,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setShowEmail(true)}
-                className="w-full text-sm text-muted-foreground mt-4 hover:text-foreground transition"
+                className="w-full text-sm text-muted-foreground mt-2 py-2 min-h-[2.75rem] hover:text-foreground transition"
               >
                 או המשיכו עם אימייל
               </button>

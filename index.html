@@ -59,6 +59,8 @@
       }
       * { box-sizing: border-box; }
       html { scroll-behavior: smooth; }
+      /* guard: nothing may widen the page sideways (clip, not hidden, keeps the sticky header working) */
+      html, body { overflow-x: clip; }
       body {
         margin: 0;
         background: var(--cream);
@@ -141,18 +143,24 @@
           radial-gradient(48% 48% at 4% 92%, rgba(151,166,127,0.13), transparent 72%);
       }
       .hero-grid { display: grid; grid-template-columns: 1.04fr 0.96fr; gap: 3.8rem; align-items: center; }
+      /* grid items default to min-width:auto; without this, long content can blow the column
+         past the viewport on phones */
+      .hero-grid > *, .feature > * { min-width: 0; }
       .hero-copy .tagline { display: block; color: var(--rose-deep); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.7rem; text-align: right; }
-      h1 { font-size: clamp(2.3rem, 5.4vw, 3.7rem); font-weight: 900; margin: 0.35rem 0 1.25rem; }
+      h1 { font-size: clamp(2rem, 5.4vw, 3.7rem); font-weight: 900; margin: 0.35rem 0 1.25rem; text-wrap: balance; overflow-wrap: break-word; }
       h1 .hw { unicode-bidi: isolate; direction: ltr; }
-      h1 .em { position: relative; white-space: nowrap; color: var(--rose-deep); }
-      h1 .em::after { content: ''; position: absolute; inset-inline: 0; bottom: 0.03em; height: 0.14em; border-radius: 2px;
-        background: var(--rose-light); transform: scaleX(0); transform-origin: right; }
-      .js h1 .em::after { animation: underline 0.9s cubic-bezier(.22,.61,.36,1) 0.9s forwards; }
-      @keyframes underline { to { transform: scaleX(1); } }
+      /* wrap-safe highlight: a background underline (cloned per line fragment) instead of
+         white-space:nowrap + ::after, so the phrase can break on narrow screens without clipping */
+      h1 .em { color: var(--rose-deep);
+        background-image: linear-gradient(var(--rose-light), var(--rose-light));
+        background-repeat: no-repeat; background-position: 100% 92%; background-size: 100% 0.14em;
+        -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+      .js h1 .em { background-size: 0% 0.14em; animation: underline 0.9s cubic-bezier(.22,.61,.36,1) 0.9s forwards; }
+      @keyframes underline { to { background-size: 100% 0.14em; } }
       .lead { font-size: 1.22rem; color: var(--ink-soft); max-width: 33em; }
       .cta-row { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2rem; }
       .cta-note { margin-top: 0.9rem; font-size: 0.9rem; color: var(--ink-soft); }
-      .hero-prov { display: flex; gap: 2rem; margin-top: 2.2rem; padding-top: 1.7rem; border-top: 1px solid var(--line); }
+      .hero-prov { display: flex; flex-wrap: wrap; gap: 1.2rem 2rem; margin-top: 2.2rem; padding-top: 1.7rem; border-top: 1px solid var(--line); }
       .hero-prov b { font-family: 'Heebo', system-ui, sans-serif; font-weight: 700; font-size: 1.65rem; color: var(--ink); display: block; line-height: 1; }
       .hero-prov span { font-size: 0.82rem; color: var(--ink-soft); }
 
@@ -329,8 +337,27 @@
         .feature { grid-template-columns: 1fr; gap: 2rem; }
         .feature.flip .feat-media { order: 0; }
         .more-grid { grid-template-columns: 1fr; }
-        .hero-prov { gap: 1.4rem; }
+        .hero-prov { gap: 1rem 1.4rem; }
         .js .reveal.from-start, .js .reveal.from-end { transform: translateY(34px); }
+      }
+      /* small phones: shrink the header so the login button never leaves the screen,
+         and give buttons full width for comfortable tap targets */
+      @media (max-width: 640px) {
+        .wrap { padding: 0 1.1rem; }
+        .nav { gap: 0.75rem; }
+        .brand { gap: 0.45rem; }
+        .brand .mark { height: 30px; }
+        .brand .word { font-size: 1.1rem; letter-spacing: 0.1em; }
+        .nav .btn { flex: none; white-space: nowrap; padding: 0.55rem 1.05rem; font-size: 0.9rem; }
+        h1 { font-size: clamp(1.85rem, 8vw, 2.3rem); }
+        .lead { font-size: 1.08rem; }
+        .cta-row { gap: 0.7rem; }
+        .cta-row .btn { flex: 1 1 100%; text-align: center; }
+        .btn-lg { padding: 0.85rem 1.4rem; font-size: 1.04rem; }
+        .sec-head { margin-bottom: 2.4rem; }
+        .feature + .feature { margin-top: 3.6rem; }
+        .photoband .quote { padding: 3rem 0; }
+        .final .inner { padding: 4.5rem 0; }
       }
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
@@ -338,7 +365,7 @@
         .js .bar i { transition: none; width: var(--w); }
         .js .sprig path.stem { stroke-dashoffset: 0; }
         .js .sprig .leaf, .js .sprig .berry { opacity: 1; }
-        .js h1 .em::after { animation: none; transform: scaleX(1); }
+        .js h1 .em { animation: none; background-size: 100% 0.14em; }
         .js .float-card, .js .float-chip { animation: none; }
         * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
       }
