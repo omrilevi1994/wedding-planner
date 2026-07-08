@@ -15,8 +15,11 @@ export default function WeddingSelector() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  // Regular users / event managers don't get to switch — just show the name
-  if (!isAdmin) {
+  if (weddings.length === 0) return null;
+
+  // Regular users / event managers, or anyone with just one wedding, have
+  // nothing to switch between — show plain, non-interactive text instead.
+  if (!isAdmin || weddings.length === 1) {
     if (!activeWedding) return null;
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 bg-champagne border border-taupe/40 rounded-lg">
@@ -25,8 +28,6 @@ export default function WeddingSelector() {
       </div>
     );
   }
-
-  if (weddings.length === 0) return null;
 
   return (
     <div className="relative" ref={ref}>

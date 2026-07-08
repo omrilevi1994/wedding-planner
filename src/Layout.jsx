@@ -70,7 +70,7 @@ function DropdownGroup({ label, items, isActive, currentPageName }) {
 
 export default function Layout({ children, currentPageName }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAdmin, activeWeddingId } = useWedding();
+  const { user, isAdmin, isPlatformAdmin, activeWeddingId } = useWedding();
   const [isChecking, setIsChecking] = React.useState(!user);
   const navigate = useNavigate();
 
@@ -157,7 +157,7 @@ export default function Layout({ children, currentPageName }) {
     ? [{ label: '💍 מוד חתונה', single: { name: 'WeddingMode', label: '💍 מוד חתונה' } }]
     : isGuestOnly
     ? [{ label: 'מוזמנים', single: { name: 'Guests', label: 'מוזמנים' } }]
-    : isAdmin
+    : isPlatformAdmin
     ? [adminNav, ...allNavGroups]
     : allNavGroups;
 
@@ -166,7 +166,7 @@ export default function Layout({ children, currentPageName }) {
     ? [{ name: 'WeddingMode', label: '💍 מוד חתונה' }]
     : isGuestOnly
     ? [{ name: 'Guests', label: 'מוזמנים' }]
-    : isAdmin
+    : isPlatformAdmin
     ? [
         { name: 'AdminDashboard', label: 'ניהול חתונות' },
         { name: 'Dashboard', label: 'דשבורד' },
