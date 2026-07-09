@@ -12,4 +12,5 @@ export const TABLE_MAP = {
   WeddingSetting: 'wedding_settings',
   ActivityLog: 'activity_logs',
   User: 'profiles',
+  Lead: 'leads',
 };
