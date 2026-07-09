@@ -89,6 +89,15 @@ export const WeddingProvider = ({ children }) => {
     setWeddings(ws);
   };
 
+  const refreshProfile = async () => {
+    try {
+      const me = await wedflow.auth.me();
+      setProfile(me);
+    } catch (e) {
+      console.error('refreshProfile failed', e);
+    }
+  };
+
   const activeWedding = weddings.find(w => w.id === activeWeddingId) || null;
 
   return (
@@ -97,7 +106,7 @@ export const WeddingProvider = ({ children }) => {
       memberships, activeMembership,
       weddings, activeWedding, activeWeddingId,
       hasNoWeddings: !isLoading && weddings.length === 0,
-      selectWedding, refreshWeddings, isLoading,
+      selectWedding, refreshWeddings, refreshProfile, isLoading,
     }}>
       {children}
     </WeddingContext.Provider>

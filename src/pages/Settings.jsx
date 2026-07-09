@@ -12,7 +12,7 @@ import DangerZone from '@/components/settings/DangerZone';
 
 export default function Settings() {
   const queryClient = useQueryClient();
-  const { activeWedding, activeWeddingId, refreshWeddings } = useWedding();
+  const { activeWedding, activeWeddingId, refreshWeddings, user, refreshProfile } = useWedding();
   const [formData, setFormData] = useState({
     wedding_date: '',
     venue: '',
@@ -25,6 +25,18 @@ export default function Settings() {
     cost_calc_mode: 'confirmed'
   });
   const [saved, setSaved] = useState(false);
+  const [toursReset, setToursReset] = useState(false);
+
+  const handleReplayTours = async () => {
+    try {
+      await wedflow.entities.User.update(user.id, { tours_seen: {} });
+      await refreshProfile();
+      setToursReset(true);
+      setTimeout(() => setToursReset(false), 3000);
+    } catch (e) {
+      console.error('Failed to reset tours', e);
+    }
+  };
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ['settings', activeWeddingId],
@@ -281,6 +293,20 @@ export default function Settings() {
           <p>💡 <strong>תקציב יעד:</strong> זהו הסכום המקסימלי שאתם מתכננים להוציא על החתונה</p>
           <p>💡 <strong>חישוב עלות:</strong> בחרו "מאושרים בלבד" לחישוב מדויק יותר, או "כל המוזמנים" לתחזית שמרנית</p>
           <p>💡 <strong>עדכון שוטף:</strong> עדכנו את ההגדרות ככל שהתוכניות משתנות</p>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle>מדריכי שימוש</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            אפסו את המדריכים כדי לראות שוב את סיורי ההיכרות בכל עמוד.
+          </p>
+          <Button type="button" variant="outline" onClick={handleReplayTours}>
+            {toursReset ? 'המדריכים אופסו!' : 'הצג מדריכים מחדש'}
+          </Button>
         </CardContent>
       </Card>
 

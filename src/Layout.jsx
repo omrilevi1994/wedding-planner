@@ -6,6 +6,7 @@ import { LogOut, ChevronDown, Moon, Sun } from 'lucide-react';
 import { wedflow } from '@/api/wedflowClient';
 import { useWedding } from '@/lib/WeddingContext';
 import WeddingSelector from '@/components/WeddingSelector';
+import PageTour from '@/components/PageTour';
 
 function ThemeToggle({ className = '' }) {
   const { theme, setTheme } = useTheme();
@@ -252,7 +253,7 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-2">
-              <nav className="flex items-center gap-1">
+              <nav data-tour="main-nav" className="flex items-center gap-1">
               {navGroups.map((group) => {
                 if (group.single) {
                   const item = group.single;
@@ -381,6 +382,7 @@ export default function Layout({ children, currentPageName }) {
           </p>
         </div>
       </footer>
+      <PageTour pageKey={currentPageName} />
     </div>
   );
 }
