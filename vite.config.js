@@ -9,10 +9,11 @@ const appShellRewrite = () => {
   const rewrite = (req, _res, next) => {
     const path = req.url.split('?')[0];
     if (path === '/app' || path.startsWith('/app/')) req.url = '/app.html';
+    else if (path === '/calc' || path.startsWith('/calc/')) req.url = '/calc.html';
     next();
   };
   return {
-    name: 'app-shell-rewrite',
+    name: 'app-calc-shell-rewrite',
     configureServer(server) { server.middlewares.use(rewrite); },
     configurePreviewServer(server) { server.middlewares.use(rewrite); },
   };
@@ -26,6 +27,7 @@ export default defineConfig({
       input: {
         landing: fileURLToPath(new URL('./index.html', import.meta.url)),
         app: fileURLToPath(new URL('./app.html', import.meta.url)),
+        calc: fileURLToPath(new URL('./calc.html', import.meta.url)),
       },
     },
   },

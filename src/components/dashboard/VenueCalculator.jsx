@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Plus, X, Calculator } from 'lucide-react';
+import { computeTotals, budgetStatus, TARGET } from '@/lib/venueCalc';
+import { capture } from '@/lib/posthog';
 
-export default function VenueCalculator({ totalExpenses, totalConfirmed, totalInvited }) {
+export default function VenueCalculator({
+  totalExpenses = 0, totalConfirmed, totalInvited,
+  showSystemExpenses = true, onCompute,
+}) {
   const [guestCount, setGuestCount] = useState(totalInvited || totalConfirmed || 0);
 
   useEffect(() => {
@@ -41,13 +46,29 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
     setFixedItems(fixedItems.map(i => i.id === id ? { ...i, [field]: value } : i));
   };
 
-  const costPerHeadVenue = (parseFloat(dishCost) || 0) + (parseFloat(barCost) || 0) + (parseFloat(serviceCost) || 0) +
-    extraItems.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+  const { costPerHead: costPerHeadVenue, totalVenueCost, grandTotal, costPerGuest: costPerGuestTotal } =
+    computeTotals({ dishCost, barCost, serviceCost, extraItems, fixedItems, guestCount, systemExpenses: totalExpenses });
 
-  const totalFixedCosts = fixedItems.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
-  const totalVenueCost = costPerHeadVenue * (parseInt(guestCount) || 0) + totalFixedCosts;
-  const grandTotal = totalVenueCost + totalExpenses;
-  const costPerGuestTotal = (parseInt(guestCount) || 0) > 0 ? grandTotal / (parseInt(guestCount) || 1) : 0;
+  // Report the live calculation snapshot upward (used by /calc's lead capture) and fire the
+  // calc_used analytics event once, the first time a meaningful per-head cost is entered.
+  const usedFired = useRef(false);
+  useEffect(() => {
+    if (!usedFired.current && costPerHeadVenue > 0) {
+      usedFired.current = true;
+      capture('calc_used', { show_system_expenses: showSystemExpenses });
+    }
+    if (onCompute) {
+      onCompute({
+        guestCount: parseInt(guestCount, 10) || 0,
+        costPerHead: costPerHeadVenue,
+        totalVenueCost,
+        totalCost: grandTotal,
+        budgetStatus: budgetStatus(costPerGuestTotal).level,
+        inputs: { dishCost, barCost, serviceCost, extraItems, fixedItems, guestCount },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [costPerHeadVenue, totalVenueCost, grandTotal, costPerGuestTotal, guestCount, showSystemExpenses]);
 
   return (
     <Card className="shadow-md border-2 border-rose/30">
@@ -226,10 +247,12 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
             </span>
           </div>
 
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-muted-foreground">שאר הוצאות מהמערכת:</span>
-            <span className="font-semibold">₪{totalExpenses.toLocaleString('he-IL')}</span>
-          </div>
+          {showSystemExpenses && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">שאר הוצאות מהמערכת:</span>
+              <span className="font-semibold">₪{totalExpenses.toLocaleString('he-IL')}</span>
+            </div>
+          )}
 
           <div className="border-t border-rose/30 pt-3 flex justify-between items-center">
             <span className="font-bold text-foreground">סה״כ עלות חתונה:</span>
@@ -240,17 +263,16 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
 
           {/* Average cost with color indicator */}
           {(() => {
-            const TARGET = 570;
-            const WARN = 580;
-            const val = Math.round(costPerGuestTotal);
-            const isGreen = costPerGuestTotal > 0 && val <= TARGET;
-            const isOrange = costPerGuestTotal > 0 && val > TARGET && val <= WARN;
-            const isRed = costPerGuestTotal > 0 && val > WARN;
+            const status = budgetStatus(costPerGuestTotal);
+            const val = status.value;
+            const isGreen = status.level === 'ok';
+            const isOrange = status.level === 'warn';
+            const isRed = status.level === 'over';
             const bgClass = isGreen ? 'bg-sage/15' : isOrange ? 'bg-champagne' : isRed ? 'bg-destructive/10' : 'bg-champagne';
             const textClass = isGreen ? 'text-sage-deep' : isOrange ? 'text-rose-deep' : isRed ? 'text-destructive' : 'text-rose-deep';
             const barColor = isGreen ? 'bg-sage' : isOrange ? 'bg-rose' : 'bg-destructive';
             const barWidth = costPerGuestTotal > 0 ? Math.min((val / (TARGET * 1.3)) * 100, 100) : 0;
-            const statusText = isGreen ? '✓ בתקציב' : isOrange ? '⚠ קרוב לגבול' : isRed ? '✗ חורג מהתקציב' : '';
+            const statusText = status.label;
 
             return (
               <div className={`${bgClass} rounded-xl px-3 py-3 space-y-2`}>
