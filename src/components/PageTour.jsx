@@ -16,6 +16,76 @@ const LOCALE = {
   close: 'סגור',
 };
 
+const FONT = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+
+// Styled to the WedFlow design system via CSS variables (hsl(var(--token))),
+// so the tour tooltip matches the app in both light and dark themes.
+const STYLES = {
+  options: {
+    primaryColor: 'hsl(var(--primary))',
+    backgroundColor: 'hsl(var(--card))',
+    arrowColor: 'hsl(var(--card))',
+    textColor: 'hsl(var(--card-foreground))',
+    overlayColor: 'hsla(24, 9%, 15%, 0.55)',
+    zIndex: 10000,
+    width: 380,
+  },
+  tooltip: {
+    borderRadius: 16,
+    padding: 22,
+    textAlign: 'right',
+    fontFamily: FONT,
+    border: '1px solid hsl(var(--border))',
+    boxShadow: '0 24px 60px -20px hsla(24, 9%, 15%, 0.45)',
+  },
+  tooltipTitle: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: 'hsl(var(--foreground))',
+    margin: '0 0 6px',
+    textAlign: 'right',
+  },
+  tooltipContent: {
+    fontSize: 14,
+    lineHeight: 1.65,
+    color: 'hsl(var(--muted-foreground))',
+    padding: '4px 0 0',
+    textAlign: 'right',
+  },
+  buttonNext: {
+    backgroundColor: 'hsl(var(--primary))',
+    color: 'hsl(var(--primary-foreground))',
+    borderRadius: 10,
+    fontSize: 14,
+    fontWeight: 600,
+    fontFamily: FONT,
+    padding: '10px 20px',
+    outline: 'none',
+    boxShadow: 'none',
+  },
+  buttonBack: {
+    color: 'hsl(var(--muted-foreground))',
+    fontSize: 14,
+    fontWeight: 500,
+    fontFamily: FONT,
+    marginLeft: 4,
+  },
+  buttonSkip: {
+    color: 'hsl(var(--muted-foreground))',
+    fontSize: 14,
+    fontFamily: FONT,
+  },
+  buttonClose: {
+    color: 'hsl(var(--muted-foreground))',
+    width: 10,
+    height: 10,
+    padding: 14,
+  },
+  spotlight: {
+    borderRadius: 12,
+  },
+};
+
 export default function PageTour({ pageKey }) {
   const { user, refreshProfile } = useWedding();
   const steps = TOURS[pageKey] || [];
@@ -58,8 +128,12 @@ export default function PageTour({ pageKey }) {
       showSkipButton
       showProgress
       disableScrolling={false}
+      // The app header is sticky (h-16, z-50); offset the scroll so the
+      // spotlighted element clears it instead of being cut off at the top.
+      scrollOffset={96}
+      spotlightPadding={8}
       locale={LOCALE}
-      styles={{ options: { primaryColor: '#db2777', zIndex: 10000, textAlign: 'right' } }}
+      styles={STYLES}
       callback={handleCallback}
     />
   );
