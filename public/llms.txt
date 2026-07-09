@@ -1,0 +1,24 @@
+# WedFlow
+
+> WedFlow (wedflow.live) is a free Hebrew-language web app for planning a wedding in Israel: guest list and RSVPs, seating chart, vendors and payments, budget tracking, and a planning checklist — all in one place, in the browser, on mobile and desktop. Built from managing a real wedding (352 guests, 26 tables) and currently free to use.
+>
+> WedFlow (וודפלואו) היא אפליקציית אינטרנט חינמית בעברית לתכנון חתונה: מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, תקציב וצ'קליסט — הכול במקום אחד.
+
+## Pages
+
+- [Home / דף הבית](https://wedflow.live/): what WedFlow does, feature overview, and FAQ (Hebrew)
+- [About / אודות](https://wedflow.live/about/): what WedFlow is, how it was built, quick facts table, English summary
+- [WedFlow vs iPlan / WedFlow מול iPlan](https://wedflow.live/vs/iplan/): honest comparison — iPlan is a paid RSVP (SMS/calls) service, WedFlow is a free planning hub; they can be combined via import
+- [Wedding checklist / צ'קליסט לתכנון חתונה](https://wedflow.live/guides/wedding-checklist/): timeline-based wedding planning checklist for Israel (12 months out → wedding day)
+- [Privacy / מדיניות פרטיות](https://wedflow.live/privacy/): what data is collected and how it is stored
+- [Terms / תנאי שימוש](https://wedflow.live/terms/): terms of service
+
+## Key facts
+
+- Product type: wedding planning web app (SaaS, browser-based, no install)
+- Language: Hebrew (RTL interface); made for weddings in Israel
+- Price: free (no credit card required)
+- Sign-in: Google account or email + password
+- Features: guest list & RSVP tracking, seating map with live table capacity, vendor & payment tracking, budget by category, planning checklist, wedding-day mode, gift tracking
+- Import/export: import guest lists from iPlan, update RSVP statuses from Wiwi, export everything to CSV
+- The app itself is behind sign-in at https://wedflow.live/app
