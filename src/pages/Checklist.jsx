@@ -200,7 +200,7 @@ export default function Checklist() {
       </div>
 
       {/* Global Progress */}
-      <Card className="p-6 bg-gradient-to-br from-sage/10 to-card shadow-md">
+      <Card data-tour="checklist-progress" className="p-6 bg-gradient-to-br from-sage/10 to-card shadow-md">
         <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-sm text-muted-foreground mb-1">התקדמות כללית</p>
@@ -253,6 +253,7 @@ export default function Checklist() {
             </Card>
           ) : (
             <button
+              data-tour="checklist-add-group"
               onClick={() => setShowAddGroup(true)}
               className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground hover:border-primary hover:text-primary hover:bg-accent/30 transition-colors"
             >

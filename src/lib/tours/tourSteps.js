@@ -38,4 +38,17 @@ export const TOURS = {
       content: 'כאן מוצגים כל המוזמנים — אפשר לעדכן סטטוס הגעה, לערוך ולמחוק.',
     },
   ],
+  Checklist: [
+    {
+      target: '[data-tour="checklist-progress"]',
+      title: 'ההתקדמות שלכם',
+      content: 'כאן תראו כמה מהמשימות כבר הושלמו מתוך כלל הצ׳ק ליסט.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-tour="checklist-add-group"]',
+      title: 'הוספת קטגוריה',
+      content: 'הוסיפו קטגוריות משלכם לצ׳ק ליסט לפי שלבי התכנון.',
+    },
+  ],
 };
