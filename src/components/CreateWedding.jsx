@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { wedflow } from '@/api/wedflowClient';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -13,9 +13,12 @@ export default function CreateWedding() {
   const [weddingDate, setWeddingDate] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const submittingRef = useRef(false);
 
   const submit = async (e) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setBusy(true); setError(null);
     try {
       const wedding = await wedflow.entities.Wedding.create({
@@ -34,6 +37,7 @@ export default function CreateWedding() {
     } catch (err) {
       setError(err?.message || 'שגיאה ביצירת החתונה');
       setBusy(false);
+      submittingRef.current = false;
     }
   };
 
