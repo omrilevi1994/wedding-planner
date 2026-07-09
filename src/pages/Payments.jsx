@@ -9,6 +9,7 @@ import { format, parseISO, isAfter, isBefore, addDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Calendar, CheckCircle, Clock, AlertCircle, User } from 'lucide-react';
 import { useWedding } from '@/lib/WeddingContext';
+import { usePaymentMutations } from '@/hooks/usePaymentMutations';
 
 const PAID_BY_OPTIONS = ['חתן', 'חתן - אבא', 'חתן - אמא', 'כלה', 'כלה - אבא', 'כלה - אמא', 'משותף'];
 
@@ -42,6 +43,8 @@ export default function Payments() {
     }
   });
 
+  const { markPaid } = usePaymentMutations();
+
   const handleSetPaidBy = (payment, paidBy) => {
     updateMutation.mutate({ id: payment.id, data: { ...payment, paid_by: paidBy } });
     setEditingPaidBy(null);
@@ -54,14 +57,7 @@ export default function Payments() {
     const [day, month, year] = paidDate.split('/');
     const dateStr = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
-    updateMutation.mutate({
-      id: payment.id,
-      data: {
-        ...payment,
-        status: 'שולם',
-        paid_date: dateStr
-      }
-    });
+    markPaid.mutate({ payment, paidDate: dateStr });
   };
 
   // Group by month
