@@ -2,21 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { wedflow } from '@/api/wedflowClient';
 import { useQuery } from '@tanstack/react-query';
 import { Wallet, TrendingDown, TrendingUp, DollarSign, Users, UserCheck, Gift } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '../utils';
 import KPICard from '../components/dashboard/KPICard';
 import ExpensesPieChart from '../components/dashboard/ExpensesPieChart';
 import MonthlyTimeline from '../components/dashboard/MonthlyTimeline';
 import QuickActions from '../components/dashboard/QuickActions';
 import GuestsPieCharts from '../components/dashboard/GuestsPieCharts';
 import { useWedding } from '@/lib/WeddingContext';
+import ExpenseForm from '../components/expenses/ExpenseForm';
+import GuestForm from '../components/guests/GuestForm';
+import MarkPaymentModal from '../components/payments/MarkPaymentModal';
+import { useExpenseMutations } from '@/hooks/useExpenseMutations';
+import { useGuestMutations } from '@/hooks/useGuestMutations';
+import { usePaymentMutations } from '@/hooks/usePaymentMutations';
 
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const { activeWedding, activeWeddingId } = useWedding();
+
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [showGuestForm, setShowGuestForm] = useState(false);
+  const [showMarkPayment, setShowMarkPayment] = useState(false);
+
+  const { createExpense } = useExpenseMutations();
+  const { createGuest } = useGuestMutations();
+  const { markPaid } = usePaymentMutations();
 
   useEffect(() => {
     wedflow.auth.me().then(currentUser => {
@@ -253,9 +264,9 @@ export default function Dashboard() {
         </div>
         <div data-tour="dashboard-quick-actions">
           <QuickActions
-            onAddExpense={() => navigate(createPageUrl('Expenses'))}
-            onAddGuest={() => navigate(createPageUrl('Guests'))}
-            onMarkPayment={() => navigate(createPageUrl('Payments'))}
+            onAddExpense={() => setShowExpenseForm(true)}
+            onAddGuest={() => setShowGuestForm(true)}
+            onMarkPayment={() => setShowMarkPayment(true)}
           />
         </div>
       </div>
@@ -270,6 +281,28 @@ export default function Dashboard() {
         <MonthlyTimeline payments={billablePayments} />
       </div>
       </div>
+
+      <ExpenseForm
+        open={showExpenseForm}
+        onClose={() => setShowExpenseForm(false)}
+        expense={null}
+        onSave={(data) => createExpense.mutate(data, { onSuccess: () => setShowExpenseForm(false) })}
+      />
+
+      <GuestForm
+        open={showGuestForm}
+        onClose={() => setShowGuestForm(false)}
+        guest={null}
+        guests={guests}
+        onSave={(data) => createGuest.mutate(data, { onSuccess: () => setShowGuestForm(false) })}
+      />
+
+      <MarkPaymentModal
+        open={showMarkPayment}
+        onClose={() => setShowMarkPayment(false)}
+        payments={payments}
+        onMarkPaid={({ payment, paidDate }) => markPaid.mutate({ payment, paidDate })}
+      />
     </div>
   );
 }
