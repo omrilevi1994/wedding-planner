@@ -2,6 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://wedflow.live/</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-07-09</lastmod>
+  </url>
+  <url>
+    <loc>https://wedflow.live/about/</loc>
+    <lastmod>2026-07-09</lastmod>
+  </url>
+  <url>
+    <loc>https://wedflow.live/vs/iplan/</loc>
+    <lastmod>2026-07-09</lastmod>
+  </url>
+  <url>
+    <loc>https://wedflow.live/guides/wedding-checklist/</loc>
+    <lastmod>2026-07-09</lastmod>
+  </url>
+  <url>
+    <loc>https://wedflow.live/privacy/</loc>
+    <lastmod>2026-07-09</lastmod>
+  </url>
+  <url>
+    <loc>https://wedflow.live/terms/</loc>
+    <lastmod>2026-07-09</lastmod>
   </url>
 </urlset>
