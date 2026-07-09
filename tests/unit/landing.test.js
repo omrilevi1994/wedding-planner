@@ -53,19 +53,27 @@ describe('landing page (index.html)', () => {
     expect(html).not.toMatch(/href="\/(Dashboard|Guests|SeatingPlan)/);
   });
 
-  it('every image is sized and has Hebrew alt text', () => {
+  // Decorative images (aria-hidden or empty alt, e.g. the brand monogram) are exempt from
+  // the descriptive-alt / lazy-load rules — an empty alt is correct for them and they are
+  // tiny above-the-fold marks that must not be lazy-loaded.
+  const isDecorative = (img) => /aria-hidden="true"/.test(img) || /alt=""/.test(img);
+
+  it('every content image is sized and has Hebrew alt text', () => {
     const imgs = html.match(/<img[\s\S]*?\/>/g) ?? [];
     expect(imgs.length).toBeGreaterThan(0);
     for (const img of imgs) {
-      expect(img).toMatch(/alt="[^"]*[֐-׿][^"]*"/); // descriptive Hebrew alt
+      if (!isDecorative(img)) {
+        expect(img).toMatch(/alt="[^"]*[֐-׿][^"]*"/); // descriptive Hebrew alt
+      }
       expect(img).toMatch(/width="\d+"/); // explicit dims prevent layout shift (CLS)
       expect(img).toMatch(/height="\d+"/);
     }
   });
 
-  it('below-the-fold images lazy-load; the LCP hero image loads eagerly', () => {
+  it('below-the-fold content images lazy-load; the LCP hero image loads eagerly', () => {
     const imgs = html.match(/<img[\s\S]*?\/>/g) ?? [];
     for (const img of imgs) {
+      if (isDecorative(img)) continue;
       const isHero = img.includes('fetchpriority="high"');
       if (isHero) {
         expect(img).not.toContain('loading="lazy"'); // never lazy-load the LCP image
@@ -73,5 +81,21 @@ describe('landing page (index.html)', () => {
         expect(img).toContain('loading="lazy"');
       }
     }
+  });
+});
+
+describe('landing calculator showcase', () => {
+  it('has a calculator section with an H2 and a CTA into /calc', () => {
+    expect(html).toContain('href="/calc"');
+    expect(html).toMatch(/<h2[^>]*>[^<]*כמה[^<]*תעלה[^<]*<\/h2>/);
+  });
+  it('shows a sample per-head number and the green "בתקציב" indicator', () => {
+    // the showcase reuses the .tag.ok "in-budget" styling
+    expect(html).toMatch(/class="tag ok"[^>]*>[^<]*בתקציב/);
+  });
+  it('adds no new inline <script> to the landing (stays static)', () => {
+    const scripts = html.match(/<script(?![^>]*src=)[^>]*>/g) ?? [];
+    // pre-existing inline scripts: the .js class-adder, the reveal/parallax IIFE, and JSON-LD
+    expect(scripts.length).toBeLessThanOrEqual(3);
   });
 });
