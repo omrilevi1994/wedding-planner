@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Plus, X, Calculator } from 'lucide-react';
+import { computeTotals, budgetStatus, TARGET } from '@/lib/venueCalc';
 
 export default function VenueCalculator({ totalExpenses, totalConfirmed, totalInvited }) {
   const [guestCount, setGuestCount] = useState(totalInvited || totalConfirmed || 0);
@@ -41,13 +42,8 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
     setFixedItems(fixedItems.map(i => i.id === id ? { ...i, [field]: value } : i));
   };
 
-  const costPerHeadVenue = (parseFloat(dishCost) || 0) + (parseFloat(barCost) || 0) + (parseFloat(serviceCost) || 0) +
-    extraItems.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
-
-  const totalFixedCosts = fixedItems.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
-  const totalVenueCost = costPerHeadVenue * (parseInt(guestCount) || 0) + totalFixedCosts;
-  const grandTotal = totalVenueCost + totalExpenses;
-  const costPerGuestTotal = (parseInt(guestCount) || 0) > 0 ? grandTotal / (parseInt(guestCount) || 1) : 0;
+  const { costPerHead: costPerHeadVenue, totalVenueCost, grandTotal, costPerGuest: costPerGuestTotal } =
+    computeTotals({ dishCost, barCost, serviceCost, extraItems, fixedItems, guestCount, systemExpenses: totalExpenses });
 
   return (
     <Card className="shadow-md border-2 border-rose/30">
@@ -240,17 +236,16 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
 
           {/* Average cost with color indicator */}
           {(() => {
-            const TARGET = 570;
-            const WARN = 580;
-            const val = Math.round(costPerGuestTotal);
-            const isGreen = costPerGuestTotal > 0 && val <= TARGET;
-            const isOrange = costPerGuestTotal > 0 && val > TARGET && val <= WARN;
-            const isRed = costPerGuestTotal > 0 && val > WARN;
+            const status = budgetStatus(costPerGuestTotal);
+            const val = status.value;
+            const isGreen = status.level === 'ok';
+            const isOrange = status.level === 'warn';
+            const isRed = status.level === 'over';
             const bgClass = isGreen ? 'bg-sage/15' : isOrange ? 'bg-champagne' : isRed ? 'bg-destructive/10' : 'bg-champagne';
             const textClass = isGreen ? 'text-sage-deep' : isOrange ? 'text-rose-deep' : isRed ? 'text-destructive' : 'text-rose-deep';
             const barColor = isGreen ? 'bg-sage' : isOrange ? 'bg-rose' : 'bg-destructive';
             const barWidth = costPerGuestTotal > 0 ? Math.min((val / (TARGET * 1.3)) * 100, 100) : 0;
-            const statusText = isGreen ? '✓ בתקציב' : isOrange ? '⚠ קרוב לגבול' : isRed ? '✗ חורג מהתקציב' : '';
+            const statusText = status.label;
 
             return (
               <div className={`${bgClass} rounded-xl px-3 py-3 space-y-2`}>
