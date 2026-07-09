@@ -12,10 +12,10 @@ const sampleData = {
   recipientEmail: 'guest@example.com',
 };
 
-const TEMPLATE_IDS = ['weddingInvite', 'memberAdded', 'authVerification', 'authPasswordReset', 'authMagicLink'];
+const TEMPLATE_IDS = ['weddingInvite', 'memberAdded', 'authVerification', 'authPasswordReset', 'authMagicLink', 'calculatorBreakdown'];
 
 describe('renderEmail — templates map', () => {
-  it('exposes exactly the five expected template ids', () => {
+  it('exposes exactly the six expected template ids', () => {
     expect(Object.keys(templates).sort()).toEqual([...TEMPLATE_IDS].sort());
   });
 });
@@ -78,6 +78,20 @@ describe('renderEmail — weddingInvite content', () => {
 describe('renderEmail — unknown template', () => {
   it('throws for an unknown template id', () => {
     expect(() => renderEmail('nonExistentTemplate', {})).toThrow();
+  });
+});
+
+describe('renderEmail — calculatorBreakdown content', () => {
+  it('renders the guest count, per-head, total and an /app CTA', () => {
+    const { subject, html, text } = renderEmail('calculatorBreakdown', {
+      guestCount: 200, costPerHead: 450, totalCost: 90000, budgetStatus: 'ok',
+    });
+    expect(subject).toContain('החישוב שלכם');
+    expect(html).toContain('200');
+    expect(html).toContain('₪450');
+    expect(html).toContain('₪90,000');
+    expect(html).toContain('href="https://wedflow.live/app"');
+    expect(text).toContain('WedFlow');
   });
 });
 

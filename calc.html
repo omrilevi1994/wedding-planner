@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>מחשבון עלות חתונה: כמה תעלה לכם החתונה? | WedFlow</title>
+    <meta
+      name="description"
+      content="מחשבון חתונה חינמי בעברית: חשבו כמה תעלה לכם החתונה לפי מחיר האולם, עלות למנה ומספר המוזמנים. קבלו עלות ממוצעת לראש ותוצאה מיידית, בלי הרשמה."
+    />
+    <link rel="canonical" href="https://wedflow.live/calc" />
+    <meta name="theme-color" content="#F6F0E7" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="WedFlow" />
+    <meta property="og:locale" content="he_IL" />
+    <meta property="og:url" content="https://wedflow.live/calc" />
+    <meta property="og:title" content="מחשבון עלות חתונה | WedFlow" />
+    <meta property="og:description" content="חשבו כמה תעלה לכם החתונה לפי מחיר האולם ומספר המוזמנים. תוצאה מיידית, בחינם, בלי הרשמה." />
+    <meta property="og:image" content="https://wedflow.live/og-social-1200x630.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="מחשבון עלות חתונה | WedFlow" />
+    <meta name="twitter:description" content="חשבו כמה תעלה לכם החתונה לפי מחיר האולם ומספר המוזמנים. תוצאה מיידית, בחינם." />
+    <meta name="twitter:image" content="https://wedflow.live/og-social-1200x630.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --cream: #f6f0e7; --ink: #3b3531; --ink-soft: #7a7066;
+        --rose: #c68a70; --rose-light: #e7bca6; --rose-deep: #a5674e;
+        --card: #fffdf9; --line: #e8ddcd;
+        --grad-rose: linear-gradient(115deg, #dba689 0%, #c68a70 45%, #a5674e 100%);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--cream); color: var(--ink);
+        font-family: 'Heebo', system-ui, sans-serif; font-size: 1.05rem; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+      a { color: inherit; text-decoration: none; }
+      .wrap { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
+      header { position: sticky; top: 0; z-index: 50; background: rgba(246,240,231,0.9);
+        backdrop-filter: saturate(150%) blur(12px); border-bottom: 1px solid var(--line); }
+      .nav { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.5rem; max-width: 1140px; margin: 0 auto; }
+      .brand { display: flex; align-items: center; gap: 0.6rem; }
+      .brand .mark { height: 38px; width: auto; }
+      .brand .word { font-weight: 600; font-size: 1.6rem; letter-spacing: 0.16em; }
+      .btn-ghost { color: var(--ink); border: 1px solid var(--line); background: var(--card);
+        border-radius: 999px; padding: 0.55rem 1.35rem; font-weight: 700; font-size: 0.95rem; }
+      .calc-hero { text-align: center; padding: 3rem 0 1.5rem; }
+      .calc-hero .eyebrow { color: var(--rose-deep); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.2em; }
+      .calc-hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; margin: 0.6rem 0 0.8rem; line-height: 1.15; }
+      .calc-hero p { color: var(--ink-soft); font-size: 1.15rem; max-width: 34em; margin: 0 auto; }
+      main { padding-bottom: 4rem; }
+      footer { background: var(--ink); color: #d8cec3; padding: 2.4rem 0; font-size: 0.9rem; text-align: center; margin-top: 3rem; }
+      footer a { color: var(--rose-light); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="nav">
+        <a class="brand" href="/" aria-label="WedFlow, דף הבית">
+          <img class="mark" src="/monogram.png" alt="" aria-hidden="true" width="55" height="38" />
+          <span class="word">WEDFLOW</span>
+        </a>
+        <a class="btn-ghost" href="/app">כניסה למערכת</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- Static hero (crawlable pre-hydration; outside the React root) -->
+      <section class="calc-hero wrap">
+        <span class="eyebrow">מחשבון חתונה</span>
+        <h1>כמה תעלה לכם החתונה?</h1>
+        <p>הזינו את מחיר האולם למנה ואת מספר המוזמנים, וקבלו מיד את העלות הכוללת והעלות הממוצעת לראש. בחינם, בלי הרשמה.</p>
+      </section>
+
+      <!-- React mounts the calculator + lead capture here -->
+      <div id="calc-root" class="wrap"></div>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        WedFlow ·
+        <a href="/">חזרה לאתר</a> ·
+        <a href="/app">כניסה למערכת</a>
+      </div>
+    </footer>
+
+    <!-- SEO: SoftwareApplication (a wedding cost calculator) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "מחשבון עלות חתונה — WedFlow",
+      "url": "https://wedflow.live/calc",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "he",
+      "description": "מחשבון חינמי לחישוב עלות חתונה לפי מחיר האולם למנה ומספר המוזמנים.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "ILS" }
+    }
+    </script>
+
+    <script type="module" src="/src/calc-main.jsx"></script>
+  </body>
+</html>
