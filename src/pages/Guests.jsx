@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
 import { wedflow } from '@/api/wedflowClient';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import GuestForm from '../components/guests/GuestForm';
+import { useGuestMutations } from '@/hooks/useGuestMutations';
 import IplanImportDialog from '../components/guests/IplanImportDialog';
 import SyncWizard from '../components/guests/SyncWizard';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -80,70 +81,16 @@ export default function Guests() {
     return guests.filter(g => user?.wedding_sides.includes(g.side));
   }, [guests, user]);
 
-  const createMutation = useMutation({
-    mutationFn: (data) => wedflow.entities.Guest.create({ ...data, wedding_id: activeWeddingId }),
-    onSuccess: async (guest) => {
-      queryClient.invalidateQueries(['guests']);
-      setShowForm(false);
-      // Log activity
-      const user = await wedflow.auth.me();
-      await wedflow.entities.ActivityLog.create({
-        wedding_id: activeWeddingId,
-        user_email: user.email,
-        user_name: user.full_name,
-        action_type: 'הוספת מוזמן',
-        entity_type: 'Guest',
-        entity_id: guest.id,
-        entity_name: `${guest.first_name} ${guest.last_name}`,
-        description: `הוסף מוזמן חדש: ${guest.first_name} ${guest.last_name}`
-      });
-    }
-  });
+  const { createGuest, updateGuest, deleteGuest } = useGuestMutations();
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => wedflow.entities.Guest.update(id, data),
-    onSuccess: async (guest) => {
-      queryClient.invalidateQueries(['guests']);
-      setShowForm(false);
-      setEditingGuest(null);
-      // Log activity
-      const user = await wedflow.auth.me();
-      await wedflow.entities.ActivityLog.create({
-        wedding_id: activeWeddingId,
-        user_email: user.email,
-        user_name: user.full_name,
-        action_type: 'עדכון מוזמן',
-        entity_type: 'Guest',
-        entity_id: guest.id,
-        entity_name: `${guest.first_name} ${guest.last_name}`,
-        description: `עדכן מוזמן: ${guest.first_name} ${guest.last_name}`
-      });
-    }
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id) => wedflow.entities.Guest.delete(id),
-    onSuccess: async (_, id) => {
-      queryClient.invalidateQueries(['guests']);
-      // Log activity
-      const user = await wedflow.auth.me();
-      const deletedGuest = guests.find(g => g.id === id);
-      await wedflow.entities.ActivityLog.create({
-        wedding_id: activeWeddingId,
-        user_email: user.email,
-        user_name: user.full_name,
-        action_type: 'מחיקת מוזמן',
-        entity_type: 'Guest',
-        entity_id: id,
-        entity_name: deletedGuest ? `${deletedGuest.first_name} ${deletedGuest.last_name}` : 'מוזמן',
-        description: `מחק מוזמן: ${deletedGuest ? `${deletedGuest.first_name} ${deletedGuest.last_name}` : id}`
-      });
-    }
-  });
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingGuest(null);
+  };
 
   const handleSave = (data) => {
     if (editingGuest) {
-      updateMutation.mutate({ id: editingGuest.id, data });
+      updateGuest.mutate({ id: editingGuest.id, data }, { onSuccess: handleCloseForm });
     } else {
       // Check quota before creating
       const newTotalPeople = myTotalPeople + (data.total_people || 1);
@@ -151,7 +98,7 @@ export default function Guests() {
         alert(`חרגת ממכסת המוזמנים שלך (${user?.max_guests} אנשים)`);
         return;
       }
-      createMutation.mutate(data);
+      createGuest.mutate(data, { onSuccess: handleCloseForm });
     }
   };
 
@@ -176,14 +123,9 @@ export default function Guests() {
 
   const handleConfirmDelete = () => {
     if (guestToDelete) {
-      deleteMutation.mutate(guestToDelete.id);
+      deleteGuest.mutate(guestToDelete);
       setGuestToDelete(null);
     }
-  };
-
-  const handleCloseForm = () => {
-    setShowForm(false);
-    setEditingGuest(null);
   };
 
   const toggleSelectGuest = (id) => {
@@ -736,7 +678,7 @@ export default function Guests() {
                           onBlur={() => {
                             const val = parseInt(editingConfirmed.value, 10);
                             if (!isNaN(val) && val >= 0) {
-                              updateMutation.mutate({ id: guest.id, data: { ...guest, confirmed_people: val } });
+                              updateGuest.mutate({ id: guest.id, data: { ...guest, confirmed_people: val } });
                             }
                             setEditingConfirmed(null);
                           }}
@@ -762,7 +704,7 @@ export default function Guests() {
                       <div className="flex gap-2">
                         {guest.status !== 'אישר' && (
                           <button
-                            onClick={() => updateMutation.mutate({ id: guest.id, data: { ...guest, status: 'אישר' } })}
+                            onClick={() => updateGuest.mutate({ id: guest.id, data: { ...guest, status: 'אישר' } })}
                             className="p-2 hover:bg-sage/15 rounded-lg transition-colors"
                             title="אשר הגעה"
                           >
