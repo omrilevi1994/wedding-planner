@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { wedflow } from '@/api/wedflowClient';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -10,9 +10,9 @@ import { Plus, Search, Pencil, Trash2, FileText } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import ExpenseForm from '../components/expenses/ExpenseForm';
 import { useWedding } from '@/lib/WeddingContext';
+import { useExpenseMutations } from '@/hooks/useExpenseMutations';
 
 export default function Expenses() {
-  const queryClient = useQueryClient();
   const { activeWeddingId } = useWedding();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -24,132 +24,18 @@ export default function Expenses() {
     enabled: !!activeWeddingId
   });
 
-  // Sync Payment records for an expense (deposit + remainder or single)
-  const syncPayments = async (expense) => {
-    const existing = await wedflow.entities.Payment.filter({ expense_id: expense.id, wedding_id: activeWeddingId });
+  const { createExpense, updateExpense, deleteExpense } = useExpenseMutations();
 
-    // Delete all existing payments for this expense and recreate
-    await Promise.all(existing.map(p => wedflow.entities.Payment.delete(p.id)));
-
-    if (expense.has_deposit && expense.deposit_amount) {
-      const remainderAmount = expense.amount - expense.deposit_amount;
-
-      // Deposit payment
-      await wedflow.entities.Payment.create({
-        wedding_id: activeWeddingId,
-        expense_id: expense.id,
-        expense_vendor: `${expense.vendor} - מקדמה`,
-        amount: expense.deposit_amount,
-        due_date: expense.deposit_status === 'שולם' ? expense.deposit_paid_date : (expense.deposit_due_date || expense.due_date || new Date().toISOString().split('T')[0]),
-        status: expense.deposit_status || 'מתוכנן',
-        paid_date: expense.deposit_paid_date || null,
-        probability: 100,
-        notes: expense.notes,
-      });
-
-      // Remainder payment
-      if (remainderAmount > 0) {
-        await wedflow.entities.Payment.create({
-          wedding_id: activeWeddingId,
-          expense_id: expense.id,
-          expense_vendor: `${expense.vendor} - יתרה`,
-          amount: remainderAmount,
-          due_date: expense.status === 'שולם' ? expense.paid_date : (expense.due_date || new Date().toISOString().split('T')[0]),
-          status: expense.status || 'מתוכנן',
-          paid_date: expense.paid_date || null,
-          probability: expense.probability || 100,
-          notes: expense.notes,
-        });
-      }
-    } else {
-      // Single payment
-      const date = expense.status === 'שולם' ? expense.paid_date : expense.due_date;
-      if (date) {
-        await wedflow.entities.Payment.create({
-          wedding_id: activeWeddingId,
-          expense_id: expense.id,
-          expense_vendor: expense.vendor,
-          amount: expense.amount,
-          due_date: date,
-          status: expense.status,
-          paid_date: expense.paid_date || null,
-          probability: expense.probability || 100,
-          notes: expense.notes,
-        });
-      }
-    }
-
-    queryClient.invalidateQueries(['payments']);
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingExpense(null);
   };
-
-  const createMutation = useMutation({
-    mutationFn: (data) => wedflow.entities.Expense.create({ ...data, wedding_id: activeWeddingId }),
-    onSuccess: async (expense) => {
-      queryClient.invalidateQueries(['expenses']);
-      setShowForm(false);
-      await syncPayments(expense);
-      // Log activity
-      const user = await wedflow.auth.me();
-      await wedflow.entities.ActivityLog.create({
-        wedding_id: activeWeddingId,
-        user_email: user.email,
-        user_name: user.full_name,
-        action_type: 'הוספת הוצאה',
-        entity_type: 'Expense',
-        entity_id: expense.id,
-        entity_name: expense.vendor,
-        description: `הוסף הוצאה: ${expense.vendor} - ₪${expense.amount?.toLocaleString('he-IL')}`
-      });
-    }
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => wedflow.entities.Expense.update(id, data),
-    onSuccess: async (expense) => {
-      queryClient.invalidateQueries(['expenses']);
-      setShowForm(false);
-      setEditingExpense(null);
-      await syncPayments(expense);
-      // Log activity
-      const user = await wedflow.auth.me();
-      await wedflow.entities.ActivityLog.create({
-        wedding_id: activeWeddingId,
-        user_email: user.email,
-        user_name: user.full_name,
-        action_type: 'עדכון הוצאה',
-        entity_type: 'Expense',
-        entity_id: expense.id,
-        entity_name: expense.vendor,
-        description: `עדכן הוצאה: ${expense.vendor}`
-      });
-    }
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id) => wedflow.entities.Expense.delete(id),
-    onSuccess: async (_, id) => {
-      queryClient.invalidateQueries(['expenses']);
-      // Log activity
-      const user = await wedflow.auth.me();
-      const deletedExpense = expenses.find(e => e.id === id);
-      await wedflow.entities.ActivityLog.create({
-        wedding_id: activeWeddingId,
-        user_email: user.email,
-        user_name: user.full_name,
-        action_type: 'מחיקת הוצאה',
-        entity_type: 'Expense',
-        entity_id: id,
-        entity_name: deletedExpense?.vendor || 'הוצאה',
-        description: `מחק הוצאה: ${deletedExpense?.vendor || id}`
-      });
-    }
-  });
 
   const handleSave = (data) => {
     if (editingExpense) {
-      updateMutation.mutate({ id: editingExpense.id, data });
+      updateExpense.mutate({ id: editingExpense.id, data }, { onSuccess: handleCloseForm });
     } else {
-      createMutation.mutate(data);
+      createExpense.mutate(data, { onSuccess: handleCloseForm });
     }
   };
 
@@ -160,13 +46,8 @@ export default function Expenses() {
 
   const handleDelete = (expense) => {
     if (window.confirm(`האם למחוק את ההוצאה "${expense.vendor}"?`)) {
-      deleteMutation.mutate(expense.id);
+      deleteExpense.mutate(expense);
     }
-  };
-
-  const handleCloseForm = () => {
-    setShowForm(false);
-    setEditingExpense(null);
   };
 
   const filteredExpenses = expenses.filter(expense =>
