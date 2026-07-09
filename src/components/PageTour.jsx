@@ -87,7 +87,7 @@ const STYLES = {
 };
 
 export default function PageTour({ pageKey }) {
-  const { user, refreshProfile } = useWedding();
+  const { user } = useWedding();
   const steps = TOURS[pageKey] || [];
   const alreadySeen = !!user?.tours_seen?.[pageKey];
   const [run, setRun] = useState(false);
@@ -98,25 +98,30 @@ export default function PageTour({ pageKey }) {
     savedRef.current = false;
     if (!user || alreadySeen || steps.length === 0) return;
     // Delay so the page DOM (and data-tour targets) has painted.
-    const t = setTimeout(() => setRun(true), 500);
+    const t = setTimeout(() => {
+      setRun(true);
+      // Persist "seen" the moment the tour is shown — NOT only on finish/skip.
+      // Otherwise a user who navigates away (or closes the tab) mid-tour never
+      // marks it seen, so it reappears on every visit. We deliberately do NOT
+      // refreshProfile() here: updating local context would flip `alreadySeen`
+      // and unmount the tour we just started. The DB write is enough; the
+      // in-memory tour keeps running for this session, and future loads read
+      // the persisted flag and skip it.
+      if (!savedRef.current) {
+        savedRef.current = true;
+        wedflow.entities.User.update(user.id, {
+          tours_seen: nextToursSeen(user.tours_seen, pageKey),
+        }).catch((e) => console.error('Failed to persist tour seen', e));
+      }
+    }, 500);
     return () => clearTimeout(t);
   }, [pageKey, user?.id, alreadySeen, steps.length]);
 
   if (!user || steps.length === 0 || alreadySeen) return null;
 
-  const handleCallback = async (data) => {
-    const { status } = data;
-    if (status !== STATUS.FINISHED && status !== STATUS.SKIPPED) return;
-    setRun(false);
-    if (savedRef.current) return;
-    savedRef.current = true;
-    try {
-      await wedflow.entities.User.update(user.id, {
-        tours_seen: nextToursSeen(user.tours_seen, pageKey),
-      });
-      await refreshProfile();
-    } catch (e) {
-      console.error('Failed to persist tour completion', e);
+  const handleCallback = (data) => {
+    if (data.status === STATUS.FINISHED || data.status === STATUS.SKIPPED) {
+      setRun(false);
     }
   };
 
