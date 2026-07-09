@@ -524,6 +524,7 @@ export default function Guests() {
           </Button>
 
           <Button
+            data-tour="guests-add"
             onClick={() => setShowForm(true)}
             disabled={quotaReached}
             className="bg-gradient-to-l from-rose to-rose-deep hover:from-rose-deep hover:to-rose-deep disabled:opacity-50 disabled:cursor-not-allowed"
@@ -562,6 +563,7 @@ export default function Guests() {
         <div className="flex-1 relative">
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
           <Input
+            data-tour="guests-search"
             type="text"
             placeholder="חיפוש לפי שם או טלפון..."
             value={searchTerm}
@@ -644,7 +646,7 @@ export default function Guests() {
       )}
 
       {/* Table */}
-      <Card className="overflow-hidden shadow-md">
+      <Card data-tour="guests-table" className="overflow-hidden shadow-md">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>

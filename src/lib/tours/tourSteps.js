@@ -20,4 +20,22 @@ export const TOURS = {
       content: 'קיצורי דרך להוספת הוצאה, מוזמן או תשלום — ישירות מהדשבורד.',
     },
   ],
+  Guests: [
+    {
+      target: '[data-tour="guests-add"]',
+      title: 'הוספת מוזמנים',
+      content: 'לחצו כאן כדי להוסיף מוזמן חדש לרשימה.',
+      disableBeacon: true,
+    },
+    {
+      target: '[data-tour="guests-search"]',
+      title: 'חיפוש וסינון',
+      content: 'חפשו מוזמנים לפי שם או טלפון, וסננו לפי סטטוס, צד וקרבה.',
+    },
+    {
+      target: '[data-tour="guests-table"]',
+      title: 'רשימת המוזמנים',
+      content: 'כאן מוצגים כל המוזמנים — אפשר לעדכן סטטוס הגעה, לערוך ולמחוק.',
+    },
+  ],
 };
