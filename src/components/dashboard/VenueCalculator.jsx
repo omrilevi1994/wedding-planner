@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Plus, X, Calculator } from 'lucide-react';
 import { computeTotals, budgetStatus, TARGET } from '@/lib/venueCalc';
+import { capture } from '@/lib/posthog';
 
-export default function VenueCalculator({ totalExpenses, totalConfirmed, totalInvited }) {
+export default function VenueCalculator({
+  totalExpenses = 0, totalConfirmed, totalInvited,
+  showSystemExpenses = true, onCompute,
+}) {
   const [guestCount, setGuestCount] = useState(totalInvited || totalConfirmed || 0);
 
   useEffect(() => {
@@ -44,6 +48,27 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
 
   const { costPerHead: costPerHeadVenue, totalVenueCost, grandTotal, costPerGuest: costPerGuestTotal } =
     computeTotals({ dishCost, barCost, serviceCost, extraItems, fixedItems, guestCount, systemExpenses: totalExpenses });
+
+  // Report the live calculation snapshot upward (used by /calc's lead capture) and fire the
+  // calc_used analytics event once, the first time a meaningful per-head cost is entered.
+  const usedFired = useRef(false);
+  useEffect(() => {
+    if (!usedFired.current && costPerHeadVenue > 0) {
+      usedFired.current = true;
+      capture('calc_used', { show_system_expenses: showSystemExpenses });
+    }
+    if (onCompute) {
+      onCompute({
+        guestCount: parseInt(guestCount, 10) || 0,
+        costPerHead: costPerHeadVenue,
+        totalVenueCost,
+        totalCost: grandTotal,
+        budgetStatus: budgetStatus(costPerGuestTotal).level,
+        inputs: { dishCost, barCost, serviceCost, extraItems, fixedItems, guestCount },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [costPerHeadVenue, totalVenueCost, grandTotal, costPerGuestTotal, guestCount, showSystemExpenses]);
 
   return (
     <Card className="shadow-md border-2 border-rose/30">
@@ -222,10 +247,12 @@ export default function VenueCalculator({ totalExpenses, totalConfirmed, totalIn
             </span>
           </div>
 
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-muted-foreground">שאר הוצאות מהמערכת:</span>
-            <span className="font-semibold">₪{totalExpenses.toLocaleString('he-IL')}</span>
-          </div>
+          {showSystemExpenses && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-muted-foreground">שאר הוצאות מהמערכת:</span>
+              <span className="font-semibold">₪{totalExpenses.toLocaleString('he-IL')}</span>
+            </div>
+          )}
 
           <div className="border-t border-rose/30 pt-3 flex justify-between items-center">
             <span className="font-bold text-foreground">סה״כ עלות חתונה:</span>
