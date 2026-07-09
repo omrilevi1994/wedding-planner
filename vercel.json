@@ -14,6 +14,10 @@
     {
       "source": "/app/(.*)",
       "destination": "/app.html"
+    },
+    {
+      "source": "/calc",
+      "destination": "/calc.html"
     }
   ]
 }
