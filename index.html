@@ -10,7 +10,7 @@
     <title>תכנון חתונה במקום אחד: מוזמנים, אישורי הגעה, הושבה ותקציב | WedFlow</title>
     <meta
       name="description"
-      content="WedFlow היא אפליקציה חינמית בעברית לתכנון חתונה: ניהול רשימת מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, מעקב תקציב וצ'קליסט. כל החתונה במקום אחד, מהנייד או מהמחשב."
+      content="WedFlow היא אפליקציה חינמית בעברית לתכנון חתונה: מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, תקציב וצ'קליסט. כל החתונה במקום אחד, מהנייד או מהמחשב."
     />
     <link rel="canonical" href="https://wedflow.live/" />
     <meta name="theme-color" content="#F6F0E7" />
@@ -22,13 +22,13 @@
     <meta property="og:url" content="https://wedflow.live/" />
     <meta property="og:title" content="אפליקציה לתכנון חתונה | WedFlow" />
     <meta property="og:description" content="כל החתונה במקום אחד: מוזמנים ואישורי הגעה, הושבה, ספקים ותשלומים, תקציב וצ'קליסט. בעברית, מהנייד, בחינם." />
-    <meta property="og:image" content="https://wedflow.live/social.png" />
-    <meta property="og:image:width" content="1280" />
-    <meta property="og:image:height" content="672" />
+    <meta property="og:image" content="https://wedflow.live/og-social-1200x630.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="אפליקציה לתכנון חתונה | WedFlow" />
     <meta name="twitter:description" content="כל החתונה במקום אחד: מוזמנים, הושבה, ספקים, תקציב וצ'קליסט. בעברית, מהנייד, בחינם." />
-    <meta name="twitter:image" content="https://wedflow.live/social.png" />
+    <meta name="twitter:image" content="https://wedflow.live/og-social-1200x630.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -632,6 +632,10 @@
           </div>
           <div class="faq-wrap faq reveal">
             <details open>
+              <summary><h3>מה זה WedFlow?</h3><span class="plus" aria-hidden="true"></span></summary>
+              <p>WedFlow היא אפליקציית אינטרנט חינמית בעברית לתכנון חתונה. היא מרכזת במקום אחד את רשימת המוזמנים ואישורי ההגעה, סידורי ההושבה, הספקים והתשלומים, התקציב והצ'קליסט, ועובדת מכל דפדפן, בנייד ובמחשב.</p>
+            </details>
+            <details>
               <summary><h3>כמה עולה WedFlow?</h3><span class="plus" aria-hidden="true"></span></summary>
               <p>בשלב זה WedFlow חינמית לגמרי. נרשמים עם חשבון Google או עם אימייל וסיסמה ומתחילים לעבוד, בלי כרטיס אשראי ובלי התחייבות.</p>
             </details>
@@ -689,36 +693,91 @@
             <a href="/app">כניסה למערכת</a>
             <a href="#features">תכונות</a>
             <a href="#faq">שאלות נפוצות</a>
+            <a href="/about/">אודות</a>
+            <a href="/guides/wedding-checklist/">צ'קליסט לחתונה</a>
+            <a href="/vs/iplan/">WedFlow מול iPlan</a>
+            <a href="/privacy/">מדיניות פרטיות</a>
+            <a href="/terms/">תנאי שימוש</a>
           </nav>
         </div>
         <div class="copyright">© 2026 WedFlow · wedflow.live · נבנה באהבה עבור זוגות שמתחתנים בישראל</div>
       </div>
     </footer>
 
-    <!-- JSON-LD (expanded in task 03) -->
+    <!-- JSON-LD: Organization + WebSite + WebPage + SoftwareApplication + FAQPage (FAQ text mirrors the visible FAQ verbatim) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "SoftwareApplication",
+          "@type": "Organization",
+          "@id": "https://wedflow.live/#org",
           "name": "WedFlow",
+          "url": "https://wedflow.live/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://wedflow.live/icon-512.png",
+            "width": 512,
+            "height": 512
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://wedflow.live/#website",
+          "url": "https://wedflow.live/",
+          "name": "WedFlow",
+          "inLanguage": "he",
+          "publisher": { "@id": "https://wedflow.live/#org" }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://wedflow.live/#webpage",
+          "url": "https://wedflow.live/",
+          "name": "תכנון חתונה במקום אחד: מוזמנים, אישורי הגעה, הושבה ותקציב | WedFlow",
+          "description": "WedFlow היא אפליקציה חינמית בעברית לתכנון חתונה: מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, תקציב וצ'קליסט. כל החתונה במקום אחד, מהנייד או מהמחשב.",
+          "isPartOf": { "@id": "https://wedflow.live/#website" },
+          "about": { "@id": "https://wedflow.live/#app" },
+          "inLanguage": "he",
+          "dateModified": "2026-07-09"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://wedflow.live/#app",
+          "name": "WedFlow",
+          "alternateName": "וודפלואו",
           "url": "https://wedflow.live/",
           "applicationCategory": "LifestyleApplication",
           "operatingSystem": "Web",
+          "browserRequirements": "כל דפדפן מודרני, בנייד ובמחשב",
           "inLanguage": "he",
-          "description": "אפליקציה בעברית לתכנון חתונה: ניהול מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, תקציב וצ'קליסט.",
+          "description": "אפליקציית אינטרנט חינמית בעברית לתכנון חתונה: ניהול מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, מעקב תקציב וצ'קליסט.",
+          "featureList": [
+            "ניהול רשימת מוזמנים ואישורי הגעה",
+            "סידורי הושבה עם מפת שולחנות",
+            "ניהול ספקים ותשלומים",
+            "מעקב תקציב לפי קטגוריות",
+            "צ'קליסט משימות לתכנון החתונה",
+            "מצב יום החתונה ומעקב מתנות",
+            "ייבוא רשימת מוזמנים מ־iPlan ועדכון סטטוסים מ־Wiwi",
+            "ייצוא הנתונים ל־CSV"
+          ],
+          "publisher": { "@id": "https://wedflow.live/#org" },
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "ILS" }
         },
         {
           "@type": "FAQPage",
+          "@id": "https://wedflow.live/#faq",
+          "isPartOf": { "@id": "https://wedflow.live/#webpage" },
+          "inLanguage": "he",
           "mainEntity": [
+            { "@type": "Question", "name": "מה זה WedFlow?", "acceptedAnswer": { "@type": "Answer", "text": "WedFlow היא אפליקציית אינטרנט חינמית בעברית לתכנון חתונה. היא מרכזת במקום אחד את רשימת המוזמנים ואישורי ההגעה, סידורי ההושבה, הספקים והתשלומים, התקציב והצ'קליסט, ועובדת מכל דפדפן, בנייד ובמחשב." } },
             { "@type": "Question", "name": "כמה עולה WedFlow?", "acceptedAnswer": { "@type": "Answer", "text": "בשלב זה WedFlow חינמית לגמרי. נרשמים עם חשבון Google או עם אימייל וסיסמה ומתחילים לעבוד, בלי כרטיס אשראי ובלי התחייבות." } },
-            { "@type": "Question", "name": "האם זה מתאים גם לחתונה קטנה?", "acceptedAnswer": { "@type": "Answer", "text": "בהחלט. המערכת נוסתה על חתונה של מאות מוזמנים, אבל עובדת אותו דבר לאירוע אינטימי." } },
-            { "@type": "Question", "name": "אפשר לתכנן יחד, בני זוג ומשפחה?", "acceptedAnswer": { "@type": "Answer", "text": "כן. כל חתונה תומכת בכמה משתתפים עם הרשאות לפי תפקיד: בעלי החתונה, שותפים לתכנון ובני משפחה." } },
-            { "@type": "Question", "name": "האם הנתונים שלנו מאובטחים?", "acceptedAnswer": { "@type": "Answer", "text": "כן. החיבור מוצפן, הנתונים נשמרים עם הרשאות מבודדות לכל חתונה, וההתחברות נעשית עם Google או אימייל וסיסמה. אפשר לייצא את הנתונים בכל רגע." } },
-            { "@type": "Question", "name": "צריך להתקין אפליקציה?", "acceptedAnswer": { "@type": "Answer", "text": "לא. WedFlow עובדת בדפדפן: מהנייד, מהטאבלט ומהמחשב, בלי התקנה." } },
-            { "@type": "Question", "name": "יש לנו כבר רשימת מוזמנים, אפשר לייבא אותה?", "acceptedAnswer": { "@type": "Answer", "text": "כן. אפשר לייבא רשימה מ־iPlan, לעדכן סטטוסי אישורי הגעה מ־Wiwi, ולייצא הכול ל־CSV." } }
+            { "@type": "Question", "name": "האם זה מתאים גם לחתונה קטנה?", "acceptedAnswer": { "@type": "Answer", "text": "בהחלט. המערכת נוסתה על חתונה של מאות מוזמנים, אבל עובדת בדיוק אותו דבר לאירוע אינטימי. רשימת מוזמנים, תקציב וצ'קליסט צריכים סדר בכל גודל." } },
+            { "@type": "Question", "name": "אפשר לתכנן יחד, בני זוג ומשפחה?", "acceptedAnswer": { "@type": "Answer", "text": "כן. כל חתונה תומכת בכמה משתתפים עם הרשאות לפי תפקיד: בעלי החתונה, שותפים לתכנון ובני משפחה, כך שכל אחד רואה ועורך רק את מה שרלוונטי לו." } },
+            { "@type": "Question", "name": "האם הנתונים שלנו מאובטחים?", "acceptedAnswer": { "@type": "Answer", "text": "כן. החיבור מוצפן, הנתונים נשמרים עם הרשאות מבודדות לכל חתונה, וההתחברות נעשית עם Google או עם אימייל וסיסמה. הנתונים שייכים לכם, ואפשר לייצא אותם לקובץ בכל רגע." } },
+            { "@type": "Question", "name": "צריך להתקין אפליקציה?", "acceptedAnswer": { "@type": "Answer", "text": "לא. WedFlow עובדת בדפדפן: מהנייד, מהטאבלט ומהמחשב. פותחים את wedflow.live, מתחברים, וממשיכים בדיוק מאיפה שעצרתם, מכל מכשיר." } },
+            { "@type": "Question", "name": "יש לנו כבר רשימת מוזמנים, אפשר לייבא אותה?", "acceptedAnswer": { "@type": "Answer", "text": "כן. אפשר לייבא רשימה קיימת מ־iPlan, לעדכן סטטוסי אישורי הגעה מ־Wiwi, ולייצא את הכול ל־CSV בכל שלב." } },
+            { "@type": "Question", "name": "מה קורה אחרי החתונה?", "acceptedAnswer": { "@type": "Answer", "text": "הנתונים נשארים שלכם: מעקב המתנות מפיק דוח מסודר לכל אורח, ואת כל הרשימות אפשר לייצא ולשמור." } }
           ]
         }
       ]
