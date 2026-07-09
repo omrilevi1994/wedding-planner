@@ -6,8 +6,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { wedflow } from '@/api/wedflowClient';
+import { useWedding } from '@/lib/WeddingContext';
+import { SignedFileLink } from '@/lib/signedFile';
 
 export default function VendorForm({ open, onClose, vendor, onSave }) {
+  const { activeWeddingId } = useWedding();
   const [formData, setFormData] = useState({
     name: '',
     contact_person: '',
@@ -47,8 +50,8 @@ export default function VendorForm({ open, onClose, vendor, onSave }) {
 
     setIsUploading(true);
     try {
-      const result = await wedflow.integrations.Core.UploadFile({ file });
-      setFormData(prev => ({ ...prev, contract_file_url: result.file_url }));
+      const { file_path } = await wedflow.integrations.Core.UploadFile({ file, weddingId: activeWeddingId });
+      setFormData(prev => ({ ...prev, contract_file_url: file_path }));
     } catch (error) {
       alert('שגיאה בהעלאת הקובץ: ' + error.message);
     } finally {
@@ -179,9 +182,12 @@ export default function VendorForm({ open, onClose, vendor, onSave }) {
               {isUploading && <span className="text-sm text-muted-foreground">מעלה...</span>}
             </div>
             {formData.contract_file_url && (
-              <div className="text-sm text-sage-deep">
+              <SignedFileLink
+                path={formData.contract_file_url}
+                className="text-sm text-sage-deep hover:underline flex items-center"
+              >
                 ✓ קובץ החוזה הועלה בהצלחה
-              </div>
+              </SignedFileLink>
             )}
           </div>
 

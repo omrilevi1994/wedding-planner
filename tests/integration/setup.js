@@ -15,3 +15,15 @@ export async function makeWedding() {
   if (error) throw error;
   return data;
 }
+
+export async function makeUser(email, password = 'Passw0rd!1') {
+  const { data, error } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+  if (error) throw error;
+  const client = createClient(
+    process.env.VITE_SUPABASE_URL,
+    process.env.VITE_SUPABASE_ANON_KEY,
+    { auth: { persistSession: false } },
+  );
+  await client.auth.signInWithPassword({ email, password });
+  return { id: data.user.id, client };
+}

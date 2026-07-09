@@ -6,6 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { CheckCircle2, Circle, X } from 'lucide-react';
 import { useWedding } from '@/lib/WeddingContext';
+import { SignedImage } from '@/lib/signedFile';
 
 export default function WeddingDayChecklist() {
   const queryClient = useQueryClient();
@@ -120,8 +121,8 @@ export default function WeddingDayChecklist() {
                 )}
               </div>
               {item.image_url && (
-                <img
-                  src={item.image_url}
+                <SignedImage
+                  path={item.image_url}
                   alt={item.title}
                   className="w-14 h-14 rounded-lg object-cover flex-shrink-0 border border-border cursor-pointer hover:opacity-80 transition-opacity"
                   onClick={(e) => { e.stopPropagation(); setSelectedImage(item.image_url); }}
@@ -157,8 +158,8 @@ export default function WeddingDayChecklist() {
           >
             <X className="w-6 h-6 text-white" />
           </button>
-          <img
-            src={selectedImage}
+          <SignedImage
+            path={selectedImage}
             alt="תמונה גדולה"
             className="w-full h-auto"
           />

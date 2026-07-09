@@ -6,28 +6,29 @@ import { roleLabel } from '../_shared/email/templates/index.ts';
 const INVITABLE_ROLES = ['coplanner', 'family', 'event_manager'];
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  const cors = corsHeaders(req);
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   try {
     // --- Authenticate caller ---
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
     }
     const caller = createClient(
       Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!,
       { global: { headers: { Authorization: authHeader } } });
     const { data: { user } } = await caller.auth.getUser();
     if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
     }
 
     // --- Parse + validate body ---
     const { email, wedding_id, role = 'family', wedding_sides = [], max_guests = null } = await req.json();
     if (!email || !wedding_id) {
-      return Response.json({ error: 'email and wedding_id are required' }, { status: 400, headers: corsHeaders });
+      return Response.json({ error: 'email and wedding_id are required' }, { status: 400, headers: cors });
     }
     if (!INVITABLE_ROLES.includes(role)) {
-      return Response.json({ error: `role must be one of: ${INVITABLE_ROLES.join(', ')}` }, { status: 400, headers: corsHeaders });
+      return Response.json({ error: `role must be one of: ${INVITABLE_ROLES.join(', ')}` }, { status: 400, headers: cors });
     }
 
     // --- Authorize: wedding owner or platform admin (via service client) ---
@@ -38,7 +39,7 @@ Deno.serve(async (req) => {
       const { data: profile } = await service.from('profiles')
         .select('is_platform_admin').eq('id', user.id).maybeSingle();
       if (!profile?.is_platform_admin) {
-        return Response.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
+        return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
       }
     }
 
@@ -49,7 +50,7 @@ Deno.serve(async (req) => {
     const { data: existingProfile, error: profileError } = await service.from('profiles')
       .select('id').eq('email', normalizedEmail).maybeSingle();
     if (profileError) {
-      return Response.json({ error: profileError.message }, { status: 500, headers: corsHeaders });
+      return Response.json({ error: profileError.message }, { status: 500, headers: cors });
     }
 
     let userId: string;
@@ -67,7 +68,7 @@ Deno.serve(async (req) => {
         options: { redirectTo: appUrl },
       });
       if (linkError || !linkData?.user) {
-        return Response.json({ error: linkError?.message ?? 'Failed to generate invite link' }, { status: 400, headers: corsHeaders });
+        return Response.json({ error: linkError?.message ?? 'Failed to generate invite link' }, { status: 400, headers: cors });
       }
       userId = linkData.user.id;
       existing = false;
@@ -93,13 +94,13 @@ Deno.serve(async (req) => {
         .update({ role, wedding_sides, max_guests, updated_date: new Date().toISOString() })
         .eq('id', membership.id);
       if (updateError) {
-        return Response.json({ error: updateError.message }, { status: 500, headers: corsHeaders });
+        return Response.json({ error: updateError.message }, { status: 500, headers: cors });
       }
     } else {
       const { error: insertError } = await service.from('wedding_members')
         .insert({ id: crypto.randomUUID(), wedding_id, user_id: userId, role, wedding_sides, max_guests });
       if (insertError) {
-        return Response.json({ error: insertError.message }, { status: 500, headers: corsHeaders });
+        return Response.json({ error: insertError.message }, { status: 500, headers: cors });
       }
     }
 
@@ -129,8 +130,8 @@ Deno.serve(async (req) => {
       console.error('invite email send failed:', emailError);
     }
 
-    return Response.json({ invited: normalizedEmail, existing, emailSent, emailError }, { headers: corsHeaders });
+    return Response.json({ invited: normalizedEmail, existing, emailSent, emailError }, { headers: cors });
   } catch (e) {
-    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: cors });
   }
 });

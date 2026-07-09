@@ -7,28 +7,29 @@ const LINKABLE_ROLES = ['coplanner', 'family', 'event_manager'];
 const TTL_MS = 2 * 24 * 60 * 60 * 1000; // 2 days
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  const cors = corsHeaders(req);
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   try {
     // --- Authenticate caller ---
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
     }
     const caller = createClient(
       Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!,
       { global: { headers: { Authorization: authHeader } } });
     const { data: { user } } = await caller.auth.getUser();
     if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
     }
 
     // --- Parse + validate body ---
     const { wedding_id, role = 'coplanner', wedding_sides = [], max_guests = null } = await req.json();
     if (!wedding_id) {
-      return Response.json({ error: 'wedding_id is required' }, { status: 400, headers: corsHeaders });
+      return Response.json({ error: 'wedding_id is required' }, { status: 400, headers: cors });
     }
     if (!LINKABLE_ROLES.includes(role)) {
-      return Response.json({ error: `role must be one of: ${LINKABLE_ROLES.join(', ')}` }, { status: 400, headers: corsHeaders });
+      return Response.json({ error: `role must be one of: ${LINKABLE_ROLES.join(', ')}` }, { status: 400, headers: cors });
     }
     // Sides/guest-quota only apply to (and are only ever stored for) the 'family' role —
     // matches inviteUserToWedding, where non-family roles always get unrestricted access.
@@ -43,7 +44,7 @@ Deno.serve(async (req) => {
       const { data: profile } = await service.from('profiles')
         .select('is_platform_admin').eq('id', user.id).maybeSingle();
       if (!profile?.is_platform_admin) {
-        return Response.json({ error: 'Forbidden' }, { status: 403, headers: corsHeaders });
+        return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
       }
     }
 
@@ -63,14 +64,14 @@ Deno.serve(async (req) => {
       created_by_id: user.id,
     });
     if (insertError) {
-      return Response.json({ error: insertError.message }, { status: 500, headers: corsHeaders });
+      return Response.json({ error: insertError.message }, { status: 500, headers: cors });
     }
 
     const appUrl = Deno.env.get('APP_URL') ?? 'https://wedflow.live';
     const url = `${appUrl}/app/join-wedding?token=${encodeURIComponent(token)}`;
 
-    return Response.json({ url, token, role, expires_at: expiresAt }, { headers: corsHeaders });
+    return Response.json({ url, token, role, expires_at: expiresAt }, { headers: cors });
   } catch (e) {
-    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: cors });
   }
 });

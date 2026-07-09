@@ -11,6 +11,7 @@ import { format, parseISO } from 'date-fns';
 import ExpenseForm from '../components/expenses/ExpenseForm';
 import { useWedding } from '@/lib/WeddingContext';
 import { useExpenseMutations } from '@/hooks/useExpenseMutations';
+import { SignedFileLink } from '@/lib/signedFile';
 
 export default function Expenses() {
   const { activeWeddingId } = useWedding();
@@ -204,14 +205,12 @@ export default function Expenses() {
                     <TableCell>
                       <div className="flex gap-2">
                         {expense.receipt_url && (
-                          <a
-                            href={expense.receipt_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <SignedFileLink
+                            path={expense.receipt_url}
                             className="p-2 hover:bg-muted rounded-lg transition-colors"
                           >
                             <FileText className="w-4 h-4 text-taupe" />
-                          </a>
+                          </SignedFileLink>
                         )}
                         <button
                           onClick={() => handleEdit(expense)}

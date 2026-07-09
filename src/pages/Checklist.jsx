@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { CheckCircle2, Circle, ChevronDown, ChevronUp, Calendar, Plus, X, Image, Loader2, Pencil, Check, Trash2 } from 'lucide-react';
 import { subMonths, subWeeks, subDays, format, isPast } from 'date-fns';
 import { useWedding } from '@/lib/WeddingContext';
+import { SignedImage } from '@/lib/signedFile';
 
 // Map group title to date offset from wedding date
 function getGroupDate(groupTitle, weddingDate) {
@@ -115,8 +116,8 @@ export default function Checklist() {
   const handleImageUpload = async (item, file) => {
     if (!file) return;
     setUploadingItemId(item.id);
-    const { file_url } = await wedflow.integrations.Core.UploadFile({ file });
-    updateMutation.mutate({ id: item.id, data: { ...item, image_url: file_url } });
+    const { file_path } = await wedflow.integrations.Core.UploadFile({ file, weddingId: activeWeddingId });
+    updateMutation.mutate({ id: item.id, data: { ...item, image_url: file_path } });
     setUploadingItemId(null);
   };
 
@@ -182,8 +183,8 @@ export default function Checklist() {
             >
               <X className="w-4 h-4 text-foreground" />
             </button>
-            <img
-              src={previewItem.image_url}
+            <SignedImage
+              path={previewItem.image_url}
               alt={previewItem.title}
               className="w-full rounded-xl shadow-2xl object-contain max-h-[80vh]"
             />
@@ -409,8 +410,8 @@ export default function Checklist() {
                           {/* Image thumbnail or upload */}
                           {item.image_url ? (
                             <div className="relative group">
-                              <img
-                                src={item.image_url}
+                              <SignedImage
+                                path={item.image_url}
                                 alt={item.title}
                                 onClick={() => setPreviewItem(item)}
                                 className="w-10 h-10 rounded-lg object-cover cursor-pointer border border-border hover:opacity-80 transition-opacity"

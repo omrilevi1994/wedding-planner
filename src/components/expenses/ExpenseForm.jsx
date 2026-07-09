@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { wedflow } from '@/api/wedflowClient';
+import { useWedding } from '@/lib/WeddingContext';
+import { SignedFileLink } from '@/lib/signedFile';
 import { Upload } from 'lucide-react';
 
 const CATEGORIES = [
@@ -37,6 +39,7 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
     deposit_status: 'מתוכנן',
   };
 
+  const { activeWeddingId } = useWedding();
   const [formData, setFormData] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
 
@@ -71,8 +74,8 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
 
     setUploading(true);
     try {
-      const { file_url } = await wedflow.integrations.Core.UploadFile({ file });
-      setFormData({ ...formData, receipt_url: file_url });
+      const { file_path } = await wedflow.integrations.Core.UploadFile({ file, weddingId: activeWeddingId });
+      setFormData({ ...formData, receipt_url: file_path });
     } catch (error) {
       alert('שגיאה בהעלאת קובץ');
     } finally {
@@ -353,14 +356,12 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
                 {uploading ? 'מעלה...' : 'העלה קובץ'}
               </Button>
               {formData.receipt_url && (
-                <a
-                  href={formData.receipt_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <SignedFileLink
+                  path={formData.receipt_url}
                   className="text-sm text-primary hover:underline flex items-center"
                 >
                   צפה בקובץ
-                </a>
+                </SignedFileLink>
               )}
             </div>
             <input

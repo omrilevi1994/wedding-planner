@@ -126,14 +126,26 @@ const auth = {
 
 const BUCKET = 'uploads';
 
+// Files are stored under a per-wedding folder so Storage RLS can scope them (see 0016).
+// We persist the object PATH (not a public URL); reads mint a short-lived signed URL.
+export function buildUploadPath(weddingId, fileName) {
+  return `${weddingId}/${crypto.randomUUID()}-${fileName}`;
+}
+
 const integrations = {
   Core: {
-    async UploadFile({ file }) {
-      const path = `${Date.now()}-${file.name}`;
+    async UploadFile({ file, weddingId }) {
+      if (!weddingId) throw new Error('weddingId is required to upload a file');
+      const path = buildUploadPath(weddingId, file.name);
       const { error } = await supabase.storage.from(BUCKET).upload(path, file);
       if (error) throw error;
-      const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-      return { file_url: data.publicUrl };
+      return { file_path: path };
+    },
+    async getSignedUrl(path) {
+      if (!path) return null;
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600);
+      if (error) throw error;
+      return data.signedUrl;
     },
   },
 };

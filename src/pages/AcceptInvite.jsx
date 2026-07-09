@@ -48,8 +48,8 @@ export default function AcceptInvite() {
   const submitPassword = async (e) => {
     e.preventDefault();
     setError(null);
-    if (password.length < 6) {
-      setError('הסיסמה חייבת להכיל לפחות 6 תווים');
+    if (password.length < 8) {
+      setError('הסיסמה חייבת להכיל לפחות 8 תווים');
       return;
     }
     if (password !== confirmPassword) {

@@ -290,7 +290,7 @@ export default function Guests() {
       }
 
       if (updates.length > 0) {
-        await wedflow.functions.invoke('bulkUpdateGuestStatus', { updates });
+        await wedflow.functions.invoke('bulkUpdateGuestStatus', { updates, wedding_id: activeWeddingId });
       }
       queryClient.invalidateQueries(['guests']);
       setShowWiwiDialog(false);

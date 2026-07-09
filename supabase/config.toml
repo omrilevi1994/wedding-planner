@@ -179,7 +179,7 @@ enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
-minimum_password_length = 6
+minimum_password_length = 8
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
 password_requirements = ""
@@ -415,3 +415,21 @@ enabled = true
 
 [functions.submitCalculatorLead]
 verify_jwt = false
+[functions.authEmailHook]
+# Auth webhook: verifies its own signature and must accept unauthenticated calls from GoTrue.
+verify_jwt = false
+
+[functions.bulkUpdateGuestStatus]
+verify_jwt = true
+[functions.iplanBulkImport]
+verify_jwt = true
+[functions.createWeddingInviteLink]
+verify_jwt = true
+[functions.joinWeddingViaLink]
+verify_jwt = true
+[functions.getWeddingUsers]
+verify_jwt = true
+[functions.inviteUserToWedding]
+verify_jwt = true
+[functions.sendEmail]
+verify_jwt = true

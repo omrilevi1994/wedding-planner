@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import VendorForm from '../components/vendors/VendorForm';
 import { useWedding } from '@/lib/WeddingContext';
+import { SignedFileLink } from '@/lib/signedFile';
 
 export default function Vendors() {
   const queryClient = useQueryClient();
@@ -226,15 +227,13 @@ export default function Vendors() {
                     </TableCell>
                     <TableCell>
                       {vendor.contract_file_url ? (
-                        <a
-                          href={vendor.contract_file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <SignedFileLink
+                          path={vendor.contract_file_url}
                           className="text-taupe hover:text-rose-deep flex items-center gap-1"
                         >
                           <Download className="w-4 h-4" />
                           הורד
-                        </a>
+                        </SignedFileLink>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}

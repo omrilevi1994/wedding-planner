@@ -2,25 +2,26 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  const cors = corsHeaders(req);
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   try {
     // --- Authenticate caller (joining requires being signed in) ---
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
     }
     const caller = createClient(
       Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!,
       { global: { headers: { Authorization: authHeader } } });
     const { data: { user } } = await caller.auth.getUser();
     if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
     }
 
     // --- Parse + validate body ---
     const { token } = await req.json();
     if (!token) {
-      return Response.json({ error: 'token is required' }, { status: 400, headers: corsHeaders });
+      return Response.json({ error: 'token is required' }, { status: 400, headers: cors });
     }
 
     // --- Look up the link (service role bypasses RLS — this table has no select policy) ---
@@ -28,13 +29,13 @@ Deno.serve(async (req) => {
     const { data: link, error: linkError } = await service.from('wedding_invite_links')
       .select('id, wedding_id, role, wedding_sides, max_guests, expires_at').eq('token', token).maybeSingle();
     if (linkError) {
-      return Response.json({ error: linkError.message }, { status: 500, headers: corsHeaders });
+      return Response.json({ error: linkError.message }, { status: 500, headers: cors });
     }
     if (!link) {
-      return Response.json({ error: 'invalid_token', message: 'קישור ההזמנה אינו תקין' }, { status: 404, headers: corsHeaders });
+      return Response.json({ error: 'invalid_token', message: 'קישור ההזמנה אינו תקין' }, { status: 404, headers: cors });
     }
     if (new Date(link.expires_at).getTime() < Date.now()) {
-      return Response.json({ error: 'expired_token', message: 'קישור ההזמנה פג תוקף' }, { status: 410, headers: corsHeaders });
+      return Response.json({ error: 'expired_token', message: 'קישור ההזמנה פג תוקף' }, { status: 410, headers: cors });
     }
 
     // Defensive: a link can never grant ownership, regardless of what's stored.
@@ -53,7 +54,7 @@ Deno.serve(async (req) => {
       const { error: insertError } = await service.from('wedding_members')
         .insert({ id: crypto.randomUUID(), wedding_id: link.wedding_id, user_id: user.id, role, wedding_sides, max_guests });
       if (insertError) {
-        return Response.json({ error: insertError.message }, { status: 500, headers: corsHeaders });
+        return Response.json({ error: insertError.message }, { status: 500, headers: cors });
       }
     }
 
@@ -65,8 +66,8 @@ Deno.serve(async (req) => {
       couple_names: wedding?.couple_names ?? null,
       role: existingMembership?.role ?? role,
       already_member: !!existingMembership,
-    }, { headers: corsHeaders });
+    }, { headers: cors });
   } catch (e) {
-    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: cors });
   }
 });
