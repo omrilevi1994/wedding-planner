@@ -6,6 +6,7 @@ import * as memberAdded from './memberAdded.ts';
 import * as authVerification from './authVerification.ts';
 import * as authPasswordReset from './authPasswordReset.ts';
 import * as authMagicLink from './authMagicLink.ts';
+import * as calculatorBreakdown from './calculatorBreakdown.ts';
 
 export interface EmailTemplate {
   subject: (data: Record<string, unknown>) => string;
@@ -19,6 +20,7 @@ export const templates = {
   authVerification,
   authPasswordReset,
   authMagicLink,
+  calculatorBreakdown,
 } satisfies Record<string, EmailTemplate>;
 
 export type TemplateId = keyof typeof templates;
