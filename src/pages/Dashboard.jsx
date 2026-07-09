@@ -153,7 +153,7 @@ export default function Dashboard() {
       {/* KPI Cards Grid */}
       <div>
       <p className="text-xs font-semibold tracking-wide text-rose-deep/80 mb-3">תקציב</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div data-tour="dashboard-kpis" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title="תקציב כולל"
           value={`₪${budgetTarget.toLocaleString('he-IL')}`}
@@ -251,11 +251,13 @@ export default function Dashboard() {
         <div className="lg:col-span-2">
           <ExpensesPieChart expenses={billableExpenses} />
         </div>
-        <QuickActions
-          onAddExpense={() => navigate(createPageUrl('Expenses'))}
-          onAddGuest={() => navigate(createPageUrl('Guests'))}
-          onMarkPayment={() => navigate(createPageUrl('Payments'))}
-        />
+        <div data-tour="dashboard-quick-actions">
+          <QuickActions
+            onAddExpense={() => navigate(createPageUrl('Expenses'))}
+            onAddGuest={() => navigate(createPageUrl('Guests'))}
+            onMarkPayment={() => navigate(createPageUrl('Payments'))}
+          />
+        </div>
       </div>
 
       {/* Guest Analytics */}
