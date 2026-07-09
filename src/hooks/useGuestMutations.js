@@ -8,19 +8,30 @@ export function useGuestMutations() {
   const queryClient = useQueryClient();
   const { activeWeddingId } = useWedding();
 
-  const createGuest = useMutation({
-    mutationFn: (data) => wedflow.entities.Guest.create({ ...data, wedding_id: activeWeddingId }),
-    onSuccess: async (guest) => {
-      queryClient.invalidateQueries(['guests']);
+  // Activity logging runs detached (not awaited) so a caller's per-call
+  // onSuccess — e.g. closing the form — fires immediately on success,
+  // matching the page's original "close first, then background work" behavior.
+  const logGuestActivity = (guest, activity) => {
+    (async () => {
       const user = await wedflow.auth.me();
       await wedflow.entities.ActivityLog.create({
         wedding_id: activeWeddingId,
         user_email: user.email,
         user_name: user.full_name,
-        action_type: 'הוספת מוזמן',
         entity_type: 'Guest',
         entity_id: guest.id,
         entity_name: guestName(guest),
+        ...activity,
+      });
+    })().catch(() => {});
+  };
+
+  const createGuest = useMutation({
+    mutationFn: (data) => wedflow.entities.Guest.create({ ...data, wedding_id: activeWeddingId }),
+    onSuccess: (guest) => {
+      queryClient.invalidateQueries(['guests']);
+      logGuestActivity(guest, {
+        action_type: 'הוספת מוזמן',
         description: `הוסף מוזמן חדש: ${guestName(guest)}`,
       });
     },
@@ -28,17 +39,10 @@ export function useGuestMutations() {
 
   const updateGuest = useMutation({
     mutationFn: ({ id, data }) => wedflow.entities.Guest.update(id, data),
-    onSuccess: async (guest) => {
+    onSuccess: (guest) => {
       queryClient.invalidateQueries(['guests']);
-      const user = await wedflow.auth.me();
-      await wedflow.entities.ActivityLog.create({
-        wedding_id: activeWeddingId,
-        user_email: user.email,
-        user_name: user.full_name,
+      logGuestActivity(guest, {
         action_type: 'עדכון מוזמן',
-        entity_type: 'Guest',
-        entity_id: guest.id,
-        entity_name: guestName(guest),
         description: `עדכן מוזמן: ${guestName(guest)}`,
       });
     },

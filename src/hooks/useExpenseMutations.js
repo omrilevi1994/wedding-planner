@@ -56,20 +56,32 @@ export function useExpenseMutations() {
     queryClient.invalidateQueries(['payments']);
   };
 
+  // Payment sync + activity logging run detached (not awaited) so a caller's
+  // per-call onSuccess — e.g. closing the form — fires immediately on success,
+  // matching the pages' original "close first, then background work" behavior.
+  const runExpenseSideEffects = (expense, activity) => {
+    syncPayments(expense)
+      .then(async () => {
+        const user = await wedflow.auth.me();
+        await wedflow.entities.ActivityLog.create({
+          wedding_id: activeWeddingId,
+          user_email: user.email,
+          user_name: user.full_name,
+          entity_type: 'Expense',
+          entity_id: expense.id,
+          entity_name: expense.vendor,
+          ...activity,
+        });
+      })
+      .catch(() => {});
+  };
+
   const createExpense = useMutation({
     mutationFn: (data) => wedflow.entities.Expense.create({ ...data, wedding_id: activeWeddingId }),
-    onSuccess: async (expense) => {
+    onSuccess: (expense) => {
       queryClient.invalidateQueries(['expenses']);
-      await syncPayments(expense);
-      const user = await wedflow.auth.me();
-      await wedflow.entities.ActivityLog.create({
-        wedding_id: activeWeddingId,
-        user_email: user.email,
-        user_name: user.full_name,
+      runExpenseSideEffects(expense, {
         action_type: 'הוספת הוצאה',
-        entity_type: 'Expense',
-        entity_id: expense.id,
-        entity_name: expense.vendor,
         description: `הוסף הוצאה: ${expense.vendor} - ₪${expense.amount?.toLocaleString('he-IL')}`,
       });
     },
@@ -77,18 +89,10 @@ export function useExpenseMutations() {
 
   const updateExpense = useMutation({
     mutationFn: ({ id, data }) => wedflow.entities.Expense.update(id, data),
-    onSuccess: async (expense) => {
+    onSuccess: (expense) => {
       queryClient.invalidateQueries(['expenses']);
-      await syncPayments(expense);
-      const user = await wedflow.auth.me();
-      await wedflow.entities.ActivityLog.create({
-        wedding_id: activeWeddingId,
-        user_email: user.email,
-        user_name: user.full_name,
+      runExpenseSideEffects(expense, {
         action_type: 'עדכון הוצאה',
-        entity_type: 'Expense',
-        entity_id: expense.id,
-        entity_name: expense.vendor,
         description: `עדכן הוצאה: ${expense.vendor}`,
       });
     },
