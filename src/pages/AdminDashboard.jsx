@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { wedflow } from '@/api/wedflowClient';
 import { supabase } from '@/lib/supabaseClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -24,6 +24,7 @@ export default function AdminDashboard() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ couple_names: '', wedding_date: '', venue: '', budget_target: '', expected_guests: '' });
+  const creatingRef = useRef(false);
 
   // Per-wedding membership (platform admin sees all via RLS); joined to profiles for display names
   const { data: members = [] } = useQuery({
@@ -64,6 +65,10 @@ export default function AdminDashboard() {
       queryClient.invalidateQueries(['settings']);
       setShowCreateDialog(false);
       setForm({ couple_names: '', wedding_date: '', venue: '', budget_target: '', expected_guests: '' });
+      creatingRef.current = false;
+    },
+    onError: () => {
+      creatingRef.current = false;
     }
   });
 
@@ -76,6 +81,8 @@ export default function AdminDashboard() {
 
   const handleCreate = () => {
     if (!form.couple_names || !form.wedding_date) return;
+    if (creatingRef.current) return;
+    creatingRef.current = true;
     createWeddingMutation.mutate({
       couple_names: form.couple_names,
       wedding_date: form.wedding_date,
@@ -297,8 +304,8 @@ export default function AdminDashboard() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>ביטול</Button>
-            <Button onClick={handleCreate} disabled={!form.couple_names || !form.wedding_date || createWeddingMutation.isLoading} className="bg-primary hover:bg-primary-hover">
-              {createWeddingMutation.isLoading ? 'יוצר...' : 'צור חתונה'}
+            <Button onClick={handleCreate} disabled={!form.couple_names || !form.wedding_date || createWeddingMutation.isPending} className="bg-primary hover:bg-primary-hover">
+              {createWeddingMutation.isPending ? 'יוצר...' : 'צור חתונה'}
             </Button>
           </DialogFooter>
         </DialogContent>
