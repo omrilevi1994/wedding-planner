@@ -70,6 +70,7 @@ const auth = {
       email: user.email,
       full_name: profile?.full_name ?? user.email,
       is_platform_admin: profile?.is_platform_admin ?? false,
+      tours_seen: profile?.tours_seen ?? {},
     };
   },
   async isAuthenticated() {
