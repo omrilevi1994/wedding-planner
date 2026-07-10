@@ -8,7 +8,6 @@
 
 - [Home / דף הבית](https://wedflow.live/): what WedFlow does, feature overview, and FAQ (Hebrew)
 - [About / אודות](https://wedflow.live/about/): what WedFlow is, how it was built, quick facts table, English summary
-- [WedFlow vs iPlan / WedFlow מול iPlan](https://wedflow.live/vs/iplan/): honest comparison — iPlan is a paid RSVP (SMS/calls) service, WedFlow is a free planning hub; they can be combined via import
 - [Wedding checklist / צ'קליסט לתכנון חתונה](https://wedflow.live/guides/wedding-checklist/): timeline-based wedding planning checklist for Israel (12 months out → wedding day)
 - [Privacy / מדיניות פרטיות](https://wedflow.live/privacy/): what data is collected and how it is stored
 - [Terms / תנאי שימוש](https://wedflow.live/terms/): terms of service
