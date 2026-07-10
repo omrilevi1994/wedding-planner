@@ -147,6 +147,11 @@ const integrations = {
       if (error) throw error;
       return data.signedUrl;
     },
+    async DeleteFile(path) {
+      if (!path) return;
+      const { error } = await supabase.storage.from(BUCKET).remove([path]);
+      if (error) throw error;
+    },
   },
 };
 

@@ -9,7 +9,7 @@ import { Slider } from '@/components/ui/slider';
 import { wedflow } from '@/api/wedflowClient';
 import { useWedding } from '@/lib/WeddingContext';
 import { SignedFileLink } from '@/lib/signedFile';
-import { Upload } from 'lucide-react';
+import { Upload, Trash2 } from 'lucide-react';
 
 const CATEGORIES = [
   'אולם', 'דיג\'יי', 'צילום', 'שמלה', 'חליפה', 'טבעות',
@@ -42,6 +42,7 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
   const { activeWeddingId } = useWedding();
   const [formData, setFormData] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
+  const [removing, setRemoving] = useState(false);
 
   useEffect(() => {
     if (expense) {
@@ -80,6 +81,20 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
       alert('שגיאה בהעלאת קובץ');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleRemoveFile = async () => {
+    const path = formData.receipt_url;
+    if (!path) return;
+    setRemoving(true);
+    try {
+      await wedflow.integrations.Core.DeleteFile(path);
+      setFormData({ ...formData, receipt_url: '' });
+    } catch (error) {
+      alert('שגיאה במחיקת הקובץ');
+    } finally {
+      setRemoving(false);
     }
   };
 
@@ -356,12 +371,25 @@ export default function ExpenseForm({ open, onClose, expense, onSave }) {
                 {uploading ? 'מעלה...' : 'העלה קובץ'}
               </Button>
               {formData.receipt_url && (
-                <SignedFileLink
-                  path={formData.receipt_url}
-                  className="text-sm text-primary hover:underline flex items-center"
-                >
-                  צפה בקובץ
-                </SignedFileLink>
+                <>
+                  <SignedFileLink
+                    path={formData.receipt_url}
+                    className="text-sm text-primary hover:underline flex items-center"
+                  >
+                    צפה בקובץ
+                  </SignedFileLink>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleRemoveFile}
+                    disabled={removing}
+                    title="מחק קובץ"
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50 px-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    {removing ? 'מוחק...' : 'מחק'}
+                  </Button>
+                </>
               )}
             </div>
             <input
