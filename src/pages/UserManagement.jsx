@@ -34,6 +34,19 @@ const ROLE_BADGE_STYLES = {
 
 const INVITABLE_ROLES = ['coplanner', 'family', 'event_manager'];
 
+const LINK_STATUS_LABELS = {
+  pending: 'ממתין',
+  used: 'נוצל',
+  revoked: 'בוטל',
+  expired: 'פג תוקף',
+};
+const LINK_STATUS_STYLES = {
+  pending: 'bg-sage/15 border-sage/30 text-sage-deep',
+  used: 'bg-taupe/15 border-taupe/30 text-taupe',
+  revoked: 'bg-champagne border-taupe/40 text-rose-deep',
+  expired: 'bg-champagne border-taupe/40 text-rose-deep',
+};
+
 export default function UserManagement() {
   const { user, isAdmin, isPlatformAdmin, activeMembership, activeWedding, activeWeddingId } = useWedding();
   const queryClient = useQueryClient();
@@ -72,6 +85,20 @@ export default function UserManagement() {
   });
 
   const invalidateMembers = () => queryClient.invalidateQueries({ queryKey: ['weddingMembers'] });
+
+  const { data: inviteLinks = [] } = useQuery({
+    queryKey: ['weddingInviteLinks', activeWeddingId],
+    queryFn: () => wedflow.weddingInviteLinks.list(activeWeddingId),
+    enabled: !!activeWeddingId && canManage,
+  });
+
+  const invalidateLinks = () => queryClient.invalidateQueries({ queryKey: ['weddingInviteLinks'] });
+
+  const revokeLinkMutation = useMutation({
+    mutationFn: (id) => wedflow.weddingInviteLinks.revoke(id),
+    onSuccess: invalidateLinks,
+    onError: (error) => alert('שגיאה בביטול הקישור: ' + error.message),
+  });
 
   const updateMemberMutation = useMutation({
     mutationFn: async ({ id, data }) => {
@@ -135,6 +162,7 @@ export default function UserManagement() {
         max_guests: linkRole === 'family' && linkMaxGuests ? parseInt(linkMaxGuests) : null
       });
       setGeneratedLink(result);
+      invalidateLinks();
       setLinkCopied(false);
     } catch (error) {
       alert('שגיאה ביצירת קישור הזמנה: ' + error.message);
@@ -280,6 +308,56 @@ export default function UserManagement() {
           </Table>
         </div>
       </Card>
+
+      {canManage && inviteLinks.length > 0 && (
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Link2 className="w-4 h-4 text-taupe" />
+            <h2 className="text-lg font-medium text-rose-deep">קישורי הזמנה</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted">
+                  <TableHead>תפקיד</TableHead>
+                  <TableHead>נוצר על ידי</TableHead>
+                  <TableHead>סטטוס</TableHead>
+                  <TableHead>פעולות</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {inviteLinks.map((link) => (
+                  <TableRow key={link.id} className="hover:bg-muted">
+                    <TableCell>
+                      <Badge variant="outline" className={ROLE_BADGE_STYLES[link.role] || 'bg-muted border-border text-foreground'}>
+                        {ROLE_LABELS[link.role] || link.role}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{link.created_by || '—'}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={LINK_STATUS_STYLES[link.status] || 'bg-muted border-border text-foreground'}>
+                        {LINK_STATUS_LABELS[link.status] || link.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {link.status === 'pending' && (
+                        <button
+                          onClick={() => revokeLinkMutation.mutate(link.id)}
+                          disabled={revokeLinkMutation.isPending}
+                          className="p-2 hover:bg-destructive/10 rounded-lg transition-colors disabled:opacity-50"
+                          title="ביטול קישור"
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+      )}
 
       {/* Invite Dialog */}
       <Dialog open={showInviteDialog} onOpenChange={(open) => { setShowInviteDialog(open); if (!open) resetInviteForm(); }}>
