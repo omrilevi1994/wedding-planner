@@ -427,6 +427,10 @@ verify_jwt = true
 verify_jwt = true
 [functions.joinWeddingViaLink]
 verify_jwt = true
+[functions.revokeWeddingInviteLink]
+verify_jwt = true
+[functions.listWeddingInviteLinks]
+verify_jwt = true
 [functions.getWeddingUsers]
 verify_jwt = true
 [functions.inviteUserToWedding]

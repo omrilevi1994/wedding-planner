@@ -225,3 +225,66 @@ describe.skipIf(!FUNCTIONS)('invite-link single-use join', () => {
   });
 });
 
+describe.skipIf(!FUNCTIONS)('invite-link revoke', () => {
+  let owner, w;
+  beforeAll(async () => {
+    owner = await makeUser(`rvo-${Date.now()}@t.local`);
+    w = await makeWedding();
+    await admin.from('weddings').update({ owner_id: owner.id }).eq('id', w.id);
+    await admin.from('wedding_members').insert({ wedding_id: w.id, user_id: owner.id, role: 'owner' });
+  });
+
+  const createLink = async () => {
+    const { data } = await owner.client.functions.invoke('createWeddingInviteLink', { body: { wedding_id: w.id, role: 'coplanner' } });
+    const { data: row } = await admin.from('wedding_invite_links').select('id').eq('token', data.token).single();
+    return { token: data.token, id: row.id };
+  };
+
+  it('owner can revoke a pending link, after which it cannot be joined', async () => {
+    const { token, id } = await createLink();
+    const rev = await owner.client.functions.invoke('revokeWeddingInviteLink', { body: { id } });
+    expect(rev.error).toBeNull();
+    expect(rev.data.revoked).toBe(true);
+
+    const joiner = await makeUser(`rvj-${Date.now()}@t.local`);
+    const r = await joiner.client.functions.invoke('joinWeddingViaLink', { body: { token } });
+    expect(r.error).not.toBeNull(); // 409 revoked_token
+  });
+
+  it('a non-owner member cannot revoke a link', async () => {
+    const { id } = await createLink();
+    const family = await makeUser(`rvf-${Date.now()}@t.local`);
+    await admin.from('wedding_members').insert({ wedding_id: w.id, user_id: family.id, role: 'family' });
+    const rev = await family.client.functions.invoke('revokeWeddingInviteLink', { body: { id } });
+    expect(rev.error).not.toBeNull(); // 403
+  });
+});
+
+describe.skipIf(!FUNCTIONS)('invite-link list', () => {
+  let owner, w;
+  beforeAll(async () => {
+    owner = await makeUser(`lso-${Date.now()}@t.local`);
+    w = await makeWedding();
+    await admin.from('weddings').update({ owner_id: owner.id }).eq('id', w.id);
+    await admin.from('wedding_members').insert({ wedding_id: w.id, user_id: owner.id, role: 'owner' });
+    await owner.client.functions.invoke('createWeddingInviteLink', { body: { wedding_id: w.id, role: 'coplanner' } });
+  });
+
+  it('owner sees links with a status but never a token', async () => {
+    const res = await owner.client.functions.invoke('listWeddingInviteLinks', { body: { wedding_id: w.id } });
+    expect(res.error).toBeNull();
+    expect(Array.isArray(res.data.links)).toBe(true);
+    expect(res.data.links.length).toBeGreaterThan(0);
+    for (const l of res.data.links) {
+      expect(l).not.toHaveProperty('token');
+      expect(['pending', 'used', 'revoked', 'expired']).toContain(l.status);
+    }
+  });
+
+  it('a non-member cannot list links', async () => {
+    const outsider = await makeUser(`lsx-${Date.now()}@t.local`);
+    const res = await outsider.client.functions.invoke('listWeddingInviteLinks', { body: { wedding_id: w.id } });
+    expect(res.error).not.toBeNull(); // 403
+  });
+});
+

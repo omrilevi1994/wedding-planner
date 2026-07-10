@@ -185,8 +185,9 @@ async function unwrapFunctionError(error) {
 }
 
 const weddingInviteLinks = {
-  // Shareable, multi-use, 2-day link that lets anyone holding it join as a collaborator
-  // (never as owner) — distinct from inviteUserToWedding's per-email flow.
+  // Shareable single-use link (14-day safety expiry) that lets one holder join as a collaborator
+  // (never as owner) — distinct from inviteUserToWedding's per-email flow. The token is returned
+  // only here, once; list() never exposes it again.
   async create({ wedding_id, role = 'coplanner', wedding_sides = [], max_guests = null }) {
     const { data, error } = await supabase.functions.invoke('createWeddingInviteLink', { body: { wedding_id, role, wedding_sides, max_guests } });
     if (error) throw await unwrapFunctionError(error);
@@ -194,6 +195,16 @@ const weddingInviteLinks = {
   },
   async join({ token }) {
     const { data, error } = await supabase.functions.invoke('joinWeddingViaLink', { body: { token } });
+    if (error) throw await unwrapFunctionError(error);
+    return data;
+  },
+  async list(wedding_id) {
+    const { data, error } = await supabase.functions.invoke('listWeddingInviteLinks', { body: { wedding_id } });
+    if (error) throw await unwrapFunctionError(error);
+    return data.links;
+  },
+  async revoke(id) {
+    const { data, error } = await supabase.functions.invoke('revokeWeddingInviteLink', { body: { id } });
     if (error) throw await unwrapFunctionError(error);
     return data;
   },
