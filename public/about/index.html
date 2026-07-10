@@ -101,6 +101,8 @@
         <a class="cta" href="/app">מתחילים לתכנן בחינם</a>
         <p style="margin-top:1.5rem"><span style="color:var(--ink-soft)">כדאי לקרוא גם:</span> <a href="/guides/wedding-checklist/">צ'קליסט לתכנון חתונה</a></p>
 
+        <p class="note" style="border-top:1px solid var(--line);margin-top:2rem;padding-top:1.5rem">שימו לב: WedFlow (wedflow.live) היא אפליקציה ישראלית עצמאית לתכנון חתונה בעברית, ואינה קשורה ל־wedflow.com, ל־wedflow.in או למוצרים אחרים הנושאים את השם WedFlow.</p>
+
         <div class="en">
           <p>
             <strong>About WedFlow (English):</strong> WedFlow is a free Hebrew-language web app for
@@ -108,6 +110,8 @@
             and payments, budget tracking, and planning checklist into one place, and runs in any
             browser on mobile or desktop at wedflow.live. It was built to manage a real wedding
             (352 guests, 26 tables) before being opened to everyone, and is currently free to use.
+            WedFlow (wedflow.live) is an independent Israeli product and is not affiliated with
+            wedflow.com, wedflow.in, or other apps named WedFlow.
           </p>
         </div>
       </div>
@@ -117,7 +121,8 @@
         <nav aria-label="ניווט תחתון">
           <a href="/">דף הבית</a>
           <a href="/about/">אודות</a>
-          <a href="/guides/wedding-checklist/">צ'קליסט לחתונה</a>
+          <a href="/guides/">מדריכים</a>
+          <a href="/calc">מחשבון חתונה</a>
           <a href="/privacy/">מדיניות פרטיות</a>
           <a href="/terms/">תנאי שימוש</a>
           <a href="/app">כניסה למערכת</a>
@@ -126,17 +131,89 @@
       </div>
     </footer>
     <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": "https://wedflow.live/#org",
+      "name": "WedFlow",
+      "alternateName": "וודפלואו",
+      "url": "https://wedflow.live/",
+      "description": "אפליקציית אינטרנט חינמית בעברית לתכנון וארגון חתונה בישראל: מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, תקציב וצ'קליסט.",
+      "disambiguatingDescription": "WedFlow (wedflow.live) היא אפליקציה ישראלית עצמאית לתכנון חתונה בעברית, ואינה קשורה ל־wedflow.com, ל־wedflow.in או למוצרים אחרים בשם WedFlow.",
+      "foundingDate": "2026",
+      "areaServed": "IL",
+      "knowsLanguage": "he",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://wedflow.live/icon-512.png",
+        "width": 512,
+        "height": 512
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "hello@wedflow.live",
+        "contactType": "customer support",
+        "availableLanguage": "he"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://wedflow.live/#website",
+      "url": "https://wedflow.live/",
+      "name": "WedFlow",
+      "inLanguage": "he",
+      "publisher": {
+        "@id": "https://wedflow.live/#org"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://wedflow.live/#app",
+      "name": "WedFlow",
+      "alternateName": "וודפלואו",
+      "url": "https://wedflow.live/",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Web",
+      "browserRequirements": "כל דפדפן מודרני, בנייד ובמחשב",
+      "inLanguage": "he",
+      "description": "אפליקציית אינטרנט חינמית בעברית לתכנון חתונה: ניהול מוזמנים ואישורי הגעה, סידורי הושבה, ספקים ותשלומים, מעקב תקציב וצ'קליסט.",
+      "featureList": [
+        "ניהול רשימת מוזמנים ואישורי הגעה",
+        "סידורי הושבה עם מפת שולחנות",
+        "ניהול ספקים ותשלומים",
+        "מעקב תקציב לפי קטגוריות",
+        "צ'קליסט משימות לתכנון החתונה",
+        "מצב יום החתונה ומעקב מתנות",
+        "ייבוא רשימת מוזמנים מ־iPlan ועדכון סטטוסים מ־Wiwi",
+        "ייצוא הנתונים ל־CSV"
+      ],
+      "publisher": {
+        "@id": "https://wedflow.live/#org"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "ILS"
+      }
+    },
+    {
       "@type": "AboutPage",
       "@id": "https://wedflow.live/about/#webpage",
       "url": "https://wedflow.live/about/",
       "name": "אודות WedFlow — אפליקציה לתכנון חתונה בעברית",
       "inLanguage": "he",
       "dateModified": "2026-07-09",
-      "isPartOf": { "@id": "https://wedflow.live/#website" },
-      "about": { "@id": "https://wedflow.live/#app" }
+      "isPartOf": {
+        "@id": "https://wedflow.live/#website"
+      },
+      "about": {
+        "@id": "https://wedflow.live/#app"
+      }
     }
+  ]
+}
     </script>
   </body>
 </html>

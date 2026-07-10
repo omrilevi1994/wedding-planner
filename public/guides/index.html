@@ -5,27 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>מדיניות פרטיות | WedFlow</title>
+    <title>מדריכים לתכנון חתונה בישראל | WedFlow</title>
     <meta
       name="description"
-      content="מדיניות הפרטיות של WedFlow: איזה מידע נאסף, איך הוא נשמר ומאובטח, עם מי הוא משותף, ואיך מייצאים או מוחקים את הנתונים שלכם."
+      content="מדריכים חינמיים לתכנון וארגון חתונה בישראל: צ'קליסט לפי ציר זמן, תקציב, אישורי הגעה וסידורי הושבה. כל מה שצריך לדעת, במקום אחד."
     />
-    <link rel="canonical" href="https://wedflow.live/privacy/" />
+    <link rel="canonical" href="https://wedflow.live/guides/" />
     <meta name="theme-color" content="#F6F0E7" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="WedFlow" />
     <meta property="og:locale" content="he_IL" />
-    <meta property="og:url" content="https://wedflow.live/privacy/" />
-    <meta property="og:title" content="מדיניות פרטיות | WedFlow" />
+    <meta property="og:url" content="https://wedflow.live/guides/" />
+    <meta property="og:title" content="מדריכים לתכנון חתונה בישראל | WedFlow" />
+    <meta property="og:description" content="מדריכים חינמיים לתכנון וארגון חתונה: צ'קליסט, תקציב, אישורי הגעה, הושבה." />
     <meta property="og:image" content="https://wedflow.live/og-social-1200x630.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="מדריכים לתכנון חתונה בישראל | WedFlow" />
+    <meta name="twitter:description" content="מדריכים חינמיים לתכנון וארגון חתונה: צ'קליסט, תקציב, אישורי הגעה, הושבה." />
+    <meta name="twitter:image" content="https://wedflow.live/og-social-1200x630.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet" />
     <style>
-      :root { --cream:#f6f0e7; --ink:#3b3531; --ink-soft:#7a7066; --card:#fffdf9; --line:#e8ddcd; }
+      :root { --cream:#f6f0e7; --ink:#3b3531; --ink-soft:#7a7066; --rose-deep:#a5674e; --card:#fffdf9; --line:#e8ddcd; }
       * { box-sizing: border-box; }
       body { margin:0; background:var(--cream); color:var(--ink); font-family:'Heebo',system-ui,sans-serif; font-size:1.05rem; line-height:1.75; }
-      .wrap { max-width: 760px; margin: 0 auto; padding: 0 1.5rem; }
+      .wrap { max-width: 820px; margin: 0 auto; padding: 0 1.5rem; }
       header { border-bottom:1px solid var(--line); background:var(--cream); }
       .nav { display:flex; align-items:center; justify-content:space-between; padding:0.9rem 0; }
       .brand { display:flex; align-items:center; gap:0.6rem; text-decoration:none; color:var(--ink); }
@@ -33,13 +38,19 @@
       .brand span { font-weight:600; font-size:1.4rem; letter-spacing:0.14em; }
       .nav a.login { text-decoration:none; color:var(--ink); border:1px solid var(--line); background:var(--card); border-radius:999px; padding:0.5rem 1.3rem; font-weight:700; font-size:0.95rem; }
       main { padding: 3rem 0 4rem; }
-      h1 { font-weight:900; font-size:2rem; line-height:1.2; margin:0 0 0.4rem; }
-      .updated { color:var(--ink-soft); font-size:0.9rem; margin-bottom:1.6rem; }
-      h2 { font-weight:700; font-size:1.3rem; margin:2rem 0 0.6rem; }
-      p { margin:0 0 1rem; }
-      ul { margin:0 0 1rem; padding-inline-start:1.3rem; }
-      li { margin-bottom:0.35rem; }
-      footer { border-top:1px solid var(--line); padding:1.6rem 0 2rem; font-size:0.88rem; color:var(--ink-soft); }
+      h1 { font-weight:900; font-size:1.9rem; line-height:1.25; margin:0 0 0.6rem; }
+      .lead { color:var(--ink-soft); margin:0 0 2rem; }
+      a { color: var(--rose-deep); }
+      .cards { display:grid; gap:1rem; }
+      .gcard { display:block; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:1.3rem 1.4rem; text-decoration:none; color:var(--ink); transition:transform .2s ease, box-shadow .2s ease; }
+      .gcard:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(59,53,49,0.09); }
+      .gcard h2 { margin:0 0 0.35rem; font-size:1.2rem; color:var(--rose-deep); }
+      .gcard p { margin:0; color:var(--ink-soft); font-size:0.96rem; }
+      .soon { border-style:dashed; opacity:0.75; }
+      .soon h2 { color:var(--ink-soft); }
+      .tag { font-size:0.72rem; font-weight:700; color:var(--ink-soft); border:1px solid var(--line); border-radius:999px; padding:0.1rem 0.6rem; }
+      .more { margin-top:2rem; font-size:0.96rem; }
+      footer { border-top:1px solid var(--line); padding:1.6rem 0 2rem; font-size:0.88rem; color:var(--ink-soft); margin-top:2.5rem; }
       footer nav { display:flex; gap:1.4rem; flex-wrap:wrap; margin-bottom:0.6rem; }
       footer a { color:var(--ink-soft); }
     </style>
@@ -53,71 +64,32 @@
     </header>
     <main>
       <div class="wrap">
-        <h1>מדיניות פרטיות</h1>
-        <p class="updated">עודכן לאחרונה: 9 ביולי 2026</p>
-        <p>
-          WedFlow (wedflow.live) היא אפליקציה לתכנון חתונה. אנחנו מתייחסים לנתוני החתונה שלכם
-          כאל מה שהם: מידע אישי ורגיש ששייך לכם. מסמך זה מסביר בפשטות איזה מידע נאסף, למה,
-          איך הוא נשמר, ומה הזכויות שלכם.
-        </p>
-
-        <h2>איזה מידע אנחנו אוספים</h2>
-        <ul>
-          <li><strong>פרטי חשבון:</strong> שם וכתובת אימייל, דרך התחברות עם חשבון Google או הרשמה עם אימייל וסיסמה.</li>
-          <li><strong>נתוני התכנון שאתם מזינים:</strong> רשימת מוזמנים ופרטיהם, אישורי הגעה, סידורי הושבה, ספקים ותשלומים, תקציב, משימות ומתנות.</li>
-          <li><strong>מידע תפעולי בסיסי:</strong> רישומי פעילות הנדרשים לאבטחה ולתקינות השירות.</li>
-        </ul>
-
-        <h2>מה אנחנו לא עושים</h2>
-        <ul>
-          <li>לא מוכרים ולא משכירים את המידע שלכם לאף גורם.</li>
-          <li>לא מציגים פרסומות ולא משתמשים בנתוני החתונה שלכם לפרסום.</li>
-          <li>לא מטמיעים כיום כלי מעקב או אנליטיקה של צד שלישי בדפי האפליקציה.</li>
-        </ul>
-
-        <h2>איפה המידע נשמר ואיך הוא מאובטח</h2>
-        <p>
-          הנתונים נשמרים בתשתית הענן של Supabase. התקשורת בין הדפדפן לשרתים מוצפנת (HTTPS),
-          והגישה לנתונים מוגבלת ברמת מסד הנתונים כך שכל חתונה מבודדת: רק משתמשים שהוזמנו
-          לחתונה מסוימת, לפי ההרשאה שניתנה להם, יכולים לראות או לערוך את הנתונים שלה.
-        </p>
-
-        <h2>שיתוף בתוך חתונה</h2>
-        <p>
-          כשאתם מזמינים שותפים לתכנון (בני זוג, משפחה), הם מקבלים גישה לנתוני החתונה לפי
-          תפקיד וההרשאות שבחרתם. אתם שולטים במי מוזמן ובאיזו רמת גישה.
-        </p>
-
-        <h2>הזכויות שלכם: ייצוא ומחיקה</h2>
-        <ul>
-          <li><strong>ייצוא:</strong> אפשר לייצא את רשימת המוזמנים והנתונים לקובץ CSV בכל רגע, מתוך המערכת.</li>
-          <li><strong>מחיקה:</strong> אפשר לבקש מחיקה מלאה של החשבון ונתוני החתונה בפנייה אלינו, ונבצע אותה תוך זמן סביר.</li>
-          <li><strong>תיקון:</strong> את כל הנתונים אפשר לערוך ולעדכן ישירות במערכת.</li>
-        </ul>
-
-        <h2>עוגיות ואחסון מקומי</h2>
-        <p>
-          אנחנו משתמשים באחסון מקומי בדפדפן (local storage / cookies) רק לצורך ניהול ההתחברות
-          וההעדפות שלכם במערכת, לא למעקב פרסומי.
-        </p>
-
-        <h2>שינויים במדיניות</h2>
-        <p>
-          אם המדיניות תתעדכן, נעדכן את התאריך בראש העמוד. שינוי מהותי באיסוף או בשימוש במידע
-          יוצג באופן בולט במערכת.
-        </p>
-
-        <h2>יצירת קשר</h2>
-        <p>לשאלות על פרטיות ומידע: hello@wedflow.live</p>
+        <h1>מדריכים לתכנון חתונה</h1>
+        <p class="lead">כל מה שצריך לדעת כדי לתכנן ולארגן חתונה בישראל, בחינם. מדריכים מעשיים שנבנו מתוך ניהול חתונה אמיתית — ומחוברים ישירות לכלים של <a href="/">WedFlow</a>.</p>
+        <div class="cards">
+          <a class="gcard" href="/guides/wedding-checklist/">
+            <h2>צ'קליסט לתכנון חתונה</h2>
+            <p>כל המשימות לפי ציר זמן: מ־12 חודשים לפני ועד יום החתונה עצמו.</p>
+          </a>
+          <a class="gcard" href="/calc">
+            <h2>מחשבון עלות חתונה</h2>
+            <p>כמה תעלה לכם החתונה? חישוב מיידי לפי מחיר האולם ומספר המוזמנים.</p>
+          </a>
+          <div class="gcard soon">
+            <h2>תקציב, אישורי הגעה והושבה <span class="tag">בקרוב</span></h2>
+            <p>מדריכים ייעודיים לכל שלב בתכנון — מתפרסמים בהדרגה.</p>
+          </div>
+        </div>
+        <p class="more">רוצים לנהל את הכול במקום אחד? <a href="/app">מתחילים לתכנן בחינם ב־WedFlow</a>.</p>
       </div>
     </main>
     <footer>
       <div class="wrap">
         <nav aria-label="ניווט תחתון">
           <a href="/">דף הבית</a>
-          <a href="/about/">אודות</a>
           <a href="/guides/">מדריכים</a>
           <a href="/calc">מחשבון חתונה</a>
+          <a href="/about/">אודות</a>
           <a href="/privacy/">מדיניות פרטיות</a>
           <a href="/terms/">תנאי שימוש</a>
           <a href="/app">כניסה למערכת</a>
@@ -126,7 +98,7 @@
       </div>
     </footer>
     <script type="application/ld+json">
-{
+    {
   "@context": "https://schema.org",
   "@graph": [
     {
@@ -194,15 +166,16 @@
       }
     },
     {
-      "@type": "WebPage",
-      "@id": "https://wedflow.live/privacy/#webpage",
-      "url": "https://wedflow.live/privacy/",
-      "name": "מדיניות פרטיות | WedFlow",
+      "@type": "CollectionPage",
+      "@id": "https://wedflow.live/guides/#webpage",
+      "url": "https://wedflow.live/guides/",
+      "name": "מדריכים לתכנון חתונה בישראל | WedFlow",
+      "description": "מדריכים חינמיים לתכנון וארגון חתונה בישראל: צ'קליסט לפי ציר זמן, תקציב, אישורי הגעה וסידורי הושבה.",
       "inLanguage": "he",
-      "dateModified": "2026-07-09",
       "isPartOf": {
         "@id": "https://wedflow.live/#website"
-      }
+      },
+      "dateModified": "2026-07-10"
     }
   ]
 }
