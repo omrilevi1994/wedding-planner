@@ -64,6 +64,9 @@ export default function UserManagement() {
   const [linkCopied, setLinkCopied] = useState(false);
 
   const canManage = activeMembership?.role === 'owner' || isPlatformAdmin;
+  // Only platform admins may assign ownership (e.g. hand the wedding to the couple).
+  // A regular owner can invite collaborators but never mint another owner.
+  const invitableRoles = isPlatformAdmin ? ['owner', ...INVITABLE_ROLES] : INVITABLE_ROLES;
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['weddingMembers', activeWeddingId],
@@ -299,7 +302,7 @@ export default function UserManagement() {
                   <SelectValue placeholder="בחר תפקיד" />
                 </SelectTrigger>
                 <SelectContent dir="rtl">
-                  {INVITABLE_ROLES.map(role => (
+                  {invitableRoles.map(role => (
                     <SelectItem key={role} value={role}>{ROLE_LABELS[role]}</SelectItem>
                   ))}
                 </SelectContent>

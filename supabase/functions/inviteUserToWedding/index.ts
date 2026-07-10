@@ -3,6 +3,9 @@ import { corsHeaders } from '../_shared/cors.ts';
 import { sendEmail } from '../_shared/email/send.ts';
 import { roleLabel } from '../_shared/email/templates/index.ts';
 
+// Roles any wedding owner may hand out. 'owner' is deliberately excluded here — only
+// platform admins may grant ownership (see allowedRoles below), so a regular owner can
+// never mint another owner.
 const INVITABLE_ROLES = ['coplanner', 'family', 'event_manager'];
 
 Deno.serve(async (req) => {
@@ -22,25 +25,28 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
     }
 
-    // --- Parse + validate body ---
+    // --- Parse body ---
     const { email, wedding_id, role = 'family', wedding_sides = [], max_guests = null } = await req.json();
     if (!email || !wedding_id) {
       return Response.json({ error: 'email and wedding_id are required' }, { status: 400, headers: cors });
-    }
-    if (!INVITABLE_ROLES.includes(role)) {
-      return Response.json({ error: `role must be one of: ${INVITABLE_ROLES.join(', ')}` }, { status: 400, headers: cors });
     }
 
     // --- Authorize: wedding owner or platform admin (via service client) ---
     const service = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const { data: ownerMembership } = await service.from('wedding_members')
       .select('id').eq('wedding_id', wedding_id).eq('user_id', user.id).eq('role', 'owner').maybeSingle();
-    if (!ownerMembership) {
-      const { data: profile } = await service.from('profiles')
-        .select('is_platform_admin').eq('id', user.id).maybeSingle();
-      if (!profile?.is_platform_admin) {
-        return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
-      }
+    const { data: callerProfile } = await service.from('profiles')
+      .select('is_platform_admin').eq('id', user.id).maybeSingle();
+    const callerIsAdmin = !!callerProfile?.is_platform_admin;
+    if (!ownerMembership && !callerIsAdmin) {
+      return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
+    }
+
+    // --- Validate role. Only platform admins may assign 'owner' (e.g. to hand a wedding
+    // over to the couple); regular owners are limited to collaborator roles. ---
+    const allowedRoles = callerIsAdmin ? [...INVITABLE_ROLES, 'owner'] : INVITABLE_ROLES;
+    if (!allowedRoles.includes(role)) {
+      return Response.json({ error: `role must be one of: ${allowedRoles.join(', ')}` }, { status: 400, headers: cors });
     }
 
     const normalizedEmail = String(email).toLowerCase();
