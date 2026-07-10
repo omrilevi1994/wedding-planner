@@ -104,3 +104,53 @@ describe('anon RPC oracle is closed', () => {
   });
 });
 
+describe('invite-link single-use DB primitive', () => {
+  let w;
+  beforeAll(async () => { w = await makeWedding(); });
+
+  const makeLink = async (over = {}) => {
+    const row = {
+      id: `il-${Date.now()}-${Math.round(performance.now())}`,
+      wedding_id: w.id,
+      token: `tok-${Date.now()}-${Math.round(performance.now())}`,
+      role: 'coplanner',
+      expires_at: new Date(Date.now() + 60_000).toISOString(),
+      ...over,
+    };
+    const { data, error } = await admin.from('wedding_invite_links').insert(row).select().single();
+    if (error) throw error;
+    return data;
+  };
+
+  it('new columns default to null (link starts redeemable)', async () => {
+    const link = await makeLink();
+    expect(link.used_at).toBeNull();
+    expect(link.used_by).toBeNull();
+    expect(link.revoked_at).toBeNull();
+  });
+
+  it('atomic claim succeeds once and returns no row the second time', async () => {
+    const link = await makeLink();
+    const claim = () => admin.from('wedding_invite_links')
+      .update({ used_at: new Date().toISOString() })
+      .eq('token', link.token).is('used_at', null).is('revoked_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .select('id').maybeSingle();
+
+    const first = await claim();
+    expect(first.data).not.toBeNull();
+    const second = await claim();
+    expect(second.data).toBeNull();
+  });
+
+  it('a revoked link cannot be claimed', async () => {
+    const link = await makeLink({ revoked_at: new Date().toISOString() });
+    const { data } = await admin.from('wedding_invite_links')
+      .update({ used_at: new Date().toISOString() })
+      .eq('token', link.token).is('used_at', null).is('revoked_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .select('id').maybeSingle();
+    expect(data).toBeNull();
+  });
+});
+
