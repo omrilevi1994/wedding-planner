@@ -27,23 +27,36 @@ Deno.serve(async (req) => {
     const service = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const { data: membership } = await service.from('wedding_members')
       .select('id').eq('wedding_id', wedding_id).eq('user_id', user.id).maybeSingle();
-    if (!membership) {
-      const { data: profile } = await service.from('profiles')
-        .select('is_platform_admin').eq('id', user.id).maybeSingle();
-      if (!profile?.is_platform_admin) {
-        return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
-      }
+    const { data: callerProfile } = await service.from('profiles')
+      .select('is_platform_admin').eq('id', user.id).maybeSingle();
+    const callerIsAdmin = !!callerProfile?.is_platform_admin;
+    if (!membership && !callerIsAdmin) {
+      return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
     }
 
     // --- Fetch members with profile info (service role bypasses profiles RLS) ---
     const { data, error } = await service.from('wedding_members')
-      .select('id, role, wedding_sides, max_guests, user_id, profiles(full_name, email)')
+      .select('id, role, wedding_sides, max_guests, user_id, profiles(full_name, email, is_platform_admin)')
       .eq('wedding_id', wedding_id)
       .order('created_date', { ascending: true });
     if (error) {
       return Response.json({ error: error.message }, { status: 500, headers: cors });
     }
-    return Response.json(data ?? [], { headers: cors });
+
+    // Hide platform admins from ordinary wedding users. Platform admins are
+    // inserted as `owner` members when they open/create a wedding
+    // (see AdminDashboard), and must not leak into the couple's member list.
+    // Platform admins themselves still see everyone. Strip the internal flag
+    // from the response either way.
+    const members = (data ?? [])
+      .filter((m) => callerIsAdmin || !m.profiles?.is_platform_admin)
+      .map(({ profiles, ...m }) => ({
+        ...m,
+        profiles: profiles
+          ? { full_name: profiles.full_name, email: profiles.email }
+          : profiles,
+      }));
+    return Response.json(members, { headers: cors });
   } catch (e) {
     return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: cors });
   }
