@@ -4,7 +4,7 @@ import { corsHeaders } from '../_shared/cors.ts';
 // Roles a shareable link may grant. Deliberately excludes 'owner' — a link can never hand
 // out ownership, only collaborator-level access. Mirrors inviteUserToWedding's INVITABLE_ROLES.
 const LINKABLE_ROLES = ['coplanner', 'family', 'event_manager'];
-const TTL_MS = 2 * 24 * 60 * 60 * 1000; // 2 days
+const TTL_MS = 14 * 24 * 60 * 60 * 1000; // 14 days (safety net; single-use is the real control)
 
 Deno.serve(async (req) => {
   const cors = corsHeaders(req);

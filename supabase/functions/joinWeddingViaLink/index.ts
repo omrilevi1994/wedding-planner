@@ -27,45 +27,68 @@ Deno.serve(async (req) => {
     // --- Look up the link (service role bypasses RLS — this table has no select policy) ---
     const service = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const { data: link, error: linkError } = await service.from('wedding_invite_links')
-      .select('id, wedding_id, role, wedding_sides, max_guests, expires_at').eq('token', token).maybeSingle();
+      .select('id, wedding_id, used_at, revoked_at, expires_at').eq('token', token).maybeSingle();
     if (linkError) {
       return Response.json({ error: linkError.message }, { status: 500, headers: cors });
     }
     if (!link) {
       return Response.json({ error: 'invalid_token', message: 'קישור ההזמנה אינו תקין' }, { status: 404, headers: cors });
     }
-    if (new Date(link.expires_at).getTime() < Date.now()) {
+
+    // Already a member? Return success WITHOUT consuming the token (lets an owner test their
+    // own link and lets a legitimate invitee refresh the page without burning the link).
+    const { data: existingMembership } = await service.from('wedding_members')
+      .select('id, role').eq('wedding_id', link.wedding_id).eq('user_id', user.id).maybeSingle();
+    if (existingMembership) {
+      const { data: w0 } = await service.from('weddings').select('couple_names').eq('id', link.wedding_id).maybeSingle();
+      return Response.json({
+        wedding_id: link.wedding_id, couple_names: w0?.couple_names ?? null,
+        role: existingMembership.role, already_member: true,
+      }, { headers: cors });
+    }
+
+    // --- Atomically claim the token (single-use). Exactly one caller can win this UPDATE. ---
+    const { data: claimed, error: claimError } = await service.from('wedding_invite_links')
+      .update({ used_at: new Date().toISOString(), used_by: user.id })
+      .eq('token', token).is('used_at', null).is('revoked_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .select('wedding_id, role, wedding_sides, max_guests').maybeSingle();
+    if (claimError) {
+      return Response.json({ error: claimError.message }, { status: 500, headers: cors });
+    }
+    if (!claimed) {
+      // Claim lost — disambiguate the reason from the current row state.
+      const { data: cur } = await service.from('wedding_invite_links')
+        .select('used_at, revoked_at, expires_at').eq('token', token).maybeSingle();
+      if (cur?.revoked_at) {
+        return Response.json({ error: 'revoked_token', message: 'קישור ההזמנה בוטל' }, { status: 409, headers: cors });
+      }
+      if (cur?.used_at) {
+        return Response.json({ error: 'used_token', message: 'קישור ההזמנה כבר נוצל' }, { status: 409, headers: cors });
+      }
       return Response.json({ error: 'expired_token', message: 'קישור ההזמנה פג תוקף' }, { status: 410, headers: cors });
     }
 
     // Defensive: a link can never grant ownership, regardless of what's stored.
-    const role = link.role === 'owner' ? 'coplanner' : link.role;
-    // Sides/guest-quota only make sense for (and are only ever set on) the 'family' role —
-    // mirrors inviteUserToWedding, so a 'family' link restricts guest visibility the same way
-    // a per-email 'family' invite does, instead of defaulting to unrestricted full access.
-    const wedding_sides = role === 'family' ? (link.wedding_sides ?? []) : [];
-    const max_guests = role === 'family' ? (link.max_guests ?? null) : null;
+    const role = claimed.role === 'owner' ? 'coplanner' : claimed.role;
+    // Sides/guest-quota only make sense for (and are only ever set on) the 'family' role.
+    const wedding_sides = role === 'family' ? (claimed.wedding_sides ?? []) : [];
+    const max_guests = role === 'family' ? (claimed.max_guests ?? null) : null;
 
-    // --- Join as a member (multi-use link: many different users may each join once) ---
-    const { data: existingMembership } = await service.from('wedding_members')
-      .select('id, role').eq('wedding_id', link.wedding_id).eq('user_id', user.id).maybeSingle();
-
-    if (!existingMembership) {
-      const { error: insertError } = await service.from('wedding_members')
-        .insert({ id: crypto.randomUUID(), wedding_id: link.wedding_id, user_id: user.id, role, wedding_sides, max_guests });
-      if (insertError) {
-        return Response.json({ error: insertError.message }, { status: 500, headers: cors });
-      }
+    const { error: insertError } = await service.from('wedding_members')
+      .insert({ id: crypto.randomUUID(), wedding_id: claimed.wedding_id, user_id: user.id, role, wedding_sides, max_guests });
+    if (insertError) {
+      return Response.json({ error: insertError.message }, { status: 500, headers: cors });
     }
 
     const { data: wedding } = await service.from('weddings')
-      .select('couple_names').eq('id', link.wedding_id).maybeSingle();
+      .select('couple_names').eq('id', claimed.wedding_id).maybeSingle();
 
     return Response.json({
-      wedding_id: link.wedding_id,
+      wedding_id: claimed.wedding_id,
       couple_names: wedding?.couple_names ?? null,
-      role: existingMembership?.role ?? role,
-      already_member: !!existingMembership,
+      role,
+      already_member: false,
     }, { headers: cors });
   } catch (e) {
     return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: cors });

@@ -154,3 +154,74 @@ describe('invite-link single-use DB primitive', () => {
   });
 });
 
+async function functionsUp() {
+  try {
+    const r = await fetch(`${process.env.VITE_SUPABASE_URL}/functions/v1/joinWeddingViaLink`, {
+      method: 'OPTIONS', headers: { Origin: 'http://localhost:5173' },
+    });
+    return r.status === 200;
+  } catch { return false; }
+}
+const FUNCTIONS = await functionsUp();
+
+describe.skipIf(!FUNCTIONS)('invite-link single-use join', () => {
+  let owner, w;
+  beforeAll(async () => {
+    owner = await makeUser(`jo-${Date.now()}@t.local`);
+    w = await makeWedding();
+    await admin.from('weddings').update({ owner_id: owner.id }).eq('id', w.id);
+    await admin.from('wedding_members').insert({ wedding_id: w.id, user_id: owner.id, role: 'owner' });
+  });
+
+  const createLink = async (role = 'coplanner') => {
+    const { data, error } = await owner.client.functions.invoke('createWeddingInviteLink', {
+      body: { wedding_id: w.id, role },
+    });
+    if (error) throw error;
+    return data.token;
+  };
+
+  it('first join consumes the token; a second user cannot reuse it', async () => {
+    const token = await createLink();
+    const a = await makeUser(`ja-${Date.now()}@t.local`);
+    const b = await makeUser(`jb-${Date.now()}@t.local`);
+
+    const r1 = await a.client.functions.invoke('joinWeddingViaLink', { body: { token } });
+    expect(r1.error).toBeNull();
+    expect(r1.data.wedding_id).toBe(w.id);
+
+    const { data: link } = await admin.from('wedding_invite_links')
+      .select('used_at, used_by').eq('token', token).single();
+    expect(link.used_at).not.toBeNull();
+    expect(link.used_by).toBe(a.id);
+
+    const r2 = await b.client.functions.invoke('joinWeddingViaLink', { body: { token } });
+    expect(r2.error).not.toBeNull(); // 409 used_token
+    const { count } = await admin.from('wedding_members')
+      .select('*', { count: 'exact', head: true }).eq('wedding_id', w.id).eq('user_id', b.id);
+    expect(count).toBe(0);
+  });
+
+  it('an already-member re-opening the link does NOT consume it', async () => {
+    // owner is already a member; a fresh link should not be burned by their click.
+    const token2 = await createLink();
+    const r = await owner.client.functions.invoke('joinWeddingViaLink', { body: { token: token2 } });
+    expect(r.error).toBeNull();
+    expect(r.data.already_member).toBe(true);
+    const { data: link } = await admin.from('wedding_invite_links')
+      .select('used_at').eq('token', token2).single();
+    expect(link.used_at).toBeNull(); // not consumed
+  });
+
+  it('an expired link cannot be joined', async () => {
+    const token = `exp-${Date.now()}`;
+    await admin.from('wedding_invite_links').insert({
+      id: `ilx-${Date.now()}`, wedding_id: w.id, token, role: 'coplanner',
+      expires_at: new Date(Date.now() - 1000).toISOString(),
+    });
+    const d = await makeUser(`jd-${Date.now()}@t.local`);
+    const r = await d.client.functions.invoke('joinWeddingViaLink', { body: { token } });
+    expect(r.error).not.toBeNull(); // 410 expired_token
+  });
+});
+
