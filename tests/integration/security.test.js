@@ -316,3 +316,39 @@ describe('invite-link owner insert RLS', () => {
   });
 });
 
+describe.skipIf(!FUNCTIONS)('owner-link creation authz', () => {
+  let owner, w;
+  beforeAll(async () => {
+    owner = await makeUser(`oca-${Date.now()}@t.local`);
+    w = await makeWedding();
+    await admin.from('weddings').update({ owner_id: owner.id }).eq('id', w.id);
+    await admin.from('wedding_members').insert({ wedding_id: w.id, user_id: owner.id, role: 'owner' });
+  });
+
+  it('a regular owner cannot create an owner link', async () => {
+    const res = await owner.client.functions.invoke('createWeddingInviteLink', {
+      body: { wedding_id: w.id, role: 'owner' },
+    });
+    expect(res.error).not.toBeNull(); // 400: role not allowed for non-admin
+  });
+
+  it('a platform admin can create an owner link', async () => {
+    const email = `opa-${Date.now()}@t.local`;
+    const padmin = await makeUser(email);
+    // NOTE: migration 0019's protect_profile_privileged_cols trigger (a BEFORE UPDATE trigger)
+    // pins is_platform_admin back to its old value unless is_platform_admin() is already true for
+    // the caller — and that's true even for the service-role client, since auth.uid() resolves to
+    // null for the service-role JWT (no `sub` claim), so a plain .update() here is silently a
+    // no-op. The trigger only fires on UPDATE, not INSERT, so delete + re-insert the profile row
+    // (still via the service-role client, which bypasses RLS as usual) to set the flag instead.
+    await admin.from('profiles').delete().eq('id', padmin.id);
+    await admin.from('profiles').insert({ id: padmin.id, email, full_name: email, is_platform_admin: true });
+    const res = await padmin.client.functions.invoke('createWeddingInviteLink', {
+      body: { wedding_id: w.id, role: 'owner' },
+    });
+    expect(res.error).toBeNull();
+    expect(res.data.role).toBe('owner');
+    expect(typeof res.data.token).toBe('string');
+  });
+});
+

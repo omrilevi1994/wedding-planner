@@ -28,24 +28,26 @@ Deno.serve(async (req) => {
     if (!wedding_id) {
       return Response.json({ error: 'wedding_id is required' }, { status: 400, headers: cors });
     }
-    if (!LINKABLE_ROLES.includes(role)) {
-      return Response.json({ error: `role must be one of: ${LINKABLE_ROLES.join(', ')}` }, { status: 400, headers: cors });
-    }
     // Sides/guest-quota only apply to (and are only ever stored for) the 'family' role —
     // matches inviteUserToWedding, where non-family roles always get unrestricted access.
     const linkWeddingSides = role === 'family' ? wedding_sides : [];
     const linkMaxGuests = role === 'family' ? max_guests : null;
 
-    // --- Authorize: wedding owner or platform admin (via service client) ---
+    // --- Authorize: wedding owner (collaborator roles) or platform admin (any role) ---
     const service = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const { data: ownerMembership } = await service.from('wedding_members')
       .select('id').eq('wedding_id', wedding_id).eq('user_id', user.id).eq('role', 'owner').maybeSingle();
-    if (!ownerMembership) {
-      const { data: profile } = await service.from('profiles')
-        .select('is_platform_admin').eq('id', user.id).maybeSingle();
-      if (!profile?.is_platform_admin) {
-        return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
-      }
+    const { data: profile } = await service.from('profiles')
+      .select('is_platform_admin').eq('id', user.id).maybeSingle();
+    const isOwner = !!ownerMembership;
+    const isPlatformAdmin = !!profile?.is_platform_admin;
+    if (!isOwner && !isPlatformAdmin) {
+      return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
+    }
+    // Only platform admins may mint owner-granting links (they transfer ownership on redeem).
+    const allowedRoles = isPlatformAdmin ? ['owner', ...LINKABLE_ROLES] : LINKABLE_ROLES;
+    if (!allowedRoles.includes(role)) {
+      return Response.json({ error: `role must be one of: ${allowedRoles.join(', ')}` }, { status: 400, headers: cors });
     }
 
     // --- Generate an unguessable token (two concatenated UUIDv4s: ~244 bits of entropy) ---
