@@ -191,9 +191,10 @@ async function unwrapFunctionError(error) {
 }
 
 const weddingInviteLinks = {
-  // Shareable single-use link (14-day safety expiry) that lets one holder join as a collaborator
-  // (never as owner) — distinct from inviteUserToWedding's per-email flow. The token is returned
-  // only here, once; list() never exposes it again.
+  // Shareable single-use link (14-day safety expiry) that lets one holder join. Wedding owners
+  // can mint collaborator links; platform admins can additionally mint an owner link (which
+  // transfers ownership on redeem — enforced server-side). Distinct from inviteUserToWedding's
+  // per-email flow. The token is returned only here, once; list() never exposes it again.
   async create({ wedding_id, role = 'coplanner', wedding_sides = [], max_guests = null }) {
     const { data, error } = await supabase.functions.invoke('createWeddingInviteLink', { body: { wedding_id, role, wedding_sides, max_guests } });
     if (error) throw await unwrapFunctionError(error);
