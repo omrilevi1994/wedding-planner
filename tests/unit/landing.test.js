@@ -95,7 +95,8 @@ describe('landing calculator showcase', () => {
   });
   it('adds no new inline <script> to the landing (stays static)', () => {
     const scripts = html.match(/<script(?![^>]*src=)[^>]*>/g) ?? [];
-    // pre-existing inline scripts: the .js class-adder, the reveal/parallax IIFE, and JSON-LD
-    expect(scripts.length).toBeLessThanOrEqual(3);
+    // pre-existing inline scripts: the .js class-adder, the reveal/parallax IIFE, JSON-LD,
+    // and the privacy-safe PostHog analytics snippet.
+    expect(scripts.length).toBeLessThanOrEqual(4);
   });
 });
