@@ -288,3 +288,31 @@ describe.skipIf(!FUNCTIONS)('invite-link list', () => {
   });
 });
 
+describe('invite-link owner insert RLS', () => {
+  let owner, w;
+  beforeAll(async () => {
+    owner = await makeUser(`orls-${Date.now()}@t.local`);
+    w = await makeWedding();
+    await admin.from('weddings').update({ owner_id: owner.id }).eq('id', w.id);
+    await admin.from('wedding_members').insert({ wedding_id: w.id, user_id: owner.id, role: 'owner' });
+  });
+
+  it('a wedding owner cannot directly insert an owner-role link', async () => {
+    const { error } = await owner.client.from('wedding_invite_links').insert({
+      id: `ilo-${Date.now()}`, wedding_id: w.id,
+      token: `tko-${Date.now()}-${Math.round(performance.now())}`,
+      role: 'owner', expires_at: new Date(Date.now() + 60_000).toISOString(),
+    });
+    expect(error).not.toBeNull();
+  });
+
+  it('a wedding owner can still directly insert a non-owner link', async () => {
+    const { error } = await owner.client.from('wedding_invite_links').insert({
+      id: `iln-${Date.now()}`, wedding_id: w.id,
+      token: `tkn-${Date.now()}-${Math.round(performance.now())}`,
+      role: 'coplanner', expires_at: new Date(Date.now() + 60_000).toISOString(),
+    });
+    expect(error).toBeNull();
+  });
+});
+
