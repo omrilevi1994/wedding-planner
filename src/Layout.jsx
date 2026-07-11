@@ -307,7 +307,7 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Mobile Nav */}
           {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t">
+            <div className="md:hidden py-4 border-t max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain">
               <div className="px-4 mb-3">
                 <WeddingSelector />
               </div>
