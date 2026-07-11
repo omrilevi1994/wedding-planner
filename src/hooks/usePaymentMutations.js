@@ -1,3 +1,4 @@
+import { track } from '@/lib/track';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { wedflow } from '@/api/wedflowClient';
 import { useWedding } from '@/lib/WeddingContext';
@@ -14,6 +15,7 @@ export function usePaymentMutations() {
         paid_date: paidDate,
       }),
     onSuccess: async (payment) => {
+      track('payment_marked_paid');
       queryClient.invalidateQueries(['payments']);
       const user = await wedflow.auth.me();
       await wedflow.entities.ActivityLog.create({

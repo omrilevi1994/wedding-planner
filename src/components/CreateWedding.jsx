@@ -1,3 +1,4 @@
+import { track } from '@/lib/track';
 import React, { useRef, useState } from 'react';
 import { wedflow } from '@/api/wedflowClient';
 import { supabase } from '@/lib/supabaseClient';
@@ -33,6 +34,7 @@ export default function CreateWedding() {
       await seedDefaultChecklist(wedding.id);
       await seedDefaultVenueElements(wedding.id);
       await refreshWeddings();
+      track('wedding_created');
       selectWedding(wedding.id);
     } catch (err) {
       setError(err?.message || 'שגיאה ביצירת החתונה');

@@ -1,3 +1,4 @@
+import { track } from '@/lib/track';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { wedflow } from '@/api/wedflowClient';
 import { useWedding } from '@/lib/WeddingContext';
@@ -79,6 +80,7 @@ export function useExpenseMutations() {
   const createExpense = useMutation({
     mutationFn: (data) => wedflow.entities.Expense.create({ ...data, wedding_id: activeWeddingId }),
     onSuccess: (expense) => {
+      track('expense_added');
       queryClient.invalidateQueries(['expenses']);
       runExpenseSideEffects(expense, {
         action_type: 'הוספת הוצאה',
@@ -90,6 +92,7 @@ export function useExpenseMutations() {
   const updateExpense = useMutation({
     mutationFn: ({ id, data }) => wedflow.entities.Expense.update(id, data),
     onSuccess: (expense) => {
+      track('expense_updated');
       queryClient.invalidateQueries(['expenses']);
       runExpenseSideEffects(expense, {
         action_type: 'עדכון הוצאה',
@@ -101,6 +104,7 @@ export function useExpenseMutations() {
   const deleteExpense = useMutation({
     mutationFn: (expense) => wedflow.entities.Expense.delete(expense.id),
     onSuccess: async (_, expense) => {
+      track('expense_deleted');
       queryClient.invalidateQueries(['expenses']);
       const user = await wedflow.auth.me();
       await wedflow.entities.ActivityLog.create({

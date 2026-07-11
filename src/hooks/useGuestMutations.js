@@ -1,3 +1,4 @@
+import { track } from '@/lib/track';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { wedflow } from '@/api/wedflowClient';
 import { useWedding } from '@/lib/WeddingContext';
@@ -29,6 +30,7 @@ export function useGuestMutations() {
   const createGuest = useMutation({
     mutationFn: (data) => wedflow.entities.Guest.create({ ...data, wedding_id: activeWeddingId }),
     onSuccess: (guest) => {
+      track('guest_added');
       queryClient.invalidateQueries(['guests']);
       logGuestActivity(guest, {
         action_type: 'הוספת מוזמן',
@@ -40,6 +42,7 @@ export function useGuestMutations() {
   const updateGuest = useMutation({
     mutationFn: ({ id, data }) => wedflow.entities.Guest.update(id, data),
     onSuccess: (guest) => {
+      track('guest_updated');
       queryClient.invalidateQueries(['guests']);
       logGuestActivity(guest, {
         action_type: 'עדכון מוזמן',
@@ -51,6 +54,7 @@ export function useGuestMutations() {
   const deleteGuest = useMutation({
     mutationFn: (guest) => wedflow.entities.Guest.delete(guest.id),
     onSuccess: async (_, guest) => {
+      track('guest_deleted');
       queryClient.invalidateQueries(['guests']);
       const user = await wedflow.auth.me();
       await wedflow.entities.ActivityLog.create({

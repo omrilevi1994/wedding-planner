@@ -1,3 +1,4 @@
+import { track } from '@/lib/track';
 import React, { useState } from 'react';
 import { Wallet, ListChecks, Smartphone } from 'lucide-react';
 import { wedflow } from '@/api/wedflowClient';
@@ -126,6 +127,7 @@ export default function Login() {
     try {
       if (mode === 'signup') {
         await wedflow.auth.signUp({ email, password, full_name: fullName });
+        track('signup');
       } else {
         await wedflow.auth.signInWithPassword({ email, password });
       }
