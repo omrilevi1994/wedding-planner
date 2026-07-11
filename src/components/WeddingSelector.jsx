@@ -42,7 +42,7 @@ export default function WeddingSelector() {
         <ChevronDown className={`w-3.5 h-3.5 text-rose-deep transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute top-full mt-1 left-0 bg-card border border-border rounded-xl shadow-lg py-1 min-w-[220px] z-50 max-h-64 overflow-y-auto">
+        <div className="absolute top-full mt-1 right-0 bg-card border border-border rounded-xl shadow-lg py-1 min-w-[220px] max-w-[calc(100vw-1.5rem)] z-50 max-h-64 overflow-y-auto">
           {weddings.map(w => (
             <button
               key={w.id}

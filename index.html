@@ -330,6 +330,11 @@
         .feature.flip .feat-media { order: 0; }
         .more-grid { grid-template-columns: 1fr; }
         .hero-prov { gap: 1.4rem; }
+        /* The emphasized headline phrase is nowrap on desktop; on narrow
+           phones (e.g. iPhone 17 Pro) that overflows and clips the text,
+           so let it wrap and drop the single-line underline decoration. */
+        h1 .em { white-space: normal; }
+        h1 .em::after { display: none; }
         .js .reveal.from-start, .js .reveal.from-end { transform: translateY(34px); }
       }
       @media (prefers-reduced-motion: reduce) {
