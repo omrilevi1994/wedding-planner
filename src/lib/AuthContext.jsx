@@ -77,16 +77,30 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
         setAuthError({ type: 'auth_required', message: 'Authentication required' });
         setIsLoadingAuth(false);
+        if (typeof window !== 'undefined') window.posthog?.reset?.();
       }
     });
     return () => sub?.subscription?.unsubscribe?.();
   }, []);
+
+  // Tie the logged-in account to PostHog analytics so usage can be attributed
+  // to a real user (by account email/name). Only identity + these two fields
+  // are sent — never wedding-data content (guests, vendors, amounts).
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.posthog?.identify) return;
+    if (user?.id) {
+      window.posthog.identify(user.id, { email: user.email, name: user.full_name });
+    }
+  }, [user]);
 
   const logout = async () => {
     await wedflow.auth.logout();
     loadedUserIdRef.current = null;
     setUser(null);
     setIsAuthenticated(false);
+    // Unlink the analytics identity so a later user on the same device is not
+    // merged into the previous account.
+    if (typeof window !== 'undefined') window.posthog?.reset?.();
   };
 
   const navigateToLogin = () => {
