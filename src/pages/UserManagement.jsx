@@ -479,8 +479,13 @@ export default function UserManagement() {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              כל מי שמקבל את הקישור יכול להצטרף לחתונה בעצמו, ללא צורך בהזמנה אישית. הקישור תקף ל-48 שעות ואפשר להשתמש בו כמה פעמים.
+              כל מי שמקבל את הקישור יכול להצטרף לחתונה בעצמו, ללא צורך בהזמנה אישית. הקישור חד-פעמי — מתבטל אוטומטית לאחר שמישהו מצטרף דרכו, ותקף עד 14 יום.
             </p>
+            {linkRole === 'owner' && (
+              <p className="text-sm text-rose-deep bg-champagne border border-taupe/40 rounded-lg p-3">
+                ⚠️ קישור זה מעניק בעלות מלאה על החתונה ומעביר את הבעלות למי שמצטרף דרכו. שמור אותו בזהירות.
+              </p>
+            )}
             {!generatedLink ? (
               <>
                 <div className="space-y-2">
@@ -490,7 +495,7 @@ export default function UserManagement() {
                       <SelectValue placeholder="בחר תפקיד" />
                     </SelectTrigger>
                     <SelectContent dir="rtl">
-                      {INVITABLE_ROLES.map(role => (
+                      {invitableRoles.map(role => (
                         <SelectItem key={role} value={role}>{ROLE_LABELS[role]}</SelectItem>
                       ))}
                     </SelectContent>
