@@ -352,3 +352,52 @@ describe.skipIf(!FUNCTIONS)('owner-link creation authz', () => {
   });
 });
 
+describe.skipIf(!FUNCTIONS)('owner-link redemption', () => {
+  let padmin, w;
+  beforeAll(async () => {
+    const email = `orp-${Date.now()}@t.local`;
+    padmin = await makeUser(email);
+    // See the 'owner-link creation authz' block above: plain .update({is_platform_admin: true})
+    // is a silent no-op because of migration 0019's BEFORE UPDATE trigger. Delete + re-insert
+    // the profile row instead so the flag actually sticks.
+    await admin.from('profiles').delete().eq('id', padmin.id);
+    await admin.from('profiles').insert({ id: padmin.id, email, full_name: email, is_platform_admin: true });
+    w = await makeWedding(); // owner_id starts null
+  });
+
+  const ownerLink = async () => {
+    const { data } = await padmin.client.functions.invoke('createWeddingInviteLink', { body: { wedding_id: w.id, role: 'owner' } });
+    return data.token;
+  };
+
+  it('redeeming an owner link makes the joiner owner and transfers weddings.owner_id', async () => {
+    const token = await ownerLink();
+    const joiner = await makeUser(`orj-${Date.now()}@t.local`);
+    const r = await joiner.client.functions.invoke('joinWeddingViaLink', { body: { token } });
+    expect(r.error).toBeNull();
+    expect(r.data.role).toBe('owner');
+
+    const { data: mem } = await admin.from('wedding_members')
+      .select('role').eq('wedding_id', w.id).eq('user_id', joiner.id).single();
+    expect(mem.role).toBe('owner');
+    const { data: wed } = await admin.from('weddings').select('owner_id').eq('id', w.id).single();
+    expect(wed.owner_id).toBe(joiner.id);
+  });
+
+  it('an existing collaborator is promoted to owner (token is consumed)', async () => {
+    const token = await ownerLink();
+    const member = await makeUser(`orm-${Date.now()}@t.local`);
+    await admin.from('wedding_members').insert({ wedding_id: w.id, user_id: member.id, role: 'coplanner' });
+    const r = await member.client.functions.invoke('joinWeddingViaLink', { body: { token } });
+    expect(r.error).toBeNull();
+    expect(r.data.role).toBe('owner');
+    expect(r.data.already_member).toBe(false);
+
+    const { data: mem } = await admin.from('wedding_members')
+      .select('role').eq('wedding_id', w.id).eq('user_id', member.id).single();
+    expect(mem.role).toBe('owner');
+    const { data: link } = await admin.from('wedding_invite_links').select('used_at').eq('token', token).single();
+    expect(link.used_at).not.toBeNull();
+  });
+});
+

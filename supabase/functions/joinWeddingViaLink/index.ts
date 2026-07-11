@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     // --- Look up the link (service role bypasses RLS — this table has no select policy) ---
     const service = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const { data: link, error: linkError } = await service.from('wedding_invite_links')
-      .select('id, wedding_id, used_at, revoked_at, expires_at').eq('token', token).maybeSingle();
+      .select('id, wedding_id, role, used_at, revoked_at, expires_at').eq('token', token).maybeSingle();
     if (linkError) {
       return Response.json({ error: linkError.message }, { status: 500, headers: cors });
     }
@@ -37,9 +37,12 @@ Deno.serve(async (req) => {
 
     // Already a member? Return success WITHOUT consuming the token (lets an owner test their
     // own link and lets a legitimate invitee refresh the page without burning the link).
+    // Owner links transfer ownership even to an existing member, so they must NOT short-circuit.
+    const isOwnerLink = link.role === 'owner';
     const { data: existingMembership } = await service.from('wedding_members')
       .select('id, role').eq('wedding_id', link.wedding_id).eq('user_id', user.id).maybeSingle();
-    if (existingMembership) {
+    if (existingMembership && !isOwnerLink) {
+      // Already a member of a collaborator link: return success WITHOUT consuming the token.
       const { data: w0 } = await service.from('weddings').select('couple_names').eq('id', link.wedding_id).maybeSingle();
       return Response.json({
         wedding_id: link.wedding_id, couple_names: w0?.couple_names ?? null,
@@ -69,16 +72,36 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'expired_token', message: 'קישור ההזמנה פג תוקף' }, { status: 410, headers: cors });
     }
 
-    // Defensive: a link can never grant ownership, regardless of what's stored.
-    const role = claimed.role === 'owner' ? 'coplanner' : claimed.role;
-    // Sides/guest-quota only make sense for (and are only ever set on) the 'family' role.
-    const wedding_sides = role === 'family' ? (claimed.wedding_sides ?? []) : [];
-    const max_guests = role === 'family' ? (claimed.max_guests ?? null) : null;
+    // Stored role is trusted: owner links can only be created by platform admins (RLS 0024 +
+    // createWeddingInviteLink), so honor role='owner' instead of downgrading it.
+    const role = claimed.role;
 
-    const { error: insertError } = await service.from('wedding_members')
-      .insert({ id: crypto.randomUUID(), wedding_id: claimed.wedding_id, user_id: user.id, role, wedding_sides, max_guests });
-    if (insertError) {
-      return Response.json({ error: insertError.message }, { status: 500, headers: cors });
+    if (role === 'owner') {
+      // Promote an existing member, or add a new owner membership.
+      const memErr = existingMembership
+        ? (await service.from('wedding_members')
+            .update({ role: 'owner', wedding_sides: [], max_guests: null })
+            .eq('id', existingMembership.id)).error
+        : (await service.from('wedding_members')
+            .insert({ id: crypto.randomUUID(), wedding_id: claimed.wedding_id, user_id: user.id, role: 'owner', wedding_sides: [], max_guests: null })).error;
+      if (memErr) {
+        return Response.json({ error: memErr.message }, { status: 500, headers: cors });
+      }
+      // Transfer canonical ownership (full handoff).
+      const { error: transferErr } = await service.from('weddings')
+        .update({ owner_id: user.id }).eq('id', claimed.wedding_id);
+      if (transferErr) {
+        return Response.json({ error: transferErr.message }, { status: 500, headers: cors });
+      }
+    } else {
+      // Collaborator link: existingMembership is null here (the short-circuit returned earlier).
+      const wedding_sides = role === 'family' ? (claimed.wedding_sides ?? []) : [];
+      const max_guests = role === 'family' ? (claimed.max_guests ?? null) : null;
+      const { error: insertError } = await service.from('wedding_members')
+        .insert({ id: crypto.randomUUID(), wedding_id: claimed.wedding_id, user_id: user.id, role, wedding_sides, max_guests });
+      if (insertError) {
+        return Response.json({ error: insertError.message }, { status: 500, headers: cors });
+      }
     }
 
     const { data: wedding } = await service.from('weddings')
