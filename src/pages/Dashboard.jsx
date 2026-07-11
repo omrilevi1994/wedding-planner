@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { wedflow } from '@/api/wedflowClient';
 import { useQuery } from '@tanstack/react-query';
 import { Wallet, TrendingDown, TrendingUp, DollarSign, Users, UserCheck, Gift } from 'lucide-react';
@@ -17,9 +17,12 @@ import { usePaymentMutations } from '@/hooks/usePaymentMutations';
 
 
 export default function Dashboard() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const { activeWedding, activeWeddingId } = useWedding();
+  // `user` comes from WeddingContext (synthUser: profile + active-membership
+  // fields like wedding_sides). Dashboard only mounts after that context has
+  // finished loading, so re-fetching the profile here was both a redundant
+  // network round-trip and a bug — auth.me() doesn't return wedding_sides, so
+  // the greeting below never matched.
+  const { activeWedding, activeWeddingId, user } = useWedding();
 
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showGuestForm, setShowGuestForm] = useState(false);
@@ -28,16 +31,6 @@ export default function Dashboard() {
   const { createExpense } = useExpenseMutations();
   const { createGuest } = useGuestMutations();
   const { markPaid } = usePaymentMutations();
-
-  useEffect(() => {
-    wedflow.auth.me().then(currentUser => {
-      setCurrentUser(currentUser);
-      setIsCheckingAuth(false);
-    }).catch(() => {
-      setCurrentUser(null);
-      setIsCheckingAuth(false);
-    });
-  }, []);
 
   const { data: settings } = useQuery({
     queryKey: ['settings', activeWeddingId],
@@ -68,10 +61,10 @@ export default function Dashboard() {
 
   // Determine greeting message
   const greetingMessage = React.useMemo(() => {
-    if (!currentUser?.wedding_sides || currentUser.wedding_sides.length === 0) return null;
-    if (currentUser.wedding_sides.length > 1) return null;
-    
-    const side = currentUser.wedding_sides[0];
+    if (!user?.wedding_sides || user.wedding_sides.length === 0) return null;
+    if (user.wedding_sides.length > 1) return null;
+
+    const side = user.wedding_sides[0];
     const greetings = {
       'כלה - אבא': 'ברוכים הבאים לאבא של הכלה',
       'כלה - אמא': 'ברוכים הבאים לאמא של הכלה',
@@ -80,7 +73,7 @@ export default function Dashboard() {
     };
     
     return greetings[side] || null;
-  }, [currentUser]);
+  }, [user]);
 
   // הוצאות שנכנסות לחישוב (לא "אחר")
   const billableExpenses = expenses.filter(e => e.paid_by_party !== 'אחר' && e.paid_by_party !== 'הורים');
@@ -142,7 +135,7 @@ export default function Dashboard() {
   const billableExpenseIds = new Set(billableExpenses.map((e) => e.id));
   const billablePayments = payments.filter((p) => billableExpenseIds.has(p.expense_id));
 
-  if (isCheckingAuth) {
+  if (!user) {
     return null;
   }
 
