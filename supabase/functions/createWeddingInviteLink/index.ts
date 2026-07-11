@@ -1,8 +1,9 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 
-// Roles a shareable link may grant. Deliberately excludes 'owner' — a link can never hand
-// out ownership, only collaborator-level access. Mirrors inviteUserToWedding's INVITABLE_ROLES.
+// Collaborator roles any wedding owner may mint a link for. Platform admins may additionally
+// mint 'owner' links (see allowedRoles below), which transfer ownership on redeem; regular
+// owners are restricted to this list. Mirrors inviteUserToWedding's INVITABLE_ROLES.
 const LINKABLE_ROLES = ['coplanner', 'family', 'event_manager'];
 const TTL_MS = 14 * 24 * 60 * 60 * 1000; // 14 days (safety net; single-use is the real control)
 
