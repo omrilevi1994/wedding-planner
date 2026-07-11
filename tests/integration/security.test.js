@@ -288,6 +288,42 @@ describe.skipIf(!FUNCTIONS)('invite-link list', () => {
   });
 });
 
+describe.skipIf(!FUNCTIONS)('invite-link list hides admin-created links from non-admins', () => {
+  let owner, padmin, w;
+  beforeAll(async () => {
+    owner = await makeUser(`lha-${Date.now()}@t.local`);
+    const padminEmail = `lhpa-${Date.now()}@t.local`;
+    padmin = await makeUser(padminEmail);
+    // See 'owner-link creation authz' above: setting is_platform_admin via .update() is a
+    // silent no-op (migration 0019 trigger), so delete + re-insert the profile row instead.
+    await admin.from('profiles').delete().eq('id', padmin.id);
+    await admin.from('profiles').insert({ id: padmin.id, email: padminEmail, full_name: padminEmail, is_platform_admin: true });
+    w = await makeWedding();
+    await admin.from('weddings').update({ owner_id: owner.id }).eq('id', w.id);
+    await admin.from('wedding_members').insert({ wedding_id: w.id, user_id: owner.id, role: 'owner' });
+    // Owner mints a collaborator link; platform admin mints an owner (ownership-transfer) link.
+    await owner.client.functions.invoke('createWeddingInviteLink', { body: { wedding_id: w.id, role: 'coplanner' } });
+    await padmin.client.functions.invoke('createWeddingInviteLink', { body: { wedding_id: w.id, role: 'owner' } });
+  });
+
+  it('a wedding owner does NOT see the platform-admin-created link', async () => {
+    const res = await owner.client.functions.invoke('listWeddingInviteLinks', { body: { wedding_id: w.id } });
+    expect(res.error).toBeNull();
+    const roles = res.data.links.map((l) => l.role);
+    expect(roles).toContain('coplanner'); // its own link is still visible
+    expect(roles).not.toContain('owner'); // admin-created link is hidden
+    for (const l of res.data.links) expect(l).not.toHaveProperty('created_by_id');
+  });
+
+  it('a platform admin still sees every link, including admin-created ones', async () => {
+    const res = await padmin.client.functions.invoke('listWeddingInviteLinks', { body: { wedding_id: w.id } });
+    expect(res.error).toBeNull();
+    const roles = res.data.links.map((l) => l.role);
+    expect(roles).toContain('coplanner');
+    expect(roles).toContain('owner');
+  });
+});
+
 describe('invite-link owner insert RLS', () => {
   let owner, w;
   beforeAll(async () => {

@@ -29,18 +29,34 @@ Deno.serve(async (req) => {
     // Authorize: wedding owner or platform admin.
     const { data: ownerMembership } = await service.from('wedding_members')
       .select('id').eq('wedding_id', wedding_id).eq('user_id', user.id).eq('role', 'owner').maybeSingle();
-    if (!ownerMembership) {
-      const { data: profile } = await service.from('profiles').select('is_platform_admin').eq('id', user.id).maybeSingle();
-      if (!profile?.is_platform_admin) return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
+    const { data: profile } = await service.from('profiles').select('is_platform_admin').eq('id', user.id).maybeSingle();
+    const isPlatformAdmin = !!profile?.is_platform_admin;
+    if (!ownerMembership && !isPlatformAdmin) {
+      return Response.json({ error: 'Forbidden' }, { status: 403, headers: cors });
     }
 
-    // NOTE: token is deliberately NOT selected.
+    // NOTE: token is deliberately NOT selected. created_by_id is selected only to filter
+    // admin-created links below and is stripped from the response.
     const { data: rows, error } = await service.from('wedding_invite_links')
-      .select('id, role, wedding_sides, max_guests, created_by, created_date, expires_at, used_at, used_by, revoked_at')
+      .select('id, role, wedding_sides, max_guests, created_by, created_by_id, created_date, expires_at, used_at, used_by, revoked_at')
       .eq('wedding_id', wedding_id).order('created_date', { ascending: false });
     if (error) return Response.json({ error: error.message }, { status: 500, headers: cors });
 
-    const links = (rows ?? []).map((l) => ({ ...l, status: statusOf(l) }));
+    // Links created by a platform admin (e.g. ownership-transfer 'owner' links) are only visible
+    // to platform admins — a wedding owner must not see them in their invite-links list.
+    let visible = rows ?? [];
+    if (!isPlatformAdmin && visible.length > 0) {
+      const creatorIds = [...new Set(visible.map((l) => l.created_by_id).filter((id): id is string => !!id))];
+      let adminCreatorIds = new Set<string>();
+      if (creatorIds.length > 0) {
+        const { data: adminProfiles } = await service.from('profiles')
+          .select('id').in('id', creatorIds).eq('is_platform_admin', true);
+        adminCreatorIds = new Set((adminProfiles ?? []).map((p) => p.id));
+      }
+      visible = visible.filter((l) => !l.created_by_id || !adminCreatorIds.has(l.created_by_id));
+    }
+
+    const links = visible.map(({ created_by_id: _omit, ...l }) => ({ ...l, status: statusOf(l) }));
     return Response.json({ links }, { headers: cors });
   } catch (e) {
     return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: cors });
