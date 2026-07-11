@@ -251,9 +251,9 @@
       .vrow { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem 1rem; align-items: center;
         padding: 0.68rem 0.2rem; border-bottom: 1px solid #f3ebde; }
       .vrow:last-child { border-bottom: 0; }
-      .vrow .vname { font-weight: 600; font-size: 0.94rem; }
-      .vrow .vsub { grid-column: 1; font-size: 0.78rem; color: var(--ink-soft); }
-      .vrow .vamt { grid-row: 1 / span 2; text-align: end; font-family: 'Heebo', system-ui, sans-serif; font-size: 1rem; }
+      .vrow .vname { grid-column: 1; grid-row: 1; font-weight: 600; font-size: 0.94rem; }
+      .vrow .vsub { grid-column: 1; grid-row: 2; font-size: 0.78rem; color: var(--ink-soft); }
+      .vrow .vamt { grid-column: 2; grid-row: 1 / span 2; text-align: end; font-family: 'Heebo', system-ui, sans-serif; font-size: 1rem; }
       .vrow .vamt small { display: block; font-family: 'Heebo', sans-serif; font-size: 0.72rem; color: var(--sage-deep); font-weight: 600; }
 
       .brow { margin-bottom: 0.9rem; }
