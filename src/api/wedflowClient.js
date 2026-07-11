@@ -61,7 +61,13 @@ const entities = new Proxy({}, {
 const auth = {
   // Returns the app-shaped user: merged auth user + profile fields
   async me() {
-    const { data: { user } } = await supabase.auth.getUser();
+    // getSession() reads the user from the locally-stored session (no network
+    // round-trip). getUser() would hit GoTrue's /auth/v1/user to re-validate the
+    // JWT on every call (~1-2s each) — unnecessary here: we only need id/email to
+    // join to the profile, the SDK auto-refreshes the token in the background, and
+    // RLS still enforces auth server-side on the profile read below.
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (!user) throw new Error('Not authenticated');
     const { data: profile } = await supabase
       .from('profiles').select('*').eq('id', user.id).single();

@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
     // user every single time the user alt-tabs back to the browser — even
     // though nothing about the auth state actually changed.
     //
-    // Treating every `SIGNED_IN`/`INITIAL_SESSION` event as a fresh sign-in
+    // Treating every `SIGNED_IN` event as a fresh sign-in
     // (the naive `if (session) loadUser()`) calls loadUser(), which flips
     // isLoadingAuth back to true. App.jsx renders a full-page spinner while
     // isLoadingAuth is true, unmounting the whole authenticated app tree and
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
       }
       if (session) {
         if (
-          (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') &&
+          event === 'SIGNED_IN' &&
           session.user?.id !== loadedUserIdRef.current
         ) {
           loadUser();

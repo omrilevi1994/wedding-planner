@@ -251,9 +251,9 @@
       .vrow { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem 1rem; align-items: center;
         padding: 0.68rem 0.2rem; border-bottom: 1px solid #f3ebde; }
       .vrow:last-child { border-bottom: 0; }
-      .vrow .vname { font-weight: 600; font-size: 0.94rem; }
-      .vrow .vsub { grid-column: 1; font-size: 0.78rem; color: var(--ink-soft); }
-      .vrow .vamt { grid-row: 1 / span 2; text-align: end; font-family: 'Heebo', system-ui, sans-serif; font-size: 1rem; }
+      .vrow .vname { grid-column: 1; grid-row: 1; font-weight: 600; font-size: 0.94rem; }
+      .vrow .vsub { grid-column: 1; grid-row: 2; font-size: 0.78rem; color: var(--ink-soft); }
+      .vrow .vamt { grid-column: 2; grid-row: 1 / span 2; text-align: end; font-family: 'Heebo', system-ui, sans-serif; font-size: 1rem; }
       .vrow .vamt small { display: block; font-family: 'Heebo', sans-serif; font-size: 0.72rem; color: var(--sage-deep); font-weight: 600; }
 
       .brow { margin-bottom: 0.9rem; }
@@ -343,6 +343,11 @@
         * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
       }
     </style>
+    <!-- PostHog product analytics (marketing pages only; privacy-preserving: no session recording, honors Do Not Track, no ad tracking) -->
+    <script>
+      !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+      posthog.init('phc_nLrZQ3vKgCeZpAMaAfMoagbKnJELcdk5eZpL8uyzojeS',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only',capture_pageview:true,autocapture:true,disable_session_recording:true,respect_dnt:true});
+    </script>
   </head>
   <body>
     <header id="site-header">
@@ -361,7 +366,7 @@
         <div class="wrap hero-grid">
           <div class="hero-copy">
             <span class="tagline script">From “Yes” to “I Do”.</span>
-            <h1><span class="hw">WedFlow:</span> <span class="em">אפליקציה לתכנון חתונה</span> שמרכזת את הכול במקום אחד</h1>
+            <h1><span class="hw">WedFlow</span> <span class="em">אפליקציה לתכנון חתונה</span> שמרכזת את הכול במקום אחד</h1>
             <p class="lead">
               מ״כן״ ועד ״מזל טוב״, WedFlow מרכזת את תכנון החתונה שלכם: מוזמנים ואישורי הגעה,
               סידורי הושבה, ספקים ותשלומים, תקציב וצ'קליסט. הכול במסך אחד שמתעדכן לכם ולכל מי
@@ -429,7 +434,69 @@
             <p>שישה כלים שעובדים יחד: מה שמעדכנים במקום אחד מופיע בכל השאר, בזמן אמת.</p>
           </div>
 
-          <!-- Feature 1: Guests -->
+          <!-- Feature 1: Budget -->
+          <div class="feature reveal">
+            <div class="feat-text">
+              <span class="kicker">תקציב</span>
+              <h2>מעקב תקציב</h2>
+              <p>
+                קובעים תקציב, רושמים הוצאות, ורואים כמה נוצל וכמה נשאר, לפי קטגוריה, בכל רגע.
+                מחשבון החתונה מראה איך ההוצאות עומדות מול המתנות הצפויות, כדי שההחלטות הגדולות
+                יתקבלו עם מספרים לפניכם, לא עם תחושת בטן.
+              </p>
+              <ul>
+                <li>ניצול מול תכנון, לפי קטגוריה</li>
+                <li>מחשבון הכנסות מול הוצאות לפי צפי מתנות</li>
+              </ul>
+            </div>
+            <div class="feat-media reveal from-start d1">
+              <figure>
+                <div class="mock" role="img" aria-label="מעקב תקציב חתונה ב-WedFlow: הוצאות לפי קטגוריה מול התקציב שהוגדר">
+                  <div class="mock-bar"><i></i><i></i><i></i><span>תקציב · ₪180,000</span></div>
+                  <div class="mock-body">
+                    <div class="brow"><div class="btop"><span>אולם וקייטרינג</span><b>₪95,000</b></div><div class="bar"><i style="--w:88%"></i></div></div>
+                    <div class="brow"><div class="btop"><span>צילום</span><b>₪14,000</b></div><div class="bar"><i style="--w:52%"></i></div></div>
+                    <div class="brow"><div class="btop"><span>עיצוב ופרחים</span><b>₪12,500</b></div><div class="bar"><i style="--w:44%"></i></div></div>
+                    <div class="brow"><div class="btop"><span>מוזיקה</span><b>₪6,500</b></div><div class="bar"><i style="--w:26%"></i></div></div>
+                  </div>
+                </div>
+                <figcaption>התקציב: ניצול מול תכנון, לפי קטגוריה</figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <!-- Feature 2: Vendors / payments -->
+          <div class="feature flip reveal">
+            <div class="feat-text">
+              <span class="kicker">ספקים ותשלומים</span>
+              <h2>ניהול ספקים ותשלומים</h2>
+              <p>
+                לכל ספק כרטיס עם הסכום שסוכם, מה כבר שולם ומה עוד
+                פתוח. סוף לשאלה ״כמה נשאר לשלם לאולם?״ באמצע הלילה: הכול רשום, והסכום הכולל של
+                האירוע מתעדכן מעצמו עם כל תשלום.
+              </p>
+              <ul>
+                <li>מקדמות, תשלומים עתידיים ויתרה פתוחה לכל ספק</li>
+                <li>סכום כולל של האירוע שמתעדכן אוטומטית</li>
+              </ul>
+            </div>
+            <div class="feat-media reveal from-end d1">
+              <figure>
+                <div class="mock" role="img" aria-label="ניהול ספקים ותשלומים ב-WedFlow: לכל ספק סכום שסוכם, ששולם והיתרה שנותרה">
+                  <div class="mock-bar"><i></i><i></i><i></i><span>ספקים · יתרה כוללת ₪9,500</span></div>
+                  <div class="mock-body">
+                    <div class="vrow"><span class="vname">אולם אירועים</span><span class="vsub">שולם ₪90,000 מתוך ₪95,000</span><span class="vamt">₪95,000<small>יתרה ₪5,000</small></span></div>
+                    <div class="vrow"><span class="vname">צילום סטילס ווידאו</span><span class="vsub">שולם במלואו</span><span class="vamt">₪14,000<small>שולם ✓</small></span></div>
+                    <div class="vrow"><span class="vname">דיג'יי</span><span class="vsub">מקדמה ₪2,000</span><span class="vamt">₪6,500<small>יתרה ₪4,500</small></span></div>
+                    <div class="vrow"><span class="vname">שמלת כלה</span><span class="vsub">שולם במלואו</span><span class="vamt">₪9,800<small>שולם ✓</small></span></div>
+                  </div>
+                </div>
+                <figcaption>ספקים ותשלומים: מקדמות ויתרות לכל ספק</figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <!-- Feature 3: Guests -->
           <div class="feature reveal">
             <div class="feat-text">
               <span class="kicker">מוזמנים</span>
@@ -462,7 +529,7 @@
             </div>
           </div>
 
-          <!-- Feature 2: Seating -->
+          <!-- Feature 4: Seating -->
           <div class="feature flip reveal">
             <div class="feat-text">
               <span class="kicker">הושבה</span>
@@ -496,68 +563,6 @@
                   </div>
                 </div>
                 <figcaption>מפת ההושבה: תפוסה בכל שולחן במבט אחד</figcaption>
-              </figure>
-            </div>
-          </div>
-
-          <!-- Feature 3: Vendors / payments -->
-          <div class="feature reveal">
-            <div class="feat-text">
-              <span class="kicker">ספקים ותשלומים</span>
-              <h2>ניהול ספקים ותשלומים</h2>
-              <p>
-                לכל ספק כרטיס עם הסכום שסוכם, מה כבר שולם ומה עוד
-                פתוח. סוף לשאלה ״כמה נשאר לשלם לאולם?״ באמצע הלילה: הכול רשום, והסכום הכולל של
-                האירוע מתעדכן מעצמו עם כל תשלום.
-              </p>
-              <ul>
-                <li>מקדמות, תשלומים עתידיים ויתרה פתוחה לכל ספק</li>
-                <li>סכום כולל של האירוע שמתעדכן אוטומטית</li>
-              </ul>
-            </div>
-            <div class="feat-media reveal from-start d1">
-              <figure>
-                <div class="mock" role="img" aria-label="ניהול ספקים ותשלומים ב-WedFlow: לכל ספק סכום שסוכם, ששולם והיתרה שנותרה">
-                  <div class="mock-bar"><i></i><i></i><i></i><span>ספקים · יתרה כוללת ₪9,500</span></div>
-                  <div class="mock-body">
-                    <div class="vrow"><span class="vname">אולם אירועים</span><span class="vsub">שולם ₪90,000 מתוך ₪95,000</span><span class="vamt">₪95,000<small>יתרה ₪5,000</small></span></div>
-                    <div class="vrow"><span class="vname">צילום סטילס ווידאו</span><span class="vsub">שולם במלואו</span><span class="vamt">₪14,000<small>שולם ✓</small></span></div>
-                    <div class="vrow"><span class="vname">דיג'יי</span><span class="vsub">מקדמה ₪2,000</span><span class="vamt">₪6,500<small>יתרה ₪4,500</small></span></div>
-                    <div class="vrow"><span class="vname">שמלת כלה</span><span class="vsub">שולם במלואו</span><span class="vamt">₪9,800<small>שולם ✓</small></span></div>
-                  </div>
-                </div>
-                <figcaption>ספקים ותשלומים: מקדמות ויתרות לכל ספק</figcaption>
-              </figure>
-            </div>
-          </div>
-
-          <!-- Feature 4: Budget -->
-          <div class="feature flip reveal">
-            <div class="feat-text">
-              <span class="kicker">תקציב</span>
-              <h2>מעקב תקציב</h2>
-              <p>
-                קובעים תקציב, רושמים הוצאות, ורואים כמה נוצל וכמה נשאר, לפי קטגוריה, בכל רגע.
-                מחשבון החתונה מראה איך ההוצאות עומדות מול המתנות הצפויות, כדי שההחלטות הגדולות
-                יתקבלו עם מספרים לפניכם, לא עם תחושת בטן.
-              </p>
-              <ul>
-                <li>ניצול מול תכנון, לפי קטגוריה</li>
-                <li>מחשבון הכנסות מול הוצאות לפי צפי מתנות</li>
-              </ul>
-            </div>
-            <div class="feat-media reveal from-end d1">
-              <figure>
-                <div class="mock" role="img" aria-label="מעקב תקציב חתונה ב-WedFlow: הוצאות לפי קטגוריה מול התקציב שהוגדר">
-                  <div class="mock-bar"><i></i><i></i><i></i><span>תקציב · ₪180,000</span></div>
-                  <div class="mock-body">
-                    <div class="brow"><div class="btop"><span>אולם וקייטרינג</span><b>₪95,000</b></div><div class="bar"><i style="--w:88%"></i></div></div>
-                    <div class="brow"><div class="btop"><span>צילום</span><b>₪14,000</b></div><div class="bar"><i style="--w:52%"></i></div></div>
-                    <div class="brow"><div class="btop"><span>עיצוב ופרחים</span><b>₪12,500</b></div><div class="bar"><i style="--w:44%"></i></div></div>
-                    <div class="brow"><div class="btop"><span>מוזיקה</span><b>₪6,500</b></div><div class="bar"><i style="--w:26%"></i></div></div>
-                  </div>
-                </div>
-                <figcaption>התקציב: ניצול מול תכנון, לפי קטגוריה</figcaption>
               </figure>
             </div>
           </div>
@@ -778,7 +783,10 @@
         "email": "hello@wedflow.live",
         "contactType": "customer support",
         "availableLanguage": "he"
-      }
+      },
+      "sameAs": [
+        "https://www.instagram.com/wedflow.live/"
+      ]
     },
     {
       "@type": "WebSite",

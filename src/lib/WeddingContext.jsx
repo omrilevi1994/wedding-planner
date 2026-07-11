@@ -39,19 +39,19 @@ export const WeddingProvider = ({ children }) => {
     setIsLoading(true);
     (async () => {
       try {
-        const me = await wedflow.auth.me();
-        setProfile(me);
-        const { data: rows } = await supabase
+        setProfile(authUser);
+        const membersPromise = supabase
           .from('wedding_members')
           .select('wedding_id, role, wedding_sides, max_guests, weddings(*)')
           .eq('user_id', authUser.id);
+        // Platform admins see ALL weddings (RLS grants them full access), not just memberships.
+        const adminWeddingsPromise = authUser.is_platform_admin
+          ? supabase.from('weddings').select('*')
+          : Promise.resolve({ data: null });
+        const [{ data: rows }, { data: allW }] = await Promise.all([membersPromise, adminWeddingsPromise]);
         const ms = rows || [];
         let ws = ms.map(r => r.weddings).filter(Boolean);
-        if (me?.is_platform_admin) {
-          // Platform admins see ALL weddings (RLS grants them full access), not just memberships.
-          const { data: allW } = await supabase.from('weddings').select('*');
-          if (allW) ws = allW;
-        }
+        if (authUser.is_platform_admin && allW) ws = allW;
         if (cancelled) return;
         setMemberships(ms.map(({ weddings, ...m }) => m));
         setWeddings(ws);
