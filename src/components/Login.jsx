@@ -25,7 +25,7 @@ function GoogleButton({ onClick, children = 'הרשמה מהירה עם Google' 
   );
 }
 
-function EmailForm({ mode, setMode, email, setEmail, password, setPassword, fullName, setFullName, error, busy, onSubmit }) {
+function EmailForm({ mode, setMode, email, setEmail, password, setPassword, fullName, setFullName, error, notice, busy, onSubmit }) {
   return (
     <form onSubmit={onSubmit} className="space-y-3 mt-4 pt-4 border-t border-border">
       {mode === 'signup' && (
@@ -46,6 +46,11 @@ function EmailForm({ mode, setMode, email, setEmail, password, setPassword, full
         className="w-full px-4 py-2.5 border border-input rounded-xl text-right bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
       />
       {error && <p className="text-sm text-destructive text-center">{error}</p>}
+      {notice && (
+        <p className="text-sm text-sage-deep text-center bg-sage/10 border border-sage/40 rounded-xl px-3 py-2.5 leading-relaxed">
+          {notice}
+        </p>
+      )}
       <button
         type="submit" disabled={busy}
         className="w-full py-2.5 bg-secondary text-secondary-foreground rounded-xl font-medium hover:bg-accent disabled:opacity-50 transition"
@@ -117,6 +122,7 @@ export default function Login() {
   const [fullName, setFullName] = useState('');
   const [mode, setMode] = useState('signup');
   const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
   const [busy, setBusy] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
 
@@ -124,10 +130,21 @@ export default function Login() {
     e.preventDefault();
     setBusy(true);
     setError(null);
+    setNotice(null);
     try {
       if (mode === 'signup') {
-        await wedflow.auth.signUp({ email, password, full_name: fullName });
+        const data = await wedflow.auth.signUp({ email, password, full_name: fullName });
         track('signup');
+        // When email confirmations are enabled on the Supabase project, signUp
+        // succeeds but returns no session — onAuthStateChange never fires, so
+        // nothing would re-render and the form would sit on "נרשם…" forever.
+        // Tell the user to go check their inbox instead of stranding them.
+        if (!data?.session) {
+          track('signup_confirmation_required');
+          setNotice('שלחנו לכם מייל לאישור הכתובת. אשרו אותו וחזרו להתחבר.');
+          setBusy(false);
+          return;
+        }
       } else {
         await wedflow.auth.signInWithPassword({ email, password });
       }
@@ -184,7 +201,7 @@ export default function Login() {
                 email={email} setEmail={setEmail}
                 password={password} setPassword={setPassword}
                 fullName={fullName} setFullName={setFullName}
-                error={error} busy={busy} onSubmit={submit}
+                error={error} notice={notice} busy={busy} onSubmit={submit}
               />
             )}
           </div>
