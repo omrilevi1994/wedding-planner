@@ -44,6 +44,17 @@ function entityApi(entityName) {
       if (error) throw error;
       return { success: true };
     },
+    async bulkDelete(ids) {
+      // ids: array of primary keys. PostgREST encodes the IN-list in the URL,
+      // so delete in chunks to stay well clear of URL-length limits.
+      if (!ids || ids.length === 0) return { success: true, count: 0 };
+      const CHUNK = 100;
+      for (let i = 0; i < ids.length; i += CHUNK) {
+        const { error } = await supabase.from(table).delete().in('id', ids.slice(i, i + CHUNK));
+        if (error) throw error;
+      }
+      return { success: true, count: ids.length };
+    },
     async bulkCreate(rows) {
       return unwrap(await supabase.from(table).insert(rows).select());
     },

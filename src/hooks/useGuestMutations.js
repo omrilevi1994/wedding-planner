@@ -70,5 +70,32 @@ export function useGuestMutations() {
     },
   });
 
-  return { createGuest, updateGuest, deleteGuest };
+  // Bulk delete: one DELETE round-trip for all selected guests. Activity
+  // logging is detached (like logGuestActivity) so a logging failure never
+  // turns a delete that already succeeded into a reported error.
+  const deleteGuests = useMutation({
+    mutationFn: async (guests) => {
+      await wedflow.entities.Guest.bulkDelete(guests.map(g => g.id));
+      return guests;
+    },
+    onSuccess: (_, guests) => {
+      track('guests_bulk_deleted', { count: guests.length });
+      queryClient.invalidateQueries(['guests']);
+      (async () => {
+        const user = await wedflow.auth.me();
+        await wedflow.entities.ActivityLog.bulkCreate(guests.map(guest => ({
+          wedding_id: activeWeddingId,
+          user_email: user.email,
+          user_name: user.full_name,
+          action_type: 'מחיקת מוזמן',
+          entity_type: 'Guest',
+          entity_id: guest.id,
+          entity_name: guestName(guest) || 'מוזמן',
+          description: `מחק מוזמן: ${guestName(guest) || guest.id}`,
+        })));
+      })().catch(() => {});
+    },
+  });
+
+  return { createGuest, updateGuest, deleteGuest, deleteGuests };
 }

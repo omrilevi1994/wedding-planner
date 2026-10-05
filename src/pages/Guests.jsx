@@ -59,6 +59,8 @@ export default function Guests() {
   const [showWiwiDialog, setShowWiwiDialog] = useState(false);
   const [showSyncWizard, setShowSyncWizard] = useState(false);
   const [guestToDelete, setGuestToDelete] = useState(null);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [bulkDeleteTargets, setBulkDeleteTargets] = useState([]); // snapshot of guests shown in the bulk-delete dialog
 
   const { data: guests = [], isLoading } = useQuery({
     queryKey: ['guests', activeWeddingId],
@@ -81,7 +83,7 @@ export default function Guests() {
     return guests.filter(g => user?.wedding_sides.includes(g.side));
   }, [guests, user]);
 
-  const { createGuest, updateGuest, deleteGuest } = useGuestMutations();
+  const { createGuest, updateGuest, deleteGuest, deleteGuests } = useGuestMutations();
 
   const handleCloseForm = () => {
     setShowForm(false);
@@ -126,6 +128,27 @@ export default function Guests() {
       deleteGuest.mutate(guestToDelete);
       setGuestToDelete(null);
     }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedGuests.length === 0) return;
+    // Same creator-only restriction as single delete for side-scoped users
+    if (user?.wedding_sides && user.wedding_sides.length > 0 && selectedGuests.some(g => g.created_by !== user?.email)) {
+      alert('אתה יכול למחוק רק מוזמנים שהוספת בעצמך');
+      return;
+    }
+    setBulkDeleteTargets(selectedGuests);
+    setShowBulkDeleteDialog(true);
+  };
+
+  const handleConfirmBulkDelete = () => {
+    deleteGuests.mutate(bulkDeleteTargets, {
+      onSuccess: () => {
+        setSelectedGuestIds(new Set());
+        setShowBulkDeleteDialog(false);
+      },
+      onError: () => alert('מחיקת המוזמנים נכשלה. נסה שוב.'),
+    });
   };
 
   const toggleSelectGuest = (id) => {
@@ -377,6 +400,11 @@ export default function Guests() {
   const uniqueSides = [...new Set(visibleGuests.map(g => g.side).filter(Boolean))];
   const uniqueRelationships = [...new Set(visibleGuests.map(g => g.relationship).filter(Boolean))];
 
+  // Everything currently selected (selection may include guests hidden by the
+  // active filters — the bulk-delete dialog lists exactly what will be deleted).
+  const selectedGuests = visibleGuests.filter(g => selectedGuestIds.has(g.id));
+  const bulkDeletePeopleCount = bulkDeleteTargets.reduce((sum, g) => sum + (g.total_people || 1), 0);
+
   const filteredGuests = visibleGuests.filter(guest => {
     const matchesSearch =
       guest.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -580,6 +608,15 @@ export default function Guests() {
           >
             <Download className="w-4 h-4 ml-1" />
             ייצוא נבחרים CSV
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleBulkDelete}
+            className="border-destructive/30 text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-4 h-4 ml-1" />
+            מחק נבחרים
           </Button>
           <Button size="sm" variant="ghost" onClick={() => setSelectedGuestIds(new Set())}>
             בטל בחירה
@@ -894,6 +931,39 @@ export default function Guests() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <AlertDialog open={showBulkDeleteDialog} onOpenChange={(open) => { if (!open && !deleteGuests.isPending) setShowBulkDeleteDialog(false); }}>
+        <AlertDialogContent dir="rtl" className="max-w-sm">
+          <AlertDialogTitle className="text-right">
+            {bulkDeleteTargets.length === 1 ? 'למחוק מוזמן אחד?' : `למחוק ${bulkDeleteTargets.length} מוזמנים?`}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-right">
+            {bulkDeleteTargets.length === 1
+              ? <>האם למחוק את <strong>{bulkDeleteTargets[0]?.first_name} {bulkDeleteTargets[0]?.last_name}</strong>?</>
+              : <>ימחקו <strong>{bulkDeleteTargets.length}</strong> מוזמנים ({bulkDeletePeopleCount === 1 ? 'אדם אחד' : `${bulkDeletePeopleCount} אנשים`}).</>}
+            {' '}לא ניתן לבטל פעולה זו.
+          </AlertDialogDescription>
+          {bulkDeleteTargets.length > 1 && (
+            <ul className="max-h-40 overflow-y-auto text-sm text-right text-muted-foreground space-y-0.5 border border-border rounded-lg p-2">
+              {bulkDeleteTargets.slice(0, 30).map(g => (
+                <li key={g.id}>{g.first_name} {g.last_name}</li>
+              ))}
+              {bulkDeleteTargets.length > 30 && <li>ועוד {bulkDeleteTargets.length - 30}…</li>}
+            </ul>
+          )}
+          <div className="flex gap-2 justify-end">
+            <AlertDialogCancel disabled={deleteGuests.isPending}>ביטול</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleConfirmBulkDelete(); }}
+              disabled={deleteGuests.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteGuests.isPending ? 'מוחק…' : 'מחק'}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete Guest Confirmation Dialog */}
       <AlertDialog open={!!guestToDelete} onOpenChange={(open) => !open && setGuestToDelete(null)}>
