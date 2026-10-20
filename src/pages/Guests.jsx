@@ -418,6 +418,7 @@ export default function Guests() {
   });
 
   const totalInvited = filteredGuests.reduce((sum, g) => sum + (g.total_people || 1), 0);
+  const totalChildren = filteredGuests.reduce((sum, g) => sum + Math.min(g.children_count || 0, g.total_people || 1), 0);
   const confirmedGuests = filteredGuests.filter(g => g.status === 'אישר');
   const totalConfirmed = confirmedGuests.reduce((sum, g) => sum + (g.confirmed_people != null ? g.confirmed_people : (g.total_people || 1)), 0);
   const hasAnyConfirmedPeople = filteredGuests.some(g => g.confirmed_people != null);
@@ -510,6 +511,9 @@ export default function Guests() {
         <Card className="p-4 bg-gradient-to-br from-taupe/15 to-card">
           <p className="text-sm text-muted-foreground mb-1">סה״כ מוזמנים</p>
           <p className="text-2xl font-bold">{totalInvited}</p>
+          {totalChildren > 0 && (
+            <p className="text-xs text-muted-foreground mt-0.5">מתוכם {totalChildren} ילדים</p>
+          )}
         </Card>
         <Card className="p-4 bg-gradient-to-br from-sage/15 to-card">
           <p className="text-sm text-muted-foreground mb-1">אישרו</p>
@@ -702,7 +706,12 @@ export default function Guests() {
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
-                    <TableCell className="font-semibold">{guest.total_people || 1}</TableCell>
+                    <TableCell className="font-semibold">
+                      {guest.total_people || 1}
+                      {guest.children_count > 0 && (
+                        <span className="text-xs text-muted-foreground font-normal mr-1">({guest.children_count} ילדים)</span>
+                      )}
+                    </TableCell>
                     <TableCell className="font-semibold">
                       {editingConfirmed?.guestId === guest.id ? (
                         <input

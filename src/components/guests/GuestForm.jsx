@@ -19,6 +19,7 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
     relationship: 'משפחה',
     status: '',
     total_people: 1,
+    children_count: 0,
     notes: ''
   });
 
@@ -40,6 +41,7 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
         relationship: guest.relationship || 'משפחה',
         status: guest.status || '',
         total_people: guest.total_people || 1,
+        children_count: guest.children_count || 0,
         notes: guest.notes || ''
       });
     } else {
@@ -51,6 +53,7 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
         relationship: 'משפחה',
         status: '',
         total_people: 1,
+        children_count: 0,
         notes: ''
       });
     }
@@ -64,9 +67,11 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
       return;
     }
     
+    const total_people = parseInt(formData.total_people) || 1;
     onSave({
       ...formData,
-      total_people: parseInt(formData.total_people) || 1
+      total_people,
+      children_count: Math.min(Math.max(parseInt(formData.children_count) || 0, 0), total_people)
     });
   };
 
@@ -163,6 +168,18 @@ export default function GuestForm({ open, onClose, guest, onSave, guests = [] })
                 onChange={(e) => setFormData({ ...formData, total_people: e.target.value })}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="children_count">מתוכם ילדים</Label>
+            <Input
+              id="children_count"
+              type="number"
+              min="0"
+              max={formData.total_people || 20}
+              value={formData.children_count}
+              onChange={(e) => setFormData({ ...formData, children_count: e.target.value })}
+            />
           </div>
 
           <div className="space-y-2">

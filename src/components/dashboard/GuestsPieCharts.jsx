@@ -34,6 +34,18 @@ export default function GuestsPieCharts({ guests }) {
   const sideData = toChartData(groupByPeople(guests, (g) => g.side), SIDE_COLORS);
   const relationshipData = toChartData(groupByPeople(guests, (g) => g.relationship), RELATIONSHIP_COLORS);
 
+  const totalPeople = guests.reduce((sum, g) => sum + (g.total_people || 1), 0);
+  const childrenBySide = {};
+  guests.forEach((g) => {
+    const kids = Math.min(g.children_count || 0, g.total_people || 1);
+    if (kids > 0) childrenBySide[g.side || 'אחר'] = (childrenBySide[g.side || 'אחר'] || 0) + kids;
+  });
+  const totalChildren = Object.values(childrenBySide).reduce((a, b) => a + b, 0);
+  const ageData = [
+    { name: 'מבוגרים', value: totalPeople - totalChildren, color: 'hsl(var(--sage))' },
+    { name: 'ילדים', value: totalChildren, color: 'hsl(var(--primary))' },
+  ].filter((d) => d.value > 0);
+
   const totalSide = sideData.reduce((sum, d) => sum + d.value, 0);
   const totalRelationship = relationshipData.reduce((sum, d) => sum + d.value, 0);
 
@@ -66,6 +78,26 @@ export default function GuestsPieCharts({ guests }) {
             legendValueFormatter={peopleFormatter}
             tooltipFormatter={(value) => `${peopleFormatter(value)} אנשים`}
           />
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-md h-full lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="text-lg">מבוגרים וילדים</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DonutChart
+            data={ageData}
+            centerValue={totalChildren.toLocaleString('he-IL')}
+            centerLabel="ילדים"
+            legendValueFormatter={peopleFormatter}
+            tooltipFormatter={(value) => `${peopleFormatter(value)} אנשים`}
+          />
+          {totalChildren > 0 && (
+            <p className="text-sm text-muted-foreground mt-3">
+              ילדים לפי צד: {Object.entries(childrenBySide).map(([side, n]) => `${side} ${n}`).join(' · ')}
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
