@@ -25,7 +25,7 @@ const ORDER = [
 const COLS = {
   weddings: ['id','couple_names','wedding_date','venue','event_manager_name','reception_time','ceremony_time','budget_target','expected_guests','currency','cost_calc_mode','status','notes','created_date','updated_date','created_by','created_by_id','is_sample'],
   tables: ['id','wedding_id','name','capacity','iplan_number','shape','location_x','location_y','created_date','updated_date','created_by','created_by_id','is_sample'],
-  guests: ['id','wedding_id','first_name','last_name','phone','side','relationship','status','total_people','confirmed_people','gift_amount','gift_received','notes','table_id','created_date','updated_date','created_by','created_by_id','is_sample'],
+  guests: ['id','wedding_id','first_name','last_name','phone','side','relationship','status','total_people','children_count','confirmed_people','gift_amount','gift_received','notes','table_id','created_date','updated_date','created_by','created_by_id','is_sample'],
   expenses: ['id','wedding_id','vendor','category','amount','status','paid_by_party','payment_method','paid_date','due_date','has_deposit','deposit_amount','deposit_due_date','deposit_paid_date','deposit_status','probability','notes','receipt_url','created_date','updated_date','created_by','created_by_id','is_sample'],
   payments: ['id','wedding_id','expense_id','expense_vendor','amount','due_date','status','paid_date','paid_by','probability','notes','created_date','updated_date','created_by','created_by_id','is_sample'],
   gifts: ['id','wedding_id','guest_id','description','event','amount','notes','created_date','updated_date','created_by','created_by_id','is_sample'],
