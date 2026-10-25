@@ -196,44 +196,25 @@ describe('(c) regression: the same user\'s normal session can still write', () =
   });
 });
 
-describe('(d) e2e: MCP server with an OAuth token', () => {
+describe('(d) MCP server and raw Supabase OAuth tokens', () => {
   let mcp;
   beforeAll(async () => { mcp = await startMcp(); }, 90_000);
   afterAll(() => mcp?.stop());
 
-  const rpc = (body, token) => fetch(mcp.url, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      accept: 'application/json, text/event-stream',
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(body),
-  });
-
-  it('unauthenticated request gets 401 with a resource_metadata challenge', async () => {
-    const res = await rpc({ jsonrpc: '2.0', id: 1, method: 'tools/list' });
+  // Agents get sealed tokens from the MCP's own OAuth server (mcp-oauth.test.js); a Supabase
+  // OAuth token — even a valid one — is not accepted.
+  it('rejects a raw Supabase OAuth access token', async () => {
+    const res = await fetch(mcp.url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${oauth.access_token}` },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
+    });
     expect(res.status).toBe(401);
-    expect(res.headers.get('www-authenticate')).toMatch(/resource_metadata=/);
+    expect(res.headers.get('www-authenticate')).toContain('error="invalid_token"');
   });
 
-  it('protected-resource metadata points at Supabase Auth', async () => {
-    const res = await fetch(`${mcp.url}/.well-known/oauth-protected-resource`);
-    expect(res.status).toBe(200);
-    const meta = await res.json();
-    expect(meta.authorization_servers[0]).toBe(`${process.env.VITE_SUPABASE_URL}/auth/v1`);
-  });
-
-  it('tools/call list_weddings returns the user\'s wedding', async () => {
-    const res = await rpc({
-      jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'list_weddings', arguments: {} },
-    }, oauth.access_token);
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.error).toBeUndefined();
-    expect(body.result.isError).toBeFalsy();
-    const text = body.result.content[0].text;
-    expect(text).toContain(w.id);
-    expect(JSON.stringify(body.result.structuredContent ?? JSON.parse(text))).toContain('"owner"');
+  it('protected-resource metadata points at the MCP itself', async () => {
+    const meta = await (await fetch(`${mcp.url}/.well-known/oauth-protected-resource`)).json();
+    expect(meta.authorization_servers).toEqual([mcp.url]);
   });
 });

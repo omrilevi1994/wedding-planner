@@ -3,23 +3,28 @@
 // injected by index.ts (Deno) or by tests.
 import type { Db } from './access.ts';
 import { type AuditEntry, ERR, handleMessage, rpcError, SUPPORTED_PROTOCOL_VERSIONS } from './protocol.ts';
+import { SCOPE } from './oauth.ts';
 
 export const WELL_KNOWN_SUFFIX = '/.well-known/oauth-protected-resource';
 
 export interface AuthInfo {
   userId: string;
   email: string | null;
-  /** OAuth client id when the token was issued to an MCP client via Supabase's OAuth server. */
+  /** mcp_connections.id of the agent connection the token belongs to. */
   clientId: string | null;
+  /** The agent's registered name (audit rows). */
+  clientName?: string | null;
   /** Supabase client acting as the user (anon key + the user's bearer token): RLS applies. */
   db: Db;
 }
 
 export interface ServerOptions {
-  /** Public URL of the MCP endpoint, e.g. https://<ref>.supabase.co/functions/v1/mcp */
+  /** Public URL of the MCP endpoint, e.g. https://wedflow.live/mcp */
   publicUrl: string;
-  /** OAuth authorization server issuer, e.g. https://<ref>.supabase.co/auth/v1 */
+  /** OAuth authorization server issuer — the MCP itself (oauth.ts), i.e. publicUrl. */
   authorizationServer: string;
+  /** OAuth endpoints (register/authorize/callback/token/revoke + AS metadata); null = not an OAuth route. */
+  oauth?: { handle: (req: Request, path: string) => Promise<Response | null> };
   /** Validate a bearer token. Return null when invalid; throw on infrastructure errors. */
   authenticate: (token: string) => Promise<AuthInfo | null>;
   /** Fire-and-forget audit sink for successful wedding-scoped tool calls. */
@@ -52,7 +57,7 @@ export function protectedResourceMetadata(opts: Pick<ServerOptions, 'publicUrl' 
     resource: opts.publicUrl,
     authorization_servers: [opts.authorizationServer],
     bearer_methods_supported: ['header'],
-    scopes_supported: ['openid', 'email', 'profile'],
+    scopes_supported: [SCOPE],
     resource_name: 'WedFlow',
   };
 }
@@ -77,6 +82,11 @@ export function createHandler(opts: ServerOptions): (req: Request) => Promise<Re
     if (path.endsWith(WELL_KNOWN_SUFFIX)) {
       if (req.method !== 'GET' && req.method !== 'HEAD') return empty(405, { Allow: 'GET, OPTIONS' });
       return json(protectedResourceMetadata(opts), 200, { 'Cache-Control': 'public, max-age=3600' });
+    }
+
+    if (opts.oauth) {
+      const res = await opts.oauth.handle(req, path);
+      if (res) return res;
     }
 
     // Stateless server: no SSE stream (GET) and no sessions to terminate (DELETE).

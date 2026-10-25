@@ -369,8 +369,9 @@ enabled = false
 enabled = true
 # Path for OAuth consent flow UI (the app is served under /app)
 authorization_url_path = "/app/oauth/consent"
-# Allow dynamic client registration (MCP clients register themselves)
-allow_dynamic_registration = true
+# Off: agents register with the MCP's own OAuth server (supabase/functions/mcp/oauth.ts), which
+# signs users in here as the single upstream client "WedFlow MCP" (scripts/register-mcp-oauth-client.mjs).
+allow_dynamic_registration = false
 
 [edge_runtime]
 enabled = true

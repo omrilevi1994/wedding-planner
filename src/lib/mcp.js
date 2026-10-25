@@ -68,6 +68,7 @@ const TRUSTED_APP_SCHEMES = ['cursor:', 'vscode:'];
 export function isTrustedRedirect(uri, env = import.meta.env) {
   let u;
   try { u = new URL(uri); } catch { return false; }
+  if (u.hash) return false;
   if (TRUSTED_APP_SCHEMES.includes(u.protocol)) return true;
   if ((u.protocol === 'http:' || u.protocol === 'https:') && LOOPBACK_HOSTNAMES.includes(u.hostname)) return true;
   if (u.protocol !== 'https:') return false;

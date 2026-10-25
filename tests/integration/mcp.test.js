@@ -19,7 +19,10 @@ async function makeUserWithToken(label, fullName) {
   const c = createClient(SUPABASE_URL, ANON, { auth: { persistSession: false } });
   const { data: s, error: e2 } = await c.auth.signInWithPassword({ email, password: PASSWORD });
   if (e2) throw e2;
-  return { id: data.user.id, email, token: s.session.access_token };
+  // Agents hold sealed tokens wrapping a Supabase session (oauth.ts); mint one directly here —
+  // mcp-oauth.test.js walks the real OAuth flow.
+  const { token, connectionId } = await mcp.wrap(data.user.id, s.session.access_token);
+  return { id: data.user.id, email, token, supabaseToken: s.session.access_token, connectionId };
 }
 
 const day = (offset) => {
@@ -131,7 +134,7 @@ beforeAll(async () => {
 }, 120_000);
 
 afterAll(async () => {
-  mcp?.stop();
+  await mcp?.stop();
   if (wA) await admin.from('weddings').delete().in('id', [wA.id, wB?.id].filter(Boolean));
   // Don't leave a platform admin behind in the local DB.
   if (platformAdmin) await admin.auth.admin.deleteUser(platformAdmin.id);
@@ -152,14 +155,27 @@ describe('MCP HTTP transport & auth', () => {
     expect(res.headers.get('www-authenticate')).toContain('error="invalid_token"');
   });
 
+  it('rejects a raw Supabase access token (agents only ever hold sealed tokens)', async () => {
+    const { status, res } = await post(owner.supabaseToken, { jsonrpc: '2.0', id: 1, method: 'tools/list' });
+    expect(status).toBe(401);
+    expect(res.headers.get('www-authenticate')).toContain('error="invalid_token"');
+  });
+
+  it('rejects a tampered sealed token', async () => {
+    const t = owner.token;
+    const flipped = t.slice(0, -2) + (t.at(-2) === 'A' ? 'B' : 'A') + t.at(-1);
+    expect((await post(flipped, { jsonrpc: '2.0', id: 1, method: 'tools/list' })).status).toBe(401);
+  });
+
   it('serves RFC 9728 protected resource metadata', async () => {
     const res = await fetch(`${mcp.url}/.well-known/oauth-protected-resource`);
     expect(res.status).toBe(200);
     const meta = await res.json();
     expect(meta).toMatchObject({
       resource: mcp.url,
-      authorization_servers: [`${SUPABASE_URL}/auth/v1`],
+      authorization_servers: [mcp.url],
       bearer_methods_supported: ['header'],
+      scopes_supported: ['wedflow:read'],
       resource_name: 'WedFlow',
     });
   });
@@ -421,7 +437,9 @@ describe('MCP auditing', () => {
     expect(rows[0]).toMatchObject({
       action_type: 'mcp_read', description: 'AI agent read via MCP', user_name: 'Owner Person', created_by_id: owner.id,
     });
-    expect(JSON.parse(rows[0].details).args).toMatchObject({ wedding_id: wA.id, include_completed: true });
+    const details = JSON.parse(rows[0].details);
+    expect(details.args).toMatchObject({ wedding_id: wA.id, include_completed: true });
+    expect(details).toMatchObject({ connection_id: owner.connectionId, client_name: 'vitest agent' });
   });
 
   it('does not log calls to weddings the caller cannot access', async () => {
