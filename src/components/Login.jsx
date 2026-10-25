@@ -111,7 +111,8 @@ function FounderNote() {
   );
 }
 
-export default function Login() {
+// `redirectTo` (optional): where Google sign-in should return to; defaults to /app.
+export default function Login({ redirectTo } = {}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -141,7 +142,7 @@ export default function Login() {
   const google = async () => {
     setError(null);
     try {
-      await wedflow.auth.signInWithGoogle();
+      await wedflow.auth.signInWithGoogle({ redirectTo });
     } catch (err) {
       setError(err?.message || 'התחברות Google נכשלה');
     }

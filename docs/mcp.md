@@ -57,13 +57,25 @@ return `{ items, total, limit, offset }`.
 | `list_weddings` | – | weddings the user belongs to: `id, couple_names, wedding_date, venue, role` |
 | `get_wedding_summary` | `wedding_id` | date, venue, ceremony/reception times, event manager, currency, guest counts by status and side (invited people, confirmed people, children), checklist progress; plus budget target / committed / paid for money roles |
 | `search_guests` | `wedding_id`, `query?` (name/phone substring), `side?`, `status?`, `table_id?`, `unseated?` (bool), `limit?`, `offset?` | guests filtered per role |
-| `get_seating` | `wedding_id` | tables (`id, name, capacity, element_type`) with `seated_people` and guest list; plus unseated count |
-| `list_vendors` | `wedding_id`, `category?` | vendors per role |
+| `get_seating` | `wedding_id` | guest tables (`id, name, capacity, element_type`) with `seated_people`, `free_seats` and guest list; non-seating `layout_elements` (stage/bar); plus unseated counts |
+| `list_vendors` | `wedding_id`, `category?`, `limit?`, `offset?` | vendors per role |
 | `get_budget` | `wedding_id` | money roles only: budget target, totals by category and status, upcoming/overdue payments (next 60 days) |
 | `list_expenses` | `wedding_id`, `category?`, `status?`, `limit?`, `offset?` | money roles only |
 | `list_payments` | `wedding_id`, `status?`, `due_before?` (YYYY-MM-DD), `limit?`, `offset?` | money roles only |
 | `list_gifts` | `wedding_id`, `limit?`, `offset?` | money roles only; gift + guest name |
 | `get_checklist` | `wedding_id`, `include_completed?` (default false) | groups with items (`title, completed, notes`) |
+
+Data conventions:
+- Wedding date/venue/times/currency/budget target come from `wedding_settings` (what the
+  Settings page edits) when set, falling back to the `weddings` row — the Settings page only
+  syncs to `weddings` when the editor is the owner, so `wedding_settings` is the fresher source.
+- Guest `status` values are stored in Hebrew (`הוזמן` invited, `אישר` confirmed, `אולי` maybe,
+  `לא מגיע` declined, `הגיע` arrived); `search_guests` also accepts the English words and `none`.
+  Expense/payment `status`: `שולם` paid, `מתוכנן` planned (English accepted too).
+- People counts follow the app: invited = `total_people` (default 1); confirmed/seated =
+  `confirmed_people` if set, else `total_people`; budget totals exclude expenses paid by
+  `הורים`/`אחר` (as the dashboard does).
+- `search_guests` only matches `phone` for roles that may see phones.
 
 Tool results are returned as one `text` content item containing pretty JSON, plus
 `structuredContent` with the same object. User-entered strings (names, notes) are
@@ -76,6 +88,28 @@ returned as data only — never interpolated into instructions.
 - Each `tools/call` is logged to `activity_logs` (`action_type = 'mcp_read'`,
   `entity_type = <tool name>`, `user_email`, `description = 'AI agent read via MCP'`)
   for wedding-scoped tools — written with the service role since agent tokens are read-only.
+
+## Security model and known limits
+
+- **Data writes:** blocked for agent tokens at three layers: the MCP exposes no write
+  tools, restrictive RLS (`0026_oauth_read_only.sql`) denies INSERT/UPDATE/DELETE on all
+  public tables and `storage.objects` when the JWT has `client_id`, and user-facing edge
+  functions call `rejectOAuthClient()` (`_shared/auth.ts`; a unit test fails if a new
+  function forgets it).
+- **Auth endpoints (known limit):** an agent's access token is a real Supabase user JWT,
+  and GoTrue does not restrict OAuth tokens on `/auth/v1/user` — it can update user
+  metadata and, while the session is under 24h old, the password. Mitigations:
+  - The consent page only releases codes to trusted redirect targets (`isTrustedRedirect`
+    in `src/lib/mcp.js`: claude.ai, claude.com, chatgpt.com, chat.openai.com, loopback,
+    `cursor:`/`vscode:`; extend with `VITE_MCP_TRUSTED_REDIRECT_HOSTS`). Dynamically
+    registered phishing clients with their own redirect host can't be approved, and the
+    "already consented" auto-redirect is re-checked too.
+  - `secure_password_change = true` (password changes need re-authentication once a
+    session is older than 24h) and `double_confirm_changes = true` (email changes must be
+    confirmed from both addresses).
+  - Trusted agent platforms keep tokens server-side; the model never sees them.
+  - **Full fix (planned):** have the MCP server issue its own wrapped tokens (OAuth proxy)
+    so agents never hold a Supabase JWT. Needs a custom domain for AS metadata discovery.
 
 ## Connecting an agent
 
@@ -97,3 +131,18 @@ Users can see and revoke connected agents in **Settings → AI agents**.
    registration, authorization path `/app/oauth/consent`; Site URL must be the app origin.
 3. Deploy the function: `supabase functions deploy mcp --no-verify-jwt`.
 4. Apply migration `0026_oauth_read_only.sql`.
+5. Cloud Auth settings: enable "Secure password change" and "Secure email change"
+   (mirrors `secure_password_change` / `double_confirm_changes` in config.toml).
+
+## Local development and tests
+
+The edge-runtime container isn't required: tests spawn the function with Deno
+(`tests/integration/mcp-server.js`, flags `--node-modules-dir=none --no-lock`).
+
+```bash
+env -u SUPABASE_SERVICE_ROLE_KEY npx vitest run tests/unit/mcp-server.test.js \
+  tests/integration/mcp.test.js tests/integration/oauth-readonly.test.js
+```
+
+(`env -u` only matters if your shell exports a non-local service-role key; `.env` must
+hold the local keys.)

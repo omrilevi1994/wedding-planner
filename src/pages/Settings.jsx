@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Save, CheckCircle } from 'lucide-react';
 import { useWedding } from '@/lib/WeddingContext';
 import DangerZone from '@/components/settings/DangerZone';
+import AiAgentsSettings from '@/components/settings/AiAgentsSettings';
 
 export default function Settings() {
   const queryClient = useQueryClient();
@@ -309,6 +310,8 @@ export default function Settings() {
           </Button>
         </CardContent>
       </Card>
+
+      <AiAgentsSettings />
 
       <DangerZone />
     </div>

@@ -107,10 +107,12 @@ const auth = {
     if (error) throw error;
     return data;
   },
-  async signInWithGoogle() {
+  // `redirectTo` lets public pages that render <Login/> in place (e.g. the OAuth consent
+  // page) bring the user back to their exact URL after the Google round-trip.
+  async signInWithGoogle({ redirectTo } = {}) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/app` },
+      options: { redirectTo: redirectTo || `${window.location.origin}/app` },
     });
     if (error) throw error;
     return data;
@@ -228,5 +230,35 @@ const weddingInviteLinks = {
   },
 };
 
-export const wedflow = { entities, auth, integrations, functions, appLogs, users, weddingInviteLinks };
+// Supabase Auth's OAuth 2.1 server, used by MCP agents (docs/mcp.md): the consent page
+// (/app/oauth/consent) and Settings → AI agents. Errors are thrown (AuthApiError keeps its
+// status/code). approve/deny never auto-navigate here — the caller decides when to redirect.
+const oauth = {
+  async getAuthorizationDetails(authorizationId) {
+    const { data, error } = await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
+    if (error) throw error;
+    return data;
+  },
+  async approve(authorizationId) {
+    const { data, error } = await supabase.auth.oauth.approveAuthorization(authorizationId, { skipBrowserRedirect: true });
+    if (error) throw error;
+    return data;
+  },
+  async deny(authorizationId) {
+    const { data, error } = await supabase.auth.oauth.denyAuthorization(authorizationId, { skipBrowserRedirect: true });
+    if (error) throw error;
+    return data;
+  },
+  async listGrants() {
+    const { data, error } = await supabase.auth.oauth.listGrants();
+    if (error) throw error;
+    return data || [];
+  },
+  async revokeGrant(clientId) {
+    const { error } = await supabase.auth.oauth.revokeGrant({ clientId });
+    if (error) throw error;
+  },
+};
+
+export const wedflow = { entities, auth, integrations, functions, appLogs, users, weddingInviteLinks, oauth };
 export default wedflow;

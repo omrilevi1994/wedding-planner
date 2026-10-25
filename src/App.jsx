@@ -16,6 +16,7 @@ import Login from '@/components/Login';
 import CreateWedding from '@/components/CreateWedding';
 import AcceptInvite from '@/pages/AcceptInvite';
 import JoinWedding from '@/pages/JoinWedding';
+import OAuthConsent from '@/pages/OAuthConsent';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -116,6 +117,9 @@ function App() {
                 {/* Shareable "open invite link" landing page — also public so its ?token=
                     query param survives an in-place sign-in/sign-up (see JoinWedding.jsx). */}
                 <Route path="/join-wedding" element={<JoinWedding />} />
+                {/* OAuth consent for AI agents connecting to the MCP server (docs/mcp.md). Public so
+                    ?authorization_id= survives an in-place sign-in — see OAuthConsent.jsx. */}
+                <Route path="/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/*" element={<AuthenticatedApp />} />
               </Routes>
             </Router>
