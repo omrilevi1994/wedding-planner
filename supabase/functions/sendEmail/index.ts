@@ -5,6 +5,7 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { rejectOAuthClient } from '../_shared/auth.ts';
 import { sendEmail } from '../_shared/email/send.ts';
 
 // Templates a client is allowed to trigger. Auth templates are deliberately excluded.
@@ -13,6 +14,8 @@ const ALLOWED_TEMPLATES = new Set(['weddingInvite', 'memberAdded']);
 Deno.serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+  const oauthDenied = rejectOAuthClient(req, cors); // AI agent tokens are read-only
+  if (oauthDenied) return oauthDenied;
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {

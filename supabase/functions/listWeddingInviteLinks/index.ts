@@ -1,5 +1,6 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { rejectOAuthClient } from '../_shared/auth.ts';
 
 // Owner/platform-admin lists a wedding's invite links WITHOUT the token (tokens are only ever
 // returned once, at creation). Returns a derived status per link.
@@ -13,6 +14,8 @@ function statusOf(l: { used_at: string | null; revoked_at: string | null; expire
 Deno.serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+  const oauthDenied = rejectOAuthClient(req, cors); // AI agent tokens are read-only
+  if (oauthDenied) return oauthDenied;
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });

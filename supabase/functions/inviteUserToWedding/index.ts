@@ -1,5 +1,6 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { rejectOAuthClient } from '../_shared/auth.ts';
 import { sendEmail } from '../_shared/email/send.ts';
 import { roleLabel } from '../_shared/email/templates/index.ts';
 
@@ -11,6 +12,8 @@ const INVITABLE_ROLES = ['coplanner', 'family', 'event_manager'];
 Deno.serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+  const oauthDenied = rejectOAuthClient(req, cors); // AI agent tokens are read-only
+  if (oauthDenied) return oauthDenied;
   try {
     // --- Authenticate caller ---
     const authHeader = req.headers.get('Authorization');

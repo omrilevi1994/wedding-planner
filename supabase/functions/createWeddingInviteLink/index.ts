@@ -1,5 +1,6 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { rejectOAuthClient } from '../_shared/auth.ts';
 
 // Collaborator roles any wedding owner may mint a link for. Platform admins may additionally
 // mint 'owner' links (see allowedRoles below), which transfer ownership on redeem; regular
@@ -10,6 +11,8 @@ const TTL_MS = 14 * 24 * 60 * 60 * 1000; // 14 days (safety net; single-use is t
 Deno.serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+  const oauthDenied = rejectOAuthClient(req, cors); // AI agent tokens are read-only
+  if (oauthDenied) return oauthDenied;
   try {
     // --- Authenticate caller ---
     const authHeader = req.headers.get('Authorization');
