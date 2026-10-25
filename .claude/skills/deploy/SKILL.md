@@ -43,6 +43,23 @@ supabase db push
 supabase functions deploy
 ```
 
+`config.toml` sets `[functions.mcp] verify_jwt = false`, which the deploy picks
+up; the `mcp` function validates bearer tokens itself (see `docs/mcp.md`).
+
+### MCP server: one-time OAuth setup (cloud dashboard)
+
+The MCP server's OAuth sign-in uses Supabase Auth's OAuth 2.1 server, which
+`supabase functions deploy` does not configure. Once per project, in the
+dashboard → Authentication → OAuth Server:
+
+- Enable the OAuth server and **dynamic client registration**.
+- Authorization path: `/app/oauth/consent`.
+- Authentication → URL Configuration → Site URL must be the production app
+  origin (the consent page is served at `<Site URL>/app/oauth/consent`).
+
+Smoke test: `curl -i https://<ref>.supabase.co/functions/v1/mcp -X POST` must
+return `401` with a `WWW-Authenticate: Bearer resource_metadata=...` header.
+
 ## 5. Set edge function secrets
 
 Provide the runtime secrets the functions need (e.g. the Anthropic API key):

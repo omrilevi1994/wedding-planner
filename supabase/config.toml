@@ -364,12 +364,12 @@ enabled = false
 
 # OAuth server configuration
 [auth.oauth_server]
-# Enable OAuth server functionality
-enabled = false
-# Path for OAuth consent flow UI
-authorization_url_path = "/oauth/consent"
-# Allow dynamic client registration
-allow_dynamic_registration = false
+# Enable OAuth server functionality (used by the `mcp` edge function — see docs/mcp.md)
+enabled = true
+# Path for OAuth consent flow UI (the app is served under /app)
+authorization_url_path = "/app/oauth/consent"
+# Allow dynamic client registration (MCP clients register themselves)
+allow_dynamic_registration = true
 
 [edge_runtime]
 enabled = true
@@ -437,3 +437,6 @@ verify_jwt = true
 verify_jwt = true
 [functions.sendEmail]
 verify_jwt = true
+[functions.mcp]
+# Validates bearer tokens itself so it can answer 401 with the OAuth WWW-Authenticate challenge.
+verify_jwt = false

@@ -24,6 +24,12 @@ npm run functions:serve
 npm run dev            # Vite dev server
 ```
 
+## AI agents (MCP)
+
+Users can connect AI agents (Claude, ChatGPT, Cursor, …) to their wedding through a
+read-only MCP server at `<SUPABASE_URL>/functions/v1/mcp`, with OAuth sign-in and
+consent at `/app/oauth/consent`. See [docs/mcp.md](docs/mcp.md).
+
 ## Scripts
 
 | Command | Purpose |
