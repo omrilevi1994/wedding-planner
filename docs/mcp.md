@@ -13,9 +13,12 @@ Agent (MCP client) ──Bearer token──▶  Edge function `mcp`  ──user 
         └──OAuth 2.1 (PKCE, DCR)──▶  Supabase Auth OAuth server ──▶ /app/oauth/consent (WedFlow UI)
 ```
 
-- **Endpoint:** `POST {SUPABASE_URL}/functions/v1/mcp` (Streamable HTTP, stateless, JSON responses).
+- **Endpoint:** `POST https://wedflow.live/mcp` (Streamable HTTP, stateless, JSON responses).
+  `vercel.json` rewrites `/mcp`, `/mcp/*` and `/.well-known/oauth-protected-resource[/mcp]`
+  to the `mcp` edge function (`{SUPABASE_URL}/functions/v1/mcp`, which also still works
+  directly); the function advertises the public URL from the `MCP_PUBLIC_URL` secret.
 - **Auth:** OAuth 2.1 via Supabase Auth's built-in OAuth server. The agent discovers it
-  from the 401 `WWW-Authenticate` header → `GET /functions/v1/mcp/.well-known/oauth-protected-resource`
+  from the 401 `WWW-Authenticate` header → `GET https://wedflow.live/mcp/.well-known/oauth-protected-resource`
   → `authorization_servers: ["{SUPABASE_URL}/auth/v1"]`. Clients register dynamically,
   the user signs in to WedFlow and approves on `/app/oauth/consent`.
 - **Scoping:** the MCP never uses the service role for wedding data. Every query runs
@@ -129,7 +132,10 @@ Users can see and revoke connected agents in **Settings → AI agents**.
    can return the OAuth `WWW-Authenticate` challenge).
 2. Cloud project: Authentication → OAuth Server → enable, enable dynamic client
    registration, authorization path `/app/oauth/consent`; Site URL must be the app origin.
-3. Deploy the function: `supabase functions deploy mcp --no-verify-jwt`.
+3. Set the secret `MCP_PUBLIC_URL=https://wedflow.live/mcp` (`supabase secrets set`), then
+   deploy the function: `supabase functions deploy mcp --no-verify-jwt`. The app shows
+   `https://wedflow.live/mcp` in production builds (`PRODUCTION_MCP_URL` in `src/lib/mcp.js`;
+   `VITE_MCP_URL` overrides it).
 4. Apply migration `0026_oauth_read_only.sql`.
 5. Cloud Auth settings: enable "Secure password change" and "Secure email change"
    (mirrors `secure_password_change` / `double_confirm_changes` in config.toml).

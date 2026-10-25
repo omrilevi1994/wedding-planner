@@ -31,6 +31,16 @@ describe('getMcpServerUrl', () => {
       .toBe('https://abc.supabase.co/functions/v1/mcp');
   });
 
+  it('uses the wedflow.live address in production builds', () => {
+    expect(getMcpServerUrl({ PROD: true, VITE_SUPABASE_URL: 'https://abc.supabase.co' }))
+      .toBe('https://wedflow.live/mcp');
+  });
+
+  it('still prefers VITE_MCP_URL in production builds', () => {
+    expect(getMcpServerUrl({ PROD: true, VITE_MCP_URL: 'https://mcp.wedflow.app' }))
+      .toBe('https://mcp.wedflow.app');
+  });
+
   it('reads import.meta.env by default', () => {
     expect(getMcpServerUrl()).toBe(`${import.meta.env.VITE_SUPABASE_URL.replace(/\/+$/, '')}/functions/v1/mcp`);
   });

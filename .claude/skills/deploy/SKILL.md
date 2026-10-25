@@ -57,8 +57,12 @@ dashboard → Authentication → OAuth Server:
 - Authentication → URL Configuration → Site URL must be the production app
   origin (the consent page is served at `<Site URL>/app/oauth/consent`).
 
-Smoke test: `curl -i https://<ref>.supabase.co/functions/v1/mcp -X POST` must
-return `401` with a `WWW-Authenticate: Bearer resource_metadata=...` header.
+The MCP's public URL is `https://wedflow.live/mcp` (rewrites in `vercel.json`); set the
+function secret `MCP_PUBLIC_URL=https://wedflow.live/mcp` so its metadata advertises it.
+
+Smoke test: `curl -i https://wedflow.live/mcp -X POST` must return `401` with
+`WWW-Authenticate: Bearer resource_metadata="https://wedflow.live/mcp/.well-known/oauth-protected-resource"`,
+and that URL must return `resource: https://wedflow.live/mcp`.
 
 ## 5. Set edge function secrets
 

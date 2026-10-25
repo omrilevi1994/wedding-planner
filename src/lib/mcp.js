@@ -1,14 +1,20 @@
 // Pure helpers for the MCP (AI agents) UI: the OAuth consent page and Settings → AI agents.
 // Kept free of React / Supabase so they can be unit-tested (tests/unit/mcp.test.js).
 
+// Production MCP address: vercel.json rewrites /mcp (and the /.well-known discovery paths)
+// on wedflow.live to the `mcp` edge function, which advertises this URL via MCP_PUBLIC_URL.
+export const PRODUCTION_MCP_URL = 'https://wedflow.live/mcp';
+
 /**
- * The public URL of WedFlow's MCP server. VITE_MCP_URL wins (e.g. a custom domain);
- * otherwise it's the `mcp` edge function on the Supabase project. Empty strings count as
- * unset (Vercel env vars are often defined-but-empty), and a trailing slash is dropped.
+ * The public URL of WedFlow's MCP server. VITE_MCP_URL wins; production builds use
+ * PRODUCTION_MCP_URL; otherwise (local dev, no Vercel rewrites) it's the `mcp` edge function
+ * on the Supabase project. Empty strings count as unset (Vercel env vars are often
+ * defined-but-empty), and a trailing slash is dropped.
  */
 export function getMcpServerUrl(env = import.meta.env) {
   const explicit = (env?.VITE_MCP_URL || '').trim();
   if (explicit) return explicit.replace(/\/+$/, '');
+  if (env?.PROD) return PRODUCTION_MCP_URL;
   const base = (env?.VITE_SUPABASE_URL || '').trim().replace(/\/+$/, '');
   return `${base}/functions/v1/mcp`;
 }
