@@ -108,7 +108,8 @@ describe('/register', () => {
 
   it.each([
     ['https://evil.example/cb'],
-    ['http://claude.ai/cb'],
+    ['https://chatgpt.com/aip/g-123abc/oauth/callback'],
+    ['http://claude.ai/api/mcp/auth_callback'],
     ['https://claude.ai.evil.example/cb'],
     ['javascript:alert(1)'],
   ])('rejects the untrusted redirect URI %s', async (uri) => {
@@ -143,24 +144,27 @@ describe('/authorize validation', () => {
     expect(res.status).toBe(400);
   });
 
-  it('requires PKCE S256, reporting the error back to the agent', async () => {
+  const authorizeQuery = (clientId, over = {}) => new URLSearchParams(Object.fromEntries(Object.entries({
+    client_id: clientId, redirect_uri: AGENT_REDIRECT_URI, response_type: 'code', state: 'xyz',
+    code_challenge: 'a'.repeat(43), code_challenge_method: 'S256', resource: mcp.url, ...over,
+  }).filter(([, v]) => v !== undefined)));
+
+  it.each([
+    ['no PKCE', { code_challenge: undefined, code_challenge_method: undefined }],
+    ['plain PKCE', { code_challenge_method: 'plain' }],
+    ['no resource', { resource: undefined }],
+    ['another resource (look-alike connector)', { resource: 'https://attacker.example/mcp' }],
+    ['response_type=token', { response_type: 'token' }],
+  ])('refuses %s with a plain 400 — no redirect before consent', async (_label, over) => {
     const { body } = await registerAgent(mcp.url);
-    const q = new URLSearchParams({ client_id: body.client_id, redirect_uri: AGENT_REDIRECT_URI, response_type: 'code', state: 'xyz' });
-    const res = await fetch(`${mcp.url}/authorize?${q}`, { redirect: 'manual' });
-    expect(res.status).toBe(302);
-    const loc = new URL(res.headers.get('location'));
-    expect(loc.origin + loc.pathname).toBe(AGENT_REDIRECT_URI);
-    expect(loc.searchParams.get('error')).toBe('invalid_request');
-    expect(loc.searchParams.get('state')).toBe('xyz');
+    const res = await fetch(`${mcp.url}/authorize?${authorizeQuery(body.client_id, over)}`, { redirect: 'manual' });
+    expect(res.status).toBe(400);
+    expect(res.headers.get('location')).toBeNull();
   });
 
   it('redirects to Supabase as the upstream client and sets the nonce + agent cookies', async () => {
     const { body } = await registerAgent(mcp.url, { client_name: 'Cookie Agent' });
-    const q = new URLSearchParams({
-      client_id: body.client_id, redirect_uri: AGENT_REDIRECT_URI, response_type: 'code',
-      code_challenge: 'a'.repeat(43), code_challenge_method: 'S256',
-    });
-    const res = await fetch(`${mcp.url}/authorize?${q}`, { redirect: 'manual' });
+    const res = await fetch(`${mcp.url}/authorize?${authorizeQuery(body.client_id)}`, { redirect: 'manual' });
     expect(res.status).toBe(302);
     const loc = new URL(res.headers.get('location'));
     expect(loc.origin + loc.pathname).toBe(`${SUPABASE_URL}/auth/v1/oauth/authorize`);
@@ -367,6 +371,15 @@ describe('revocation', () => {
     const conn = await latestConnection(owner.id);
     const internal = await otherSession.rpc('mcp_revoke_connection_internal', { connection_id: conn.id });
     expect(internal.error).not.toBeNull();
+  });
+
+  it('connecting again ends earlier approvals the agent never redeemed', async () => {
+    const { data: stale } = await admin.from('mcp_connections').insert({
+      user_id: owner.id, client_name: 'abandoned', redirect_host: 'localhost',
+      created_at: new Date(Date.now() - 20 * 60_000).toISOString(),
+    }).select('id').single();
+    await connectAgent(mcp.url, ownerSession);
+    expect((await connection(stale.id)).revoked_at).not.toBeNull();
   });
 
   it('/revoke (RFC 7009) with the refresh token disconnects the agent', async () => {

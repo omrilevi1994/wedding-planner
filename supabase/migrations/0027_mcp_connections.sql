@@ -41,7 +41,7 @@ grant all on mcp_connections to service_role;
 -- MCP's /revoke endpoint and code-replay handling); users go through revoke_mcp_connection().
 create or replace function mcp_revoke_connection_internal(connection_id uuid)
 returns boolean
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   sid uuid;
   uid uuid;
@@ -64,7 +64,7 @@ grant execute on function mcp_revoke_connection_internal(uuid) to service_role;
 -- Settings → AI agents → Disconnect. Only the connection's owner, and never an agent token.
 create or replace function revoke_mcp_connection(connection_id uuid)
 returns boolean
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, pg_temp as $$
 begin
   if public.is_oauth_client() then
     raise exception 'AI agent tokens are read-only' using errcode = '42501';

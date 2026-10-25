@@ -113,19 +113,33 @@ returned as data only — never interpolated into instructions.
   A leaked agent token is useless against Supabase: `/auth/v1/user` (password / email /
   metadata changes) and PostgREST reject it. The inner refresh token is useless on its own
   too: Supabase only refreshes it for the upstream client, with the MCP's client secret.
-- **Who gets a code:** `/register` only accepts redirect URIs on known agent platforms
-  (claude.ai, claude.com, chatgpt.com, chat.openai.com), loopback and `cursor:`/`vscode:`
-  apps (`trust.ts`; extend with the `MCP_TRUSTED_REDIRECT_HOSTS` secret). The consent page
+- **Who gets a code:** `/register` only accepts the agent platforms' connector callbacks
+  (`claude.ai`/`claude.com` `/api/mcp/auth_callback`, `chatgpt.com` `/connector/oauth/<id>`
+  and `/connector_platform_oauth_redirect` — paths are pinned so e.g. a custom GPT's
+  `/aip/…` callback, whose token URL its author controls, doesn't qualify), loopback and
+  `cursor:`/`vscode:` apps (`trust.ts`; extra hosts via the `MCP_TRUSTED_REDIRECT_HOSTS`
+  secret).
+- **`resource` is required** (RFC 8707) and must be `https://wedflow.live/mcp`. MCP clients
+  send the URL of the server the user added, so a look-alike connector that borrows our
+  `/authorize` but has its own token endpoint (and so would receive the agent's PKCE
+  verifier) is refused. `/authorize` problems are shown as a plain error page, never
+  redirected, so it can't be used as a WedFlow-branded bounce. The consent page
   applies the same rules (`isTrustedRedirect` in `src/lib/mcp.js`, kept in sync by
   `tests/unit/mcp-oauth.test.js`) and treats `<MCP>/callback` as trusted. Supabase's own
   dynamic client registration is **off**, so the MCP is its only OAuth client.
 - **Always-explicit consent.** Supabase auto-approves a returning user's repeat consent for
   the upstream client; for MCP flows the consent page still asks, naming the agent and its
   destination from the `wedflow_mcp_agent` cookie that `/authorize` sets on `/app/oauth`.
+  The consent page sends `frame-ancestors 'none'` / `X-Frame-Options: DENY` (`vercel.json`).
+  Known limit: the cookie is per browser, not per request — if two connection flows run at
+  once in one browser, the page may name the other one's agent (the code still only goes to
+  the address the agent registered).
 - **Code protection:** PKCE S256 is required; codes live 2 minutes, are bound to the client
   and redirect URI, and are single-use (`mcp_connections.code_used_at`). A replayed code
   revokes the connection it created. `/callback` only completes in the browser that started
   `/authorize` (HttpOnly nonce cookie on the MCP path), which stops login-CSRF.
+- **Abandoned approvals** (the agent never redeemed its code) are revoked the next time the
+  user connects an agent.
 - **Revocation:** Settings → AI agents → Disconnect calls `revoke_mcp_connection()`, and
   `/revoke` (RFC 7009) does the same: the connection is marked revoked and its Supabase
   session is deleted, so the agent is cut off immediately while the user's other agents and

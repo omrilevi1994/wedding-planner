@@ -32,6 +32,12 @@ const touchedAt = new Map<string, number>();
 
 const store: ConnectionStore = {
   async create({ userId, clientName, redirectHost, sessionId }) {
+    // Approved but never redeemed (the agent didn't swap its code): such rows aren't listed in
+    // Settings yet hold a live upstream session — end them when the user connects again.
+    const { data: stale } = await service.from('mcp_connections').select('id')
+      .eq('user_id', userId).is('code_used_at', null).is('revoked_at', null)
+      .lt('created_at', new Date(Date.now() - 10 * 60_000).toISOString());
+    for (const row of stale ?? []) await store.revoke(row.id).catch((e) => console.error('[mcp] stale revoke failed:', e));
     const { data, error } = await service.from('mcp_connections')
       .insert({ user_id: userId, client_name: clientName, redirect_host: redirectHost, session_id: sessionId })
       .select('id').single();

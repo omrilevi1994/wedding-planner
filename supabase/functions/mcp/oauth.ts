@@ -262,18 +262,20 @@ export function createOAuthServer(opts: OAuthOptions) {
     if (!redirectUri || !client.r.includes(redirectUri)) return page(400, 'The redirect_uri does not match this AI agent\'s registration.');
     if (!isTrustedRedirect(redirectUri, extraHosts)) return page(400, 'This AI agent\'s redirect address is not allowed.');
 
+    // Errors before consent are shown here rather than redirected, so /authorize can't be used
+    // as a WedFlow-branded bounce to arbitrary (allow-listed) addresses.
     const state = q.get('state');
-    const fail = (error: string, description: string) =>
-      redirect(withParams(redirectUri, { error, error_description: description, state, iss: publicUrl }));
     if (state && state.length > 2048) return page(400, 'The state parameter is too long.');
-    if (q.get('response_type') !== 'code') return fail('unsupported_response_type', 'Only response_type=code is supported');
+    if (q.get('response_type') !== 'code') return page(400, 'Unsupported response_type (only "code").');
     const challenge = q.get('code_challenge') ?? '';
     if (q.get('code_challenge_method') !== 'S256' || !/^[A-Za-z0-9_-]{43,128}$/.test(challenge)) {
-      return fail('invalid_request', 'PKCE with code_challenge_method=S256 is required');
+      return page(400, 'PKCE with code_challenge_method=S256 is required.');
     }
+    // RFC 8707: MCP clients name the server the user added. Requiring it to be this server stops a
+    // look-alike connector that borrows our /authorize but sends codes to its own token endpoint.
     const resource = q.get('resource');
-    if (resource && resource.replace(/\/+$/, '') !== publicUrl) {
-      return fail('invalid_target', `Unknown resource; use ${publicUrl}`);
+    if (!resource || resource.replace(/\/+$/, '') !== publicUrl) {
+      return page(400, `This connection was not set up for ${publicUrl}. Add WedFlow to your AI app with exactly that address.`);
     }
 
     const nonce = randomToken(18);
@@ -442,12 +444,13 @@ export function createOAuthServer(opts: OAuthOptions) {
 async function readForm(req: Request): Promise<URLSearchParams | null> {
   const type = req.headers.get('content-type') ?? '';
   try {
-    if (type.includes('application/json')) {
-      const body = await req.json();
-      return new URLSearchParams(Object.entries(body ?? {}).map(([k, v]) => [k, String(v)]));
-    }
     const text = await req.text();
     if (text.length > 32_768) return null;
+    if (type.includes('application/json')) {
+      const body = JSON.parse(text);
+      if (!body || typeof body !== 'object' || Array.isArray(body)) return null;
+      return new URLSearchParams(Object.entries(body).map(([k, v]) => [k, String(v)]));
+    }
     return new URLSearchParams(text);
   } catch {
     return null;

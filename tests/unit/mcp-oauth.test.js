@@ -60,19 +60,26 @@ describe('seal / open', () => {
 describe('trusted redirects', () => {
   const cases = [
     ['https://claude.ai/api/mcp/auth_callback', true],
-    ['https://claude.com/x', true],
-    ['https://chatgpt.com/connector/oauth/abc', true],
-    ['https://chat.openai.com/aip/x/oauth/callback', true],
+    ['https://claude.com/api/mcp/auth_callback', true],
+    ['https://chatgpt.com/connector/oauth/KYKPyU0sXb-Q', true],
+    ['https://chatgpt.com/connector_platform_oauth_redirect', true],
     ['http://localhost:33418/callback', true],
     ['http://127.0.0.1:9999/cb', true],
     ['http://[::1]:9999/cb', true],
     ['cursor://anysphere.cursor-retrieval/oauth/callback', true],
     ['vscode://x/cb', true],
-    ['http://claude.ai/cb', false],
-    ['https://claude.ai.evil.example/cb', false],
+    // custom GPT callbacks: their token URL is chosen by the GPT's author
+    ['https://chatgpt.com/aip/g-123abc/oauth/callback', false],
+    ['https://chat.openai.com/aip/g-123abc/oauth/callback', false],
+    ['https://claude.ai/some/other/path', false],
+    ['https://chatgpt.com/connector/oauth/a/b', false],
+    ['https://claude.ai:8443/api/mcp/auth_callback', false],
+    ['https://user:pw@claude.ai/api/mcp/auth_callback', false],
+    ['http://claude.ai/api/mcp/auth_callback', false],
+    ['https://claude.ai.evil.example/api/mcp/auth_callback', false],
     ['https://evil.example/cb', false],
     ['javascript:alert(1)', false],
-    ['https://claude.ai/cb#frag', false],
+    ['https://claude.ai/api/mcp/auth_callback#frag', false],
     ['not a url', false],
   ];
 

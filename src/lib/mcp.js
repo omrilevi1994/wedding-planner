@@ -56,11 +56,17 @@ export function redirectDisplayHost(uri) {
 // Where an approval code may be sent. An OAuth access token for WedFlow is a full Supabase
 // user JWT: RLS makes it read-only for data, but it can still call Auth endpoints such as
 // "update password". With open dynamic client registration anyone can register a client,
-// so the consent page only lets codes go to known agent platforms and to loopback/native
+// so the consent page only lets codes go to known agent platforms' connector callbacks and to loopback/native
 // apps on the user's own machine (Claude Code, Cursor, …). That stops a phishing client
 // with its own redirect host from ever receiving a code. Extra hosts can be allowed with
 // VITE_MCP_TRUSTED_REDIRECT_HOSTS (comma-separated, https only).
-const TRUSTED_REDIRECT_HOSTS = ['claude.ai', 'claude.com', 'chatgpt.com', 'chat.openai.com'];
+// Connector callback paths are pinned (same rules as supabase/functions/mcp/trust.ts), so e.g.
+// a custom GPT's /aip/… callback on chatgpt.com doesn't count.
+const TRUSTED_REDIRECTS = {
+  'claude.ai': (p) => p === '/api/mcp/auth_callback',
+  'claude.com': (p) => p === '/api/mcp/auth_callback',
+  'chatgpt.com': (p) => /^\/connector\/oauth\/[A-Za-z0-9_-]+$/.test(p) || p === '/connector_platform_oauth_redirect',
+};
 const LOOPBACK_HOSTNAMES = ['localhost', '127.0.0.1', '[::1]'];
 const TRUSTED_APP_SCHEMES = ['cursor:', 'vscode:'];
 
@@ -109,13 +115,15 @@ export function isTrustedRedirect(uri, env = import.meta.env) {
   if (isMcpCallback(uri, env)) return true;
   let u;
   try { u = new URL(uri); } catch { return false; }
-  if (u.hash) return false;
+  if (u.hash || u.username || u.password) return false;
   if (TRUSTED_APP_SCHEMES.includes(u.protocol)) return true;
   if ((u.protocol === 'http:' || u.protocol === 'https:') && LOOPBACK_HOSTNAMES.includes(u.hostname)) return true;
-  if (u.protocol !== 'https:') return false;
+  if (u.protocol !== 'https:' || u.port) return false;
+  const host = u.hostname.toLowerCase();
+  if (TRUSTED_REDIRECTS[host]) return TRUSTED_REDIRECTS[host](u.pathname);
   const extra = String(env?.VITE_MCP_TRUSTED_REDIRECT_HOSTS || '')
     .split(',').map((h) => h.trim().toLowerCase()).filter(Boolean);
-  return [...TRUSTED_REDIRECT_HOSTS, ...extra].includes(u.hostname.toLowerCase());
+  return extra.includes(host);
 }
 
 /** Distinguishes "needs consent" details from the "already consented → redirect" response. */

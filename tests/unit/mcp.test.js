@@ -162,6 +162,8 @@ describe('isTrustedRedirect', () => {
     expect(isTrustedRedirect('https://evil.example/cb', {})).toBe(false);
     expect(isTrustedRedirect('https://claude.ai.evil.example/cb', {})).toBe(false);
     expect(isTrustedRedirect('https://evilclaude.ai/cb', {})).toBe(false);
+    expect(isTrustedRedirect('https://chatgpt.com/aip/g-123/oauth/callback', {})).toBe(false);
+    expect(isTrustedRedirect('https://claude.ai/anything-else', {})).toBe(false);
     expect(isTrustedRedirect('https://localhost.evil.example/cb', {})).toBe(false);
     expect(isTrustedRedirect('javascript:alert(1)', {})).toBe(false);
     expect(isTrustedRedirect('', {})).toBe(false);
