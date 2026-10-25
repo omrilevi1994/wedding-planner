@@ -11,6 +11,10 @@ import {
   isAuthorizationRedirect,
   classifyConsentError,
   isTrustedRedirect,
+  isMcpCallback,
+  readMcpAgentCookie,
+  deniedMcpCallbackUrl,
+  MCP_AGENT_COOKIE,
 } from '@/lib/mcp';
 
 // OAuth 2.1 consent screen for AI agents connecting to WedFlow's read-only MCP server
@@ -18,6 +22,16 @@ import {
 // starts the authorization-code flow. Public route (like /join-wedding): if the visitor
 // isn't signed in we render <Login/> in place so the query param survives, and Google
 // sign-in is told to return to this exact URL.
+//
+// Agents connect through WedFlow's MCP OAuth server, which is the single upstream client here:
+// the redirect is then `<MCP>/callback`, and the agent's own name/destination come from the
+// `wedflow_mcp_agent` cookie the MCP's /authorize set. Supabase auto-approves a returning
+// user's repeat consent for that client, but every agent is a new connection, so for MCP
+// flows we always ask before releasing the (already issued) code.
+
+function clearAgentCookie() {
+  document.cookie = `${MCP_AGENT_COOKIE}=; Path=/app/oauth; Max-Age=0; SameSite=Lax`;
+}
 
 const ERROR_MESSAGES = {
   missing: 'קישור האישור אינו תקין. חזרו לסוכן ה-AI ונסו להתחבר מחדש.',
@@ -39,6 +53,7 @@ export default function OAuthConsent() {
   const [details, setDetails] = useState(null);
   const [errorKind, setErrorKind] = useState(null);
   const [decision, setDecision] = useState(null); // 'approve' | 'deny'
+  const [agent] = useState(() => readMcpAgentCookie());
   const viewedRef = useRef(null);
 
   useEffect(() => {
@@ -49,6 +64,16 @@ export default function OAuthConsent() {
       try {
         const data = await wedflow.oauth.getAuthorizationDetails(authorizationId);
         if (cancelled) return;
+        if (isAuthorizationRedirect(data) && isMcpCallback(data.redirect_url)) {
+          // The code is already issued (repeat consent for the MCP) — still ask, see above.
+          setDetails({ preapprovedUrl: data.redirect_url, redirect_uri: data.redirect_url });
+          setStatus('consent');
+          if (viewedRef.current !== authorizationId) {
+            viewedRef.current = authorizationId;
+            track('mcp_consent_viewed', { client_name: agent?.name });
+          }
+          return;
+        }
         if (isAuthorizationRedirect(data)) {
           // Already consented to this client + scopes — Supabase hands back the code directly.
           // A client may register several redirect URIs, so re-check where this code goes.
@@ -65,7 +90,7 @@ export default function OAuthConsent() {
         setStatus('consent');
         if (viewedRef.current !== authorizationId) {
           viewedRef.current = authorizationId;
-          track('mcp_consent_viewed', { client_name: data?.client?.name });
+          track('mcp_consent_viewed', { client_name: isMcpCallback(data?.redirect_uri) ? agent?.name : data?.client?.name });
         }
       } catch (err) {
         if (cancelled) return;
@@ -80,12 +105,21 @@ export default function OAuthConsent() {
     if (status !== 'consent') return;
     if (action === 'approve' && !isTrustedRedirect(details?.redirect_uri)) return;
     setDecision(action);
+    const trackedName = isMcpCallback(details?.redirect_uri) ? agent?.name : details?.client?.name;
+    if (details?.preapprovedUrl) {
+      track(action === 'approve' ? 'mcp_consent_approved' : 'mcp_consent_denied', { client_name: trackedName });
+      clearAgentCookie();
+      setStatus('redirecting');
+      window.location.assign(action === 'approve' ? details.preapprovedUrl : deniedMcpCallbackUrl(details.preapprovedUrl));
+      return;
+    }
     setStatus('submitting');
     try {
       const data = action === 'approve'
         ? await wedflow.oauth.approve(authorizationId)
         : await wedflow.oauth.deny(authorizationId);
-      track(action === 'approve' ? 'mcp_consent_approved' : 'mcp_consent_denied', { client_name: details?.client?.name });
+      track(action === 'approve' ? 'mcp_consent_approved' : 'mcp_consent_denied', { client_name: trackedName });
+      clearAgentCookie();
       setStatus('redirecting');
       if (data?.redirect_url && isTrustedRedirect(data.redirect_url)) window.location.assign(data.redirect_url);
     } catch (err) {
@@ -123,8 +157,10 @@ export default function OAuthConsent() {
     return <Shell><p className="text-sm text-muted-foreground text-center">טוען את פרטי הבקשה…</p></Shell>;
   }
 
-  const clientName = details.client?.name || 'סוכן AI';
-  const host = redirectDisplayHost(details.redirect_uri);
+  const mcpFlow = isMcpCallback(details.redirect_uri);
+  const clientName = (mcpFlow ? agent?.name : details.client?.name) || 'סוכן AI';
+  // For MCP flows the code goes to the MCP, which forwards it to the agent's checked address.
+  const host = mcpFlow ? (agent?.host || '') : redirectDisplayHost(details.redirect_uri);
   const busy = status === 'submitting' || status === 'redirecting';
   const accountEmail = details.user?.email || user?.email;
   const trusted = isTrustedRedirect(details.redirect_uri);

@@ -47,7 +47,7 @@ export function decodeJwt(token) {
 /** Registers a public PKCE client with Supabase Auth via the admin API (dynamic registration is off). */
 export async function registerClient(name = 'vitest-agent') {
   const { data, error } = await admin.auth.admin.oauth.createClient({
-    name,
+    client_name: name,
     redirect_uris: [REDIRECT_URI],
     client_type: 'public',
     token_endpoint_auth_method: 'none',

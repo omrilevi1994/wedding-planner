@@ -19,7 +19,7 @@ export async function startMcp({ port = 8000 + Math.floor(Math.random() * 900) }
   const url = `http://127.0.0.1:${port}/mcp`;
   const tokenSecret = crypto.randomBytes(32).toString('base64url');
   const { data: upstream, error } = await admin.auth.admin.oauth.createClient({
-    name: 'WedFlow MCP (vitest)',
+    client_name: 'WedFlow MCP (vitest)',
     redirect_uris: [`${url}/callback`],
     client_type: 'confidential',
     token_endpoint_auth_method: 'client_secret_basic',

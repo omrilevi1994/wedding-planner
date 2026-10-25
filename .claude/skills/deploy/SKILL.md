@@ -46,23 +46,37 @@ supabase functions deploy
 `config.toml` sets `[functions.mcp] verify_jwt = false`, which the deploy picks
 up; the `mcp` function validates bearer tokens itself (see `docs/mcp.md`).
 
-### MCP server: one-time OAuth setup (cloud dashboard)
+### MCP server: one-time OAuth setup
 
-The MCP server's OAuth sign-in uses Supabase Auth's OAuth 2.1 server, which
-`supabase functions deploy` does not configure. Once per project, in the
-dashboard → Authentication → OAuth Server:
+The MCP is the OAuth server agents talk to; it signs users in through Supabase
+Auth's OAuth 2.1 server as one upstream client (see `docs/mcp.md`). Once per
+project:
 
-- Enable the OAuth server and **dynamic client registration**.
-- Authorization path: `/app/oauth/consent`.
-- Authentication → URL Configuration → Site URL must be the production app
-  origin (the consent page is served at `<Site URL>/app/oauth/consent`).
+1. Dashboard → Authentication → OAuth Server: enabled, **dynamic client
+   registration OFF**, authorization path `/app/oauth/consent`. URL
+   Configuration → Site URL = the production app origin.
+2. Register the upstream client and set the function secrets
+   (`MCP_UPSTREAM_CLIENT_ID`, `MCP_UPSTREAM_CLIENT_SECRET`, `MCP_PUBLIC_URL`,
+   `MCP_TOKEN_SECRET`) — the script prints no secret values:
 
-The MCP's public URL is `https://wedflow.live/mcp` (rewrites in `vercel.json`); set the
-function secret `MCP_PUBLIC_URL=https://wedflow.live/mcp` so its metadata advertises it.
+   ```bash
+   SUPABASE_SERVICE_ROLE_KEY=<service-role-key> node scripts/register-mcp-oauth-client.mjs \
+     --project-ref <ref> --public-url https://wedflow.live/mcp
+   ```
 
-Smoke test: `curl -i https://wedflow.live/mcp -X POST` must return `401` with
-`WWW-Authenticate: Bearer resource_metadata="https://wedflow.live/mcp/.well-known/oauth-protected-resource"`,
-and that URL must return `resource: https://wedflow.live/mcp`.
+   The `mcp` function refuses to start without these secrets, so do this
+   before deploying it. Re-running needs `--rotate`; add `--keep-token-secret`
+   unless you want every connected agent signed out.
+
+The MCP's public URL is `https://wedflow.live/mcp` (rewrites in `vercel.json`).
+
+Smoke tests:
+- `curl -i -X POST https://wedflow.live/mcp` → `401` with
+  `WWW-Authenticate: Bearer resource_metadata="https://wedflow.live/mcp/.well-known/oauth-protected-resource"`.
+- That URL → `authorization_servers: ["https://wedflow.live/mcp"]`.
+- `https://wedflow.live/.well-known/oauth-authorization-server/mcp` → `issuer: https://wedflow.live/mcp`
+  with `registration_endpoint`.
+- `POST https://wedflow.live/mcp/register` with an untrusted redirect URI → `400 invalid_redirect_uri`.
 
 ## 5. Set edge function secrets
 

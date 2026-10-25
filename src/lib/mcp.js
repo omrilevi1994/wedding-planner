@@ -64,8 +64,49 @@ const TRUSTED_REDIRECT_HOSTS = ['claude.ai', 'claude.com', 'chatgpt.com', 'chat.
 const LOOPBACK_HOSTNAMES = ['localhost', '127.0.0.1', '[::1]'];
 const TRUSTED_APP_SCHEMES = ['cursor:', 'vscode:'];
 
+/**
+ * True if an OAuth redirect goes to the MCP's own /callback (supabase/functions/mcp/oauth.ts):
+ * the MCP is the one upstream OAuth client agents connect through, and it forwards the code to
+ * the agent only after checking the agent's redirect itself.
+ */
+export function isMcpCallback(uri, env = import.meta.env) {
+  try {
+    const u = new URL(uri);
+    const cb = new URL(`${getMcpServerUrl(env)}/callback`);
+    return !u.hash && u.origin === cb.origin && u.pathname === cb.pathname;
+  } catch {
+    return false;
+  }
+}
+
+/** Agent display info ({ name, host }) the MCP's /authorize leaves in a cookie for this page. */
+export const MCP_AGENT_COOKIE = 'wedflow_mcp_agent';
+
+export function readMcpAgentCookie(cookieString = typeof document === 'undefined' ? '' : document.cookie) {
+  const raw = String(cookieString || '').split(';').map((c) => c.trim())
+    .find((c) => c.startsWith(`${MCP_AGENT_COOKIE}=`));
+  if (!raw) return null;
+  try {
+    const v = JSON.parse(decodeURIComponent(raw.slice(MCP_AGENT_COOKIE.length + 1)));
+    const name = typeof v?.name === 'string' ? v.name.slice(0, 100) : '';
+    const host = typeof v?.host === 'string' ? v.host.slice(0, 200) : '';
+    return name || host ? { name, host } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The MCP callback URL with the issued code swapped for error=access_denied (state kept). */
+export function deniedMcpCallbackUrl(redirectUrl) {
+  const u = new URL(redirectUrl);
+  u.searchParams.delete('code');
+  u.searchParams.set('error', 'access_denied');
+  return u.toString();
+}
+
 /** True if an OAuth redirect (URI or code-bearing redirect URL) goes somewhere WedFlow trusts. */
 export function isTrustedRedirect(uri, env = import.meta.env) {
+  if (isMcpCallback(uri, env)) return true;
   let u;
   try { u = new URL(uri); } catch { return false; }
   if (u.hash) return false;

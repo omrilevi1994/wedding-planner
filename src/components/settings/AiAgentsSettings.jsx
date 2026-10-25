@@ -5,15 +5,19 @@ import { wedflow } from '@/api/wedflowClient';
 import { track } from '@/lib/track';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { getMcpServerUrl, claudeCodeCommand, normalizeScopes } from '@/lib/mcp';
+import { getMcpServerUrl, claudeCodeCommand } from '@/lib/mcp';
 
 // Settings → AI agents: where to point an MCP client (Claude, ChatGPT, Cursor…) at WedFlow's
-// read-only MCP server, and the list of agents the user has approved (OAuth grants), each of
-// which can be disconnected. Grants are per user, not per wedding — so this section is shown
+// read-only MCP server, and the agents the user has connected, each of which can be
+// disconnected. Connections are per user, not per wedding — so this section is shown
 // regardless of the active wedding. See docs/mcp.md.
+//
+// Agents connect through the MCP's own OAuth server: one mcp_connections row per approved
+// agent, disconnected with revoke_mcp_connection (which also ends that agent's Supabase
+// session). Supabase Auth's own grant list isn't shown — it only holds the MCP's single
+// upstream client, and revoking that would disconnect every agent at once.
 
-const GRANTS_KEY = ['oauth-grants'];
+const CONNECTIONS_KEY = ['mcp-connections'];
 
 function CopyField({ value, label }) {
   const [copied, setCopied] = useState(false);
@@ -48,24 +52,23 @@ function formatDate(iso) {
 
 function ConnectedAgents() {
   const queryClient = useQueryClient();
-  const { data: grants = [], isLoading, isError } = useQuery({
-    queryKey: GRANTS_KEY,
-    queryFn: () => wedflow.oauth.listGrants(),
+  const { data: agents = [], isLoading, isError } = useQuery({
+    queryKey: CONNECTIONS_KEY,
+    queryFn: () => wedflow.oauth.listConnections(),
   });
 
   const revoke = useMutation({
-    mutationFn: (clientId) => wedflow.oauth.revokeGrant(clientId),
-    onSuccess: (_data, clientId) => {
-      const grant = grants.find((g) => g.client?.id === clientId);
-      track('mcp_agent_disconnected', { client_name: grant?.client?.name });
-      queryClient.setQueryData(GRANTS_KEY, (old = []) => old.filter((g) => g.client?.id !== clientId));
-      queryClient.invalidateQueries({ queryKey: GRANTS_KEY });
+    mutationFn: (agent) => wedflow.oauth.revokeConnection(agent.id),
+    onSuccess: (_data, agent) => {
+      track('mcp_agent_disconnected', { client_name: agent.client_name });
+      queryClient.setQueryData(CONNECTIONS_KEY, (old = []) => old.filter((a) => a.id !== agent.id));
+      queryClient.invalidateQueries({ queryKey: CONNECTIONS_KEY });
     },
   });
 
   if (isLoading) return <p className="text-sm text-muted-foreground">טוען…</p>;
   if (isError) return <p className="text-sm text-destructive">לא ניתן לטעון את רשימת הסוכנים המחוברים. נסו לרענן את העמוד.</p>;
-  if (grants.length === 0) {
+  if (agents.length === 0) {
     return (
       <p className="text-sm text-muted-foreground rounded-lg border border-dashed border-border px-4 py-3 text-center">
         עדיין לא חיברתם סוכני AI.
@@ -75,20 +78,20 @@ function ConnectedAgents() {
 
   return (
     <ul className="divide-y divide-border rounded-lg border border-border" data-testid="connected-agents">
-      {grants.map((g) => {
-        const scopes = normalizeScopes(g.scopes);
-        const pending = revoke.isPending && revoke.variables === g.client?.id;
+      {agents.map((a) => {
+        const pending = revoke.isPending && revoke.variables?.id === a.id;
         return (
-          <li key={g.client?.id} className="flex items-center justify-between gap-3 px-4 py-3">
+          <li key={a.id} className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="min-w-0 space-y-1">
-              <p className="font-medium text-foreground break-words"><bdi>{g.client?.name || 'סוכן ללא שם'}</bdi></p>
-              <p className="text-xs text-muted-foreground">חובר ב-{formatDate(g.granted_at)}</p>
-              {scopes.length > 0 && (
-                <div className="flex flex-wrap gap-1" dir="ltr">
-                  {scopes.map((s) => (
-                    <Badge key={s} variant="outline" className="text-[10px] font-mono font-normal">{s}</Badge>
-                  ))}
-                </div>
+              <p className="font-medium text-foreground break-words"><bdi>{a.client_name || 'סוכן ללא שם'}</bdi></p>
+              <p className="text-xs text-muted-foreground">
+                חובר ב-{formatDate(a.created_at)}
+                {a.last_used_at && <> · בשימוש לאחרונה ב-{formatDate(a.last_used_at)}</>}
+              </p>
+              {a.redirect_host && (
+                <p className="text-xs text-muted-foreground">
+                  יעד: <span dir="ltr" className="font-mono">{a.redirect_host}</span>
+                </p>
               )}
             </div>
             <Button
@@ -96,7 +99,7 @@ function ConnectedAgents() {
               variant="outline"
               size="sm"
               disabled={pending}
-              onClick={() => revoke.mutate(g.client.id)}
+              onClick={() => revoke.mutate(a)}
               className="shrink-0 text-destructive hover:text-destructive"
             >
               <Unplug className="w-4 h-4 ml-1" />

@@ -231,7 +231,7 @@ const weddingInviteLinks = {
 };
 
 // Supabase Auth's OAuth 2.1 server, used by MCP agents (docs/mcp.md): the consent page
-// (/app/oauth/consent) and Settings → AI agents. Errors are thrown (AuthApiError keeps its
+// (/app/oauth/consent) and Settings → AI agents (mcp_connections, migration 0027). Errors are thrown (AuthApiError keeps its
 // status/code). approve/deny never auto-navigate here — the caller decides when to redirect.
 const oauth = {
   async getAuthorizationDetails(authorizationId) {
@@ -249,13 +249,18 @@ const oauth = {
     if (error) throw error;
     return data;
   },
-  async listGrants() {
-    const { data, error } = await supabase.auth.oauth.listGrants();
+  // Agents connected through the MCP's own OAuth server (migration 0027): one row per agent.
+  async listConnections() {
+    const { data, error } = await supabase.from('mcp_connections')
+      .select('id, client_name, redirect_host, created_at, last_used_at')
+      .is('revoked_at', null)
+      .not('code_used_at', 'is', null) // approved but never completed by the agent ≠ connected
+      .order('created_at', { ascending: false });
     if (error) throw error;
     return data || [];
   },
-  async revokeGrant(clientId) {
-    const { error } = await supabase.auth.oauth.revokeGrant({ clientId });
+  async revokeConnection(connectionId) {
+    const { error } = await supabase.rpc('revoke_mcp_connection', { connection_id: connectionId });
     if (error) throw error;
   },
 };

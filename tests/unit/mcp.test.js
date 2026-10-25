@@ -8,6 +8,9 @@ import {
   classifyConsentError,
   normalizeScopes,
   isTrustedRedirect,
+  isMcpCallback,
+  readMcpAgentCookie,
+  deniedMcpCallbackUrl,
 } from '@/lib/mcp';
 
 describe('getMcpServerUrl', () => {
@@ -170,5 +173,41 @@ describe('isTrustedRedirect', () => {
     expect(isTrustedRedirect('https://agents.example.com/cb', env)).toBe(true);
     expect(isTrustedRedirect('https://other.example/cb', env)).toBe(true);
     expect(isTrustedRedirect('http://agents.example.com/cb', env)).toBe(false);
+  });
+});
+
+describe('MCP OAuth callback (agents connect through the MCP)', () => {
+  const prod = { PROD: true };
+  const local = { VITE_SUPABASE_URL: 'http://127.0.0.1:54321' };
+
+  it('recognises the MCP /callback as trusted', () => {
+    expect(isMcpCallback('https://wedflow.live/mcp/callback?code=abc&state=s', prod)).toBe(true);
+    expect(isTrustedRedirect('https://wedflow.live/mcp/callback?code=abc', prod)).toBe(true);
+    expect(isMcpCallback('http://127.0.0.1:54321/functions/v1/mcp/callback', local)).toBe(true);
+  });
+
+  it('does not trust look-alikes', () => {
+    expect(isMcpCallback('https://wedflow.live/mcp/callbackx', prod)).toBe(false);
+    expect(isMcpCallback('https://wedflow.live/other/callback', prod)).toBe(false);
+    expect(isMcpCallback('https://evil.example/mcp/callback', prod)).toBe(false);
+    expect(isMcpCallback('http://wedflow.live/mcp/callback', prod)).toBe(false);
+    expect(isMcpCallback('https://wedflow.live/mcp/callback#x', prod)).toBe(false);
+    expect(isTrustedRedirect('https://wedflow.live/mcp/callbackx', prod)).toBe(false);
+  });
+
+  it('reads the agent cookie defensively', () => {
+    const v = encodeURIComponent(JSON.stringify({ name: 'Claude', host: 'claude.ai' }));
+    expect(readMcpAgentCookie(`a=1; wedflow_mcp_agent=${v}; b=2`)).toEqual({ name: 'Claude', host: 'claude.ai' });
+    expect(readMcpAgentCookie('a=1')).toBeNull();
+    expect(readMcpAgentCookie('wedflow_mcp_agent=%7Bbroken')).toBeNull();
+    expect(readMcpAgentCookie(`wedflow_mcp_agent=${encodeURIComponent('{"name":5}')}`)).toBeNull();
+    expect(readMcpAgentCookie('')).toBeNull();
+  });
+
+  it('turns a pre-issued code into a denial, keeping state', () => {
+    const out = new URL(deniedMcpCallbackUrl('https://wedflow.live/mcp/callback?code=abc&state=xyz'));
+    expect(out.searchParams.get('code')).toBeNull();
+    expect(out.searchParams.get('error')).toBe('access_denied');
+    expect(out.searchParams.get('state')).toBe('xyz');
   });
 });
