@@ -8,7 +8,10 @@ import path from 'node:path';
 const ENTRY = path.resolve(__dirname, '../../supabase/functions/mcp/index.ts');
 
 export async function startMcp({ port = 8000 + Math.floor(Math.random() * 900) } = {}) {
-  const child = spawn('deno', ['run', '--allow-net', '--allow-env', ENTRY], {
+  // --node-modules-dir=none: don't let Deno resolve npm deps from the frontend's
+  // package.json/node_modules; --no-lock: don't write a deno.lock into the repo.
+  const args = ['run', '--node-modules-dir=none', '--no-lock', '--allow-net', '--allow-env', ENTRY];
+  const child = spawn('deno', args, {
     env: {
       ...process.env,
       PORT: String(port),
